@@ -57,10 +57,24 @@ test('validateData checks history content and cross-checks pipeline history meta
 test('data freshness comes from indicator source timestamps, not the pipeline run time', () => {
   const data = baseData();
   data.updatedAt = '2026-10-16T23:59:00Z';
-  data.indicators[0].lastUpdated = '2026-10-15';
-  data.indicators[1].lastUpdated = '1792108800';
-  assert.equal(integrity.latestIndicatorTimestamp(data.indicators), '2026-10-16T00:00:00.000Z');
+  data.indicators[0] = { ...data.indicators[0], rawValue: 12, lastUpdated: '2026-10-15' };
+  data.indicators[1] = { ...data.indicators[1], rawValue: 13, lastUpdated: '1792108800' };
+  assert.equal(integrity.latestIndicatorTimestamp(data.indicators), '1792108800');
   assert.equal(integrity.latestIndicatorTimestamp(data.indicators.slice(2)), null);
+});
+
+test('freshness summaries preserve date-only observations and genuine timestamps', () => {
+  const formatter = (value) => `formatted:${value}`;
+  assert.equal(integrity.latestIndicatorTimestamp([
+    { rawValue: 1, lastUpdated: '2026-10-15' },
+    { rawValue: 2, lastUpdated: '2026-10-14T18:30:00Z' },
+    { rawValue: null, lastUpdated: '2026-10-16' }
+  ]), '2026-10-15');
+  assert.equal(integrity.formatObservationTimestamp('2026-10-15', formatter), '2026-10-15 (UTC source date)');
+  assert.equal(integrity.latestIndicatorTimestamp([
+    { rawValue: 3, sourceTimestamp: '2026-10-15T18:30:00Z', lastUpdated: '2026-10-15' }
+  ]), '2026-10-15T18:30:00Z');
+  assert.equal(integrity.formatObservationTimestamp('2026-10-15T18:30:00Z', formatter), 'formatted:2026-10-15T18:30:00Z');
 });
 
 test('data schema rejects unknown, duplicate, missing indicators and invalid composite', () => {
@@ -132,6 +146,7 @@ test('dashboard hides missing marker, displays provenance, avoids CoinGecko, and
   assert.match(html, /item\.sourceTimestamp/);
   assert.match(html, /item\.verificationDetails/);
   assert.match(html, /item\.sourceComparison/);
+  assert.match(html, /quote\.lastUpdated[^\n]*SDCAIntegrity\.formatObservationTimestamp/);
   assert.match(html, /Published source cross-check/);
   assert.match(html, /Required backlink/);
   assert.match(html, /formatObservationTimestamp/);
@@ -155,4 +170,8 @@ test('checked-in data indicator names match the dashboard and pass schema valida
   assert.deepEqual(data.indicators.map((item) => item.name), expected);
   integrity.validateData(data, expected);
   integrity.validateHistory(data.history);
+  const dho = data.indicators.find((item) => item.name === 'BTC Damped Harmonic Oscillator');
+  assert.equal(dho.rawValue, null);
+  assert.equal(dho.verificationStatus, 'unavailable');
+  assert.match(dho.verificationDetails, /multiple reliable date-specific reference values/);
 });

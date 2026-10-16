@@ -609,11 +609,6 @@
       return links.length ? links.join(" · ") : "Source unavailable";
     }
 
-    function formatObservationTimestamp(value) {
-      if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) return `${value} (UTC source date)`;
-      return formatTimestamp(value);
-    }
-
     function escapeHTML(value) {
       return String(value).replace(/[&<>"']/g, (char) => ({
         "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
@@ -767,7 +762,7 @@
       }
       $("btc-price").textContent = `${new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(quote.usdt)} USDT`;
       $("btc-change").textContent = "Completed Binance daily close; not an actual USD quote";
-      $("btc-updated").textContent = quote.lastUpdated ? `Close date ${escapeHTML(formatTimestamp(quote.lastUpdated))}` : "Close date unavailable";
+      $("btc-updated").textContent = quote.lastUpdated ? `Close date ${escapeHTML(SDCAIntegrity.formatObservationTimestamp(quote.lastUpdated, formatTimestamp))}` : "Close date unavailable";
     }
 
     function showDataError(kind, message) {
@@ -833,7 +828,7 @@
         $("pipeline-updated").textContent = formatTimestamp(data.updatedAt);
         const latestReading = SDCAIntegrity.latestIndicatorTimestamp(merged);
         $("data-freshness").textContent = latestReading
-          ? formatTimestamp(latestReading)
+          ? SDCAIntegrity.formatObservationTimestamp(latestReading, formatTimestamp)
           : "No indicator timestamp available";
         const visibleFailures = (failures || []).map((failure) =>
           `<div><strong>${escapeHTML(failure.feed)}</strong> (${escapeHTML(failure.type)}): ${escapeHTML(failure.message)}</div>`

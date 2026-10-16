@@ -74,11 +74,24 @@
 
   function latestIndicatorTimestamp(indicators) {
     const timestamps = indicators
-      .map((item) => item.lastUpdated)
+      .filter((item) => typeof item.rawValue === "number" && Number.isFinite(item.rawValue))
+      .map((item) => item.sourceTimestamp || item.lastUpdated)
       .filter((value) => typeof value === "string")
-      .map((value) => /^\d{10}$/.test(value) ? Number(value) * 1000 : Date.parse(value))
-      .filter(Number.isFinite);
-    return timestamps.length ? new Date(Math.max(...timestamps)).toISOString() : null;
+      .map((value) => ({
+        value,
+        epoch: /^\d{10}$/.test(value) ? Number(value) * 1000 : Date.parse(value)
+      }))
+      .filter((item) => Number.isFinite(item.epoch));
+    return timestamps.length
+      ? timestamps.reduce((latest, item) => item.epoch > latest.epoch ? item : latest).value
+      : null;
+  }
+
+  function formatObservationTimestamp(value, formatTimestamp) {
+    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return `${value} (UTC source date)`;
+    }
+    return formatTimestamp(value);
   }
 
   function validateData(data, expectedNames) {
@@ -181,7 +194,7 @@
     return data;
   }
 
-  const api = { validateScore, compositeMarkerPercent, validateHistory, validateHistoryState, validateTimestamp, latestIndicatorTimestamp, validateData };
+  const api = { validateScore, compositeMarkerPercent, validateHistory, validateHistoryState, validateTimestamp, latestIndicatorTimestamp, formatObservationTimestamp, validateData };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   root.SDCAIntegrity = api;
 })(typeof window !== "undefined" ? window : globalThis);

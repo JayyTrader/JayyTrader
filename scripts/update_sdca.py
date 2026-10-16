@@ -29,9 +29,6 @@ DURDEN_DHO_PAGE = "https://durdenbtc.com/charts/btc-damped-harmonic-oscillator"
 DURDEN_PI_PAGE = "https://durdenbtc.com/charts/btc-pi-cycle-top"
 MAX_SOURCE_AGE_DAYS = 2
 DURDEN_FIRST_CSV_DATE = date(2010, 7, 13)
-DURDEN_DHO_REFERENCE_DATE = "2026-02-26"
-DURDEN_DHO_PUBLISHED_VALUE = -100.0
-DURDEN_DHO_REFERENCE_SOURCE = "https://durdenbtc.com/research/issue-42-every-metric-says-buy-my-system"
 DURDEN_PI_REFERENCE_DATE = "2026-10-09"
 DURDEN_PI_PUBLISHED_VALUE = 0.460
 
@@ -311,23 +308,6 @@ def compare_published_display(calculated, published, decimals, feed_name):
     }
 
 
-def verify_durden_dho_reference(dates, closes):
-    try:
-        index = dates.index(DURDEN_DHO_REFERENCE_DATE)
-    except ValueError as exc:
-        raise ValueError("DurdenBTC DHO reference observation is missing from its CSV") from exc
-    calculated = damped_harmonic_oscillator(dates[:index + 1], closes[:index + 1])
-    comparison = compare_published_display(
-        calculated, DURDEN_DHO_PUBLISHED_VALUE, 0, "DurdenBTC DHO"
-    )
-    comparison.update({
-        "comparisonDate": DURDEN_DHO_REFERENCE_DATE,
-        "sourcePublishedDate": "2026-02-27",
-        "source": DURDEN_DHO_REFERENCE_SOURCE,
-    })
-    return comparison
-
-
 def verify_durden_pi_reference(dates, closes):
     try:
         index = dates.index(DURDEN_PI_REFERENCE_DATE)
@@ -582,29 +562,22 @@ def main():
             mark_feed_error(by_name[indicator_name], exc, feed_name)
     else:
         source_date = durden_dates[-1]
-        try:
-            oscillator = damped_harmonic_oscillator(durden_dates, durden_closes)
-            source_comparison = verify_durden_dho_reference(durden_dates, durden_closes)
-            by_name["BTC Damped Harmonic Oscillator"].update({
-                "rawValue": round(oscillator, 6),
-                "status": "raw_available_score_pending",
-                "verificationStatus": "verified_calculation",
-                "source": DURDEN_DAILY_CSV_URL,
-                "sourceName": "DurdenBTC daily BTC close CSV",
-                "referenceSource": DURDEN_DHO_PAGE,
-                "timeframe": "daily",
-                "quoteCurrency": "USD",
-                "quoteCurrencyDetails": "DurdenBTC chart labels prices in USD; the CSV header itself does not declare a quote-currency column.",
-                "sourceTimestamp": source_date,
-                "lastUpdated": source_date,
-                "sourceComparison": source_comparison,
-                "calculation": "DurdenBTC published model: OLS fit log10(close) = a + b·log10(days since 2009-01-03); fit residuals to A·exp(−γt/2)·cos(ωd·t + φ), γ=8.5e−5, searching 400 ω values from 0.0033 to 0.0054; oscillator = clip((log10(close)−fair)/max(envelope,σ)×100, −100, +100).",
-                "verificationDetails": f"Reproduced DurdenBTC's published chart JavaScript from its daily CSV and matched the −100 reading reported in the 2026-02-27 article using CSV observations through {source_comparison['comparisonDate']}.",
-                "note": "DurdenBTC daily oscillator reproduced from its public CSV. No SDCA score is assigned."
-            })
-        except Exception as exc:
-            failures.append(failure_record("DurdenBTC Damped Harmonic Oscillator", exc))
-            mark_feed_error(by_name["BTC Damped Harmonic Oscillator"], exc, "DurdenBTC Damped Harmonic Oscillator")
+        by_name["BTC Damped Harmonic Oscillator"].update({
+            "rawValue": None,
+            "status": "unverified",
+            "verificationStatus": "unavailable",
+            "source": DURDEN_DAILY_CSV_URL,
+            "sourceName": "DurdenBTC daily BTC close CSV",
+            "referenceSource": DURDEN_DHO_PAGE,
+            "timeframe": "daily",
+            "quoteCurrency": "USD",
+            "quoteCurrencyDetails": "DurdenBTC chart labels prices in USD; the CSV header itself does not declare a quote-currency column.",
+            "sourceTimestamp": source_date,
+            "lastUpdated": source_date,
+            "calculation": "DurdenBTC published model: OLS fit log10(close) = a + b·log10(days since 2009-01-03); fit residuals to A·exp(−γt/2)·cos(ωd·t + φ), γ=8.5e−5, searching 400 ω values from 0.0033 to 0.0054; oscillator = clip((log10(close)−fair)/max(envelope,σ)×100, −100, +100).",
+            "verificationDetails": "Reading withheld: only one ambiguous historical comparison was located, and multiple reliable date-specific reference values are unavailable. The CSV alone cannot independently verify the published oscillator output.",
+            "note": "DHO is unavailable pending multiple independently supportable historical reference values. No SDCA score is assigned."
+        })
 
         try:
             ratio = pi_cycle_ratio(durden_closes)

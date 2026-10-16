@@ -133,11 +133,31 @@ class DurdenCsvValidationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "350 daily closes"):
             sdca.pi_cycle_ratio(closes[:349])
 
+    def test_durden_pi_historical_verification_uses_source_closes_for_2026_10_09(self):
+        # Pinned 350-row source slice from DurdenBTC's published daily CSV.
+        fixture = Path(__file__).parent / "fixtures" / "durden-pi-2026-10-09.csv"
+        with fixture.open(newline="", encoding="utf-8") as source:
+            rows = list(csv.DictReader(source))
+        dates = [row["Date"] for row in rows]
+        closes = [float(row["Close"]) for row in rows]
+
+        self.assertEqual(len(dates), 350)
+        self.assertEqual(dates[0], "2025-10-25")
+        self.assertEqual(dates[-1], "2026-10-09")
+        self.assertTrue(all(
+            (date.fromisoformat(later) - date.fromisoformat(earlier)).days == 1
+            for earlier, later in zip(dates, dates[1:])
+        ))
+        comparison = sdca.verify_durden_pi_reference(dates, closes)
+        self.assertTrue(comparison["matchedAtPublishedPrecision"])
+        self.assertEqual(comparison["comparisonDate"], "2026-10-09")
+        self.assertEqual(comparison["source"], sdca.DURDEN_PI_PAGE)
+        self.assertAlmostEqual(comparison["calculatedValue"], 0.4598941916758626, places=14)
+        self.assertEqual(f"{comparison['calculatedValue']:.3f}", "0.460")
+
     def test_source_comparison_uses_the_published_display_precision(self):
         pi = sdca.compare_published_display(0.459894191676, 0.460, 3, "Pi Cycle")
-        dho = sdca.compare_published_display(-100.0, -100.0, 0, "DHO")
         self.assertTrue(pi["matchedAtPublishedPrecision"])
-        self.assertTrue(dho["matchedAtPublishedPrecision"])
         with self.assertRaisesRegex(ValueError, "does not match"):
             sdca.compare_published_display(0.455, 0.460, 3, "Pi Cycle")
 

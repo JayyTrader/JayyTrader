@@ -10,9 +10,9 @@
   },
   "dataIntegrity": {
     "indicatorCount": 15,
-    "rawReadingsAvailable": 4,
+    "rawReadingsAvailable": 3,
     "verifiedScores": 0,
-    "missingRawReadings": 11,
+    "missingRawReadings": 12,
     "unverifiedScores": 15,
     "compositeCalculated": false,
     "message": "Raw readings only. SDCA scoring and composite calculation are not implemented."
@@ -99,29 +99,20 @@
       "name": "BTC Damped Harmonic Oscillator",
       "category": "Technical",
       "score": null,
-      "rawValue": -99.459883,
-      "status": "raw_available_score_pending",
+      "rawValue": null,
+      "status": "unverified",
       "source": "https://cdn.durdenbtc.com/btc-full-price-data/BTC_daily.csv",
       "lastUpdated": "2026-10-15",
-      "note": "DurdenBTC daily oscillator reproduced from its public CSV. No SDCA score is assigned.",
-      "verificationStatus": "verified_calculation",
+      "note": "DHO is unavailable pending multiple independently supportable historical reference values. No SDCA score is assigned.",
+      "verificationStatus": "unavailable",
       "sourceName": "DurdenBTC daily BTC close CSV",
       "referenceSource": "https://durdenbtc.com/charts/btc-damped-harmonic-oscillator",
       "timeframe": "daily",
       "quoteCurrency": "USD",
       "quoteCurrencyDetails": "DurdenBTC chart labels prices in USD; the CSV header itself does not declare a quote-currency column.",
       "sourceTimestamp": "2026-10-15",
-      "sourceComparison": {
-        "calculatedValue": -100.0,
-        "publishedValue": -100.0,
-        "displayPrecision": 0,
-        "matchedAtPublishedPrecision": true,
-        "comparisonDate": "2026-02-26",
-        "sourcePublishedDate": "2026-02-27",
-        "source": "https://durdenbtc.com/research/issue-42-every-metric-says-buy-my-system"
-      },
       "calculation": "DurdenBTC published model: OLS fit log10(close) = a + b·log10(days since 2009-01-03); fit residuals to A·exp(−γt/2)·cos(ωd·t + φ), γ=8.5e−5, searching 400 ω values from 0.0033 to 0.0054; oscillator = clip((log10(close)−fair)/max(envelope,σ)×100, −100, +100).",
-      "verificationDetails": "Reproduced DurdenBTC's published chart JavaScript from its daily CSV and matched the −100 reading reported in the 2026-02-27 article using CSV observations through 2026-02-26."
+      "verificationDetails": "Reading withheld: only one ambiguous historical comparison was located, and multiple reliable date-specific reference values are unavailable. The CSV alone cannot independently verify the published oscillator output."
     },
     {
       "name": "Bitcoin RSI",

@@ -150,7 +150,7 @@ class HistoryAndFailureTests(unittest.TestCase):
             data_dir.mkdir()
             output_path = data_dir / "sdca-latest.json"
             output_path.write_text(json.dumps({"history": history}), encoding="utf-8")
-            with patch.object(sdca, "ROOT", root), patch.object(sdca, "DATA_DIR", data_dir), patch.object(sdca, "OUTPUT", output_path), patch.object(sdca, "get_daily_closes", return_value=daily_close_fixture()), patch.object(sdca, "get_json", side_effect=json_for_url), patch.object(sdca, "get_text", return_value="source csv"), patch.object(sdca, "parse_durden_daily_csv", return_value=daily_close_fixture()), patch.object(sdca, "damped_harmonic_oscillator", return_value=-12.5), patch.object(sdca, "pi_cycle_ratio", return_value=0.47), patch.object(sdca, "verify_durden_dho_reference", return_value={"matchedAtPublishedPrecision": True, "publishedValue": -100, "comparisonDate": "2026-02-26"}), patch.object(sdca, "verify_durden_pi_reference", return_value={"matchedAtPublishedPrecision": True, "publishedValue": 0.460, "comparisonDate": "2026-10-09"}), patch.dict(os.environ, {}, clear=True):
+            with patch.object(sdca, "ROOT", root), patch.object(sdca, "DATA_DIR", data_dir), patch.object(sdca, "OUTPUT", output_path), patch.object(sdca, "get_daily_closes", return_value=daily_close_fixture()), patch.object(sdca, "get_json", side_effect=json_for_url), patch.object(sdca, "get_text", return_value="source csv"), patch.object(sdca, "parse_durden_daily_csv", return_value=daily_close_fixture()), patch.object(sdca, "damped_harmonic_oscillator", return_value=-12.5), patch.object(sdca, "pi_cycle_ratio", return_value=0.47), patch.object(sdca, "verify_durden_pi_reference", return_value={"matchedAtPublishedPrecision": True, "publishedValue": 0.460, "comparisonDate": "2026-10-09"}), patch.dict(os.environ, {}, clear=True):
                 sdca.main()
             result = json.loads(output_path.read_text(encoding="utf-8"))
             self.assertEqual(result["history"], history)
@@ -159,7 +159,10 @@ class HistoryAndFailureTests(unittest.TestCase):
             self.assertEqual(result["indicators"][8]["sourceField"], "rsi_weekly")
             self.assertEqual(result["indicators"][8]["sourceTimestamp"], result["indicators"][8]["lastUpdated"])
             self.assertEqual(result["indicators"][8]["source"], sdca.COINSENTRY_RSI_URL)
-            self.assertEqual(result["indicators"][7]["rawValue"], -12.5)
+            self.assertIsNone(result["indicators"][7]["rawValue"])
+            self.assertEqual(result["indicators"][7]["status"], "unverified")
+            self.assertEqual(result["indicators"][7]["verificationStatus"], "unavailable")
+            self.assertIn("multiple reliable date-specific reference values", result["indicators"][7]["verificationDetails"])
             self.assertEqual(result["indicators"][7]["source"], sdca.DURDEN_DAILY_CSV_URL)
             self.assertEqual(result["indicators"][9]["status"], "raw_available_score_pending")
             self.assertEqual(result["indicators"][13]["status"], "feed_error")
@@ -167,7 +170,7 @@ class HistoryAndFailureTests(unittest.TestCase):
             self.assertEqual(result["bitcoinPriceUSDT"]["quoteCurrency"], "USDT")
             self.assertEqual(result["bitcoinPriceUSDT"]["status"], "available")
             self.assertEqual(result["dataIntegrity"]["verifiedScores"], 0)
-            self.assertEqual(result["dataIntegrity"]["missingRawReadings"], 12)
+            self.assertEqual(result["dataIntegrity"]["missingRawReadings"], 13)
             self.assertEqual(result["dataIntegrity"]["unverifiedScores"], 15)
 
     def test_coinsentry_endpoint_failure_keeps_durden_and_sentiment_readings(self):
@@ -182,12 +185,13 @@ class HistoryAndFailureTests(unittest.TestCase):
             data_dir.mkdir()
             output_path = data_dir / "sdca-latest.json"
             output_path.write_text(json.dumps({"history": []}), encoding="utf-8")
-            with patch.object(sdca, "ROOT", root), patch.object(sdca, "DATA_DIR", data_dir), patch.object(sdca, "OUTPUT", output_path), patch.object(sdca, "get_daily_closes", return_value=daily_close_fixture()), patch.object(sdca, "get_json", side_effect=json_for_url), patch.object(sdca, "get_text", return_value="source csv"), patch.object(sdca, "parse_durden_daily_csv", return_value=daily_close_fixture()), patch.object(sdca, "damped_harmonic_oscillator", return_value=-12.5), patch.object(sdca, "pi_cycle_ratio", return_value=0.47), patch.object(sdca, "verify_durden_dho_reference", return_value={"matchedAtPublishedPrecision": True, "publishedValue": -100, "comparisonDate": "2026-02-26"}), patch.object(sdca, "verify_durden_pi_reference", return_value={"matchedAtPublishedPrecision": True, "publishedValue": 0.460, "comparisonDate": "2026-10-09"}), patch.dict(os.environ, {}, clear=True):
+            with patch.object(sdca, "ROOT", root), patch.object(sdca, "DATA_DIR", data_dir), patch.object(sdca, "OUTPUT", output_path), patch.object(sdca, "get_daily_closes", return_value=daily_close_fixture()), patch.object(sdca, "get_json", side_effect=json_for_url), patch.object(sdca, "get_text", return_value="source csv"), patch.object(sdca, "parse_durden_daily_csv", return_value=daily_close_fixture()), patch.object(sdca, "damped_harmonic_oscillator", return_value=-12.5), patch.object(sdca, "pi_cycle_ratio", return_value=0.47), patch.object(sdca, "verify_durden_pi_reference", return_value={"matchedAtPublishedPrecision": True, "publishedValue": 0.460, "comparisonDate": "2026-10-09"}), patch.dict(os.environ, {}, clear=True):
                 sdca.main()
             result = json.loads(output_path.read_text(encoding="utf-8"))
             self.assertEqual(result["indicators"][8]["status"], "feed_error")
             self.assertIsNone(result["indicators"][8]["rawValue"])
-            self.assertEqual(result["indicators"][7]["rawValue"], -12.5)
+            self.assertIsNone(result["indicators"][7]["rawValue"])
+            self.assertEqual(result["indicators"][7]["verificationStatus"], "unavailable")
             self.assertEqual(result["indicators"][9]["rawValue"], 0.47)
             self.assertEqual(result["indicators"][13]["rawValue"], 50.0)
             self.assertEqual([item["feed"] for item in result["feedFailures"]], ["CoinSentry weekly RSI"])
@@ -229,7 +233,7 @@ class HistoryAndFailureTests(unittest.TestCase):
             data_dir.mkdir()
             output_path = data_dir / "sdca-latest.json"
             output_path.write_text(json.dumps({"history": history}), encoding="utf-8")
-            with patch.object(sdca, "ROOT", root), patch.object(sdca, "DATA_DIR", data_dir), patch.object(sdca, "OUTPUT", output_path), patch.object(sdca, "get_daily_closes", return_value=daily_close_fixture()), patch.object(sdca, "get_json", side_effect=json_for_url), patch.object(sdca, "get_text", return_value="source csv"), patch.object(sdca, "parse_durden_daily_csv", return_value=daily_close_fixture()), patch.object(sdca, "damped_harmonic_oscillator", return_value=-12.5), patch.object(sdca, "pi_cycle_ratio", return_value=0.47), patch.object(sdca, "verify_durden_dho_reference", return_value={"matchedAtPublishedPrecision": True, "publishedValue": -100, "comparisonDate": "2026-02-26"}), patch.object(sdca, "verify_durden_pi_reference", return_value={"matchedAtPublishedPrecision": True, "publishedValue": 0.460, "comparisonDate": "2026-10-09"}), patch.dict(os.environ, {}, clear=True):
+            with patch.object(sdca, "ROOT", root), patch.object(sdca, "DATA_DIR", data_dir), patch.object(sdca, "OUTPUT", output_path), patch.object(sdca, "get_daily_closes", return_value=daily_close_fixture()), patch.object(sdca, "get_json", side_effect=json_for_url), patch.object(sdca, "get_text", return_value="source csv"), patch.object(sdca, "parse_durden_daily_csv", return_value=daily_close_fixture()), patch.object(sdca, "damped_harmonic_oscillator", return_value=-12.5), patch.object(sdca, "pi_cycle_ratio", return_value=0.47), patch.object(sdca, "verify_durden_pi_reference", return_value={"matchedAtPublishedPrecision": True, "publishedValue": 0.460, "comparisonDate": "2026-10-09"}), patch.dict(os.environ, {}, clear=True):
                 sdca.main()
             result = json.loads(output_path.read_text(encoding="utf-8"))
             fear_greed = result["indicators"][13]

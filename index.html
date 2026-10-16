@@ -738,15 +738,24 @@
         renderIndicatorCards(merged);
         renderIndicatorTable(merged);
 
-        const validCount = merged.filter((item) =>
-          Number.isFinite(item.score) &&
-          item.status === "valid"
-        ).length;
-        $("valid-count").textContent = `${validCount} / 15`;
+        const integrity = data.dataIntegrity || {};
+        const verifiedScores = Number.isFinite(integrity.verifiedScores)
+          ? integrity.verifiedScores
+          : merged.filter((item) =>
+              Number.isFinite(item.score) && item.status === "available"
+            ).length;
+        const rawAvailable = Number.isFinite(integrity.rawReadingsAvailable)
+          ? integrity.rawReadingsAvailable
+          : merged.filter((item) =>
+              item.rawValue !== null && item.rawValue !== undefined
+            ).length;
+        const unverifiedOrMissing = Number.isFinite(integrity.unverifiedOrMissing)
+          ? integrity.unverifiedOrMissing
+          : 15 - verifiedScores;
+
+        $("valid-count").textContent = `${verifiedScores} / 15`;
         $("integrity-note").textContent =
-          validCount === 15
-            ? "All 15 readings marked valid by the data pipeline."
-            : `${15 - validCount} indicator(s) are missing, stale, or not validated.`;
+          `${rawAvailable} raw reading(s) available; ${verifiedScores} verified SDCA score(s); ${unverifiedOrMissing} unverified or missing.`;
 
         $("pipeline-updated").textContent = formatTimestamp(data.updatedAt);
         $("system-status").textContent = data.status === "complete"

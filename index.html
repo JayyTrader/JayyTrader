@@ -87,7 +87,25 @@
       letter-spacing: -1px;
     }
 
-    .brand span { color: var(--green); }
+    .brand span {
+      color: var(--green);
+    }
+
+    /* Permanently blinking terminal cursor */
+    .brand .typing-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      margin-left: 5px;
+      vertical-align: -2px;
+      background: var(--green);
+      box-shadow: 0 0 8px rgba(0, 245, 160, .65);
+      animation: cursor-pulse 1s steps(2, start) infinite;
+    }
+
+    @keyframes cursor-pulse {
+      to { visibility: hidden; }
+    }
 
     .market-status {
       display: flex;
@@ -152,31 +170,20 @@
       line-height: 1.8;
     }
 
-    /* JayyTrader motto */
     .motto {
-      max-width: 620px;
-      margin-top: 30px;
-      color: #a0b4aa;
-      font-size: 14px;
-      line-height: 1.9;
-      letter-spacing: .3px;
-    }
-
-    .motto span {
-      display: block;
-      margin-top: 4px;
+      margin-top: 17px;
       color: var(--green);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 3px;
+      font-size: 10px;
+      font-weight: 650;
+      letter-spacing: 2px;
+      line-height: 1.8;
       text-transform: uppercase;
     }
 
-    /* Live Bitcoin price panel */
     .price-panel {
       position: relative;
       width: min(100%, 440px);
-      margin-top: 50px;
+      margin-top: 60px;
       padding: 31px 28px 25px;
       border: 1px solid rgba(0, 245, 160, .34);
       border-radius: 9px;
@@ -284,27 +291,18 @@
       main { padding: 65px 20px 75px; }
       h1 { letter-spacing: -2.5px; }
       .eyebrow { letter-spacing: 3px; }
-
-      .motto {
-        font-size: 12px;
-        padding: 0 10px;
-      }
-
-      .motto span {
-        font-size: 10px;
-        letter-spacing: 2px;
-      }
-
-      .price-panel {
-        margin-top: 45px;
-        padding: 26px 21px 22px;
-      }
+      .price-panel { margin-top: 45px; padding: 26px 21px 22px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         scroll-behavior: auto !important;
         transition-duration: .01ms !important;
+      }
+
+      .brand .typing-cursor {
+        animation: none;
+        visibility: visible;
       }
     }
   </style>
@@ -314,7 +312,8 @@
   <div id="cursor-glow" aria-hidden="true"></div>
 
   <header>
-    <div class="brand">Jayy<span>Trader</span></div>
+    <div class="brand">Jayy<span>Trader</span><span class="typing-cursor" aria-hidden="true"></span></div>
+
     <div class="market-status">
       <span class="status-dot"></span>
       Market Monitor
@@ -332,13 +331,14 @@
     </p>
 
     <p class="motto">
-      Probabilities are the currency of the markets.
-      <span>No noise. Just signal.</span>
+      Probabilities are the currency of the markets.<br>
+      No noise. Just signal.
     </p>
 
     <section class="price-panel" aria-label="Bitcoin market price">
       <div class="panel-heading">
         <div class="asset-name"><strong>BTC</strong> / USD</div>
+
         <div class="live-label">
           <span class="status-dot"></span>
           MARKET DATA
@@ -391,8 +391,10 @@
 
         if (typeof btc.usd_24h_change === "number") {
           const change = btc.usd_24h_change;
+
           changeEl.textContent =
             `${change >= 0 ? "+" : ""}${change.toFixed(2)}% over 24 hours`;
+
           changeEl.className =
             "change " + (change >= 0 ? "positive" : "negative");
         } else {
@@ -422,6 +424,7 @@
 
     // Soft green glow follows the mouse.
     const glow = document.getElementById("cursor-glow");
+
     let targetX = -600;
     let targetY = -600;
     let currentX = targetX;

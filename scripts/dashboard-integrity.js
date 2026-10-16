@@ -74,11 +74,24 @@
 
   function latestIndicatorTimestamp(indicators) {
     const timestamps = indicators
-      .map((item) => item.lastUpdated)
+      .filter((item) => typeof item.rawValue === "number" && Number.isFinite(item.rawValue))
+      .map((item) => item.sourceTimestamp || item.lastUpdated)
       .filter((value) => typeof value === "string")
-      .map((value) => /^\d{10}$/.test(value) ? Number(value) * 1000 : Date.parse(value))
-      .filter(Number.isFinite);
-    return timestamps.length ? new Date(Math.max(...timestamps)).toISOString() : null;
+      .map((value) => ({
+        value,
+        epoch: /^\d{10}$/.test(value) ? Number(value) * 1000 : Date.parse(value)
+      }))
+      .filter((item) => Number.isFinite(item.epoch));
+    return timestamps.length
+      ? timestamps.reduce((latest, item) => item.epoch > latest.epoch ? item : latest).value
+      : null;
+  }
+
+  function formatObservationTimestamp(value, formatTimestamp) {
+    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return `${value} (UTC source date)`;
+    }
+    return formatTimestamp(value);
   }
 
   function validateData(data, expectedNames) {
@@ -111,6 +124,47 @@
           (typeof item.source !== "string" || !/^https:\/\//i.test(item.source))) {
         throw new TypeError(`Source for ${item.name} must be an HTTPS URL`);
       }
+      for (const field of ["referenceSource", "attributionUrl"]) {
+        if (item[field] !== null && item[field] !== undefined &&
+            (typeof item[field] !== "string" || !/^https:\/\//i.test(item[field]))) {
+          throw new TypeError(`${field} for ${item.name} must be an HTTPS URL`);
+        }
+      }
+      for (const field of ["sourceName", "sourceField", "timeframe", "quoteCurrency", "quoteCurrencyDetails", "calculation", "verificationDetails", "attribution"]) {
+        if (item[field] !== null && item[field] !== undefined && typeof item[field] !== "string") {
+          throw new TypeError(`${field} for ${item.name} must be a string`);
+        }
+      }
+      if (item.sourceTimestamp !== null && item.sourceTimestamp !== undefined) {
+        validateTimestamp(item.sourceTimestamp, `Source timestamp for ${item.name}`);
+      }
+      if (item.verificationStatus !== null && item.verificationStatus !== undefined &&
+          !["verified_field", "verified_calculation", "unavailable"].includes(item.verificationStatus)) {
+        throw new TypeError(`Verification status for ${item.name} is invalid`);
+      }
+      if (item.sourceComparison !== null && item.sourceComparison !== undefined) {
+        const comparison = item.sourceComparison;
+        if (!comparison || typeof comparison !== "object" || Array.isArray(comparison) ||
+            typeof comparison.comparisonDate !== "string" ||
+            typeof comparison.calculatedValue !== "number" || !Number.isFinite(comparison.calculatedValue) ||
+            typeof comparison.publishedValue !== "number" || !Number.isFinite(comparison.publishedValue) ||
+            !Number.isInteger(comparison.displayPrecision) || comparison.displayPrecision < 0 || comparison.displayPrecision > 12 ||
+            comparison.matchedAtPublishedPrecision !== true || typeof comparison.source !== "string" || !/^https:\/\//i.test(comparison.source)) {
+          throw new TypeError(`Source comparison for ${item.name} is malformed`);
+        }
+        if (Number(comparison.calculatedValue.toFixed(comparison.displayPrecision)) !==
+            Number(comparison.publishedValue.toFixed(comparison.displayPrecision))) {
+          throw new TypeError(`Source comparison for ${item.name} does not match its published value`);
+        }
+        validateTimestamp(comparison.comparisonDate, `Source comparison date for ${item.name}`);
+      }
+      if (typeof item.verificationStatus === "string" && item.verificationStatus.startsWith("verified_") &&
+          (item.rawValue === null || item.rawValue === undefined || !item.source || !item.lastUpdated || !item.sourceTimestamp)) {
+        throw new TypeError(`Verified reading for ${item.name} is missing its value, source, or source timestamp`);
+      }
+      if (item.verificationStatus === "verified_calculation" && !item.sourceComparison) {
+        throw new TypeError(`Verified calculation for ${item.name} is missing its published source comparison`);
+      }
       if (item.lastUpdated !== null && item.lastUpdated !== undefined && typeof item.lastUpdated !== "string") {
         throw new TypeError(`Timestamp for ${item.name} must be a string or null`);
       }
@@ -140,7 +194,7 @@
     return data;
   }
 
-  const api = { validateScore, compositeMarkerPercent, validateHistory, validateHistoryState, validateTimestamp, latestIndicatorTimestamp, validateData };
+  const api = { validateScore, compositeMarkerPercent, validateHistory, validateHistoryState, validateTimestamp, latestIndicatorTimestamp, formatObservationTimestamp, validateData };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   root.SDCAIntegrity = api;
 })(typeof window !== "undefined" ? window : globalThis);

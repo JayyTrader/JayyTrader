@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Collect public SDCA raw data without inventing scores or history."""
 
+import csv
+import io
 import json
 import math
 import os
@@ -17,8 +19,18 @@ BINANCE_URL = (
     "?symbol=BTCUSDT&interval=1d&limit=500"
 )
 FNG_URL = "https://api.alternative.me/fng/?limit=1&format=json"
+COINSENTRY_RSI_URL = "https://coinsentry.app/api/v1/indicators.json"
+DURDEN_DAILY_CSV_URL = "https://cdn.durdenbtc.com/btc-full-price-data/BTC_daily.csv"
 BINANCE_DOCS = "https://developers.binance.com/en/docs/products/spot/rest-api"
 FNG_SOURCE = "https://alternative.me/crypto/fear-and-greed-index/"
+COINSENTRY_ATTRIBUTION_URL = "https://coinsentry.app/"
+COINSENTRY_RSI_PAGE = "https://coinsentry.app/indicators/bitcoin-rsi?hide=daily%2Cmonthly"
+DURDEN_DHO_PAGE = "https://durdenbtc.com/charts/btc-damped-harmonic-oscillator"
+DURDEN_PI_PAGE = "https://durdenbtc.com/charts/btc-pi-cycle-top"
+MAX_SOURCE_AGE_DAYS = 2
+DURDEN_FIRST_CSV_DATE = date(2010, 7, 13)
+DURDEN_PI_REFERENCE_DATE = "2026-10-09"
+DURDEN_PI_PUBLISHED_VALUE = 0.460
 
 SOURCE_LINKS = {
     "MVRV-Z Score": "https://www.lookintobitcoin.com/charts/mvrv-zscore/",
@@ -66,6 +78,251 @@ def get_json(url):
         if response.status != 200:
             raise RuntimeError(f"HTTP {response.status}")
         return json.loads(response.read().decode("utf-8"))
+
+
+def get_text(url):
+    request = urllib.request.Request(url, headers={"User-Agent": "JayyTrader-SDCA/1.0"})
+    with urllib.request.urlopen(request, timeout=30) as response:
+        if response.status != 200:
+            raise RuntimeError(f"HTTP {response.status}")
+        return response.read().decode("utf-8-sig")
+
+
+def _iso_date(value, field):
+    if not isinstance(value, str):
+        raise ValueError(f"{field} must be an ISO date")
+    try:
+        parsed = date.fromisoformat(value)
+    except ValueError as exc:
+        raise ValueError(f"{field} must be an ISO date") from exc
+    if parsed.isoformat() != value:
+        raise ValueError(f"{field} must use YYYY-MM-DD")
+    return parsed
+
+
+def _validate_source_date(raw_date, now, feed_name):
+    observed = _iso_date(raw_date, f"{feed_name} observation date")
+    if observed >= now.date():
+        raise ValueError(f"{feed_name} observation is not a completed daily close")
+    age = (now.date() - observed).days
+    if age > MAX_SOURCE_AGE_DAYS:
+        raise ValueError(f"{feed_name} observation is stale ({age} days old)")
+    return observed
+
+
+def parse_coinsentry_weekly_rsi(payload, now=None):
+    """Read only CoinSentry's published rsi_weekly field; never fall back to daily RSI."""
+    now = now or utc_now()
+    if not isinstance(payload, dict) or payload.get("source") != "coinsentry":
+        raise ValueError("CoinSentry response has an invalid source schema")
+    rows = payload.get("indicators")
+    if not isinstance(rows, list):
+        raise ValueError("CoinSentry response is missing its indicators array")
+    matches = [row for row in rows if isinstance(row, dict) and row.get("code") == "rsi_weekly"]
+    if len(matches) != 1:
+        raise ValueError("CoinSentry response must contain exactly one rsi_weekly field")
+    row = matches[0]
+    description = row.get("description")
+    if not isinstance(description, str) or "14-period weekly RSI" not in description:
+        raise ValueError("CoinSentry rsi_weekly definition is missing or changed")
+    raw = row.get("value")
+    if isinstance(raw, bool):
+        raise ValueError("CoinSentry rsi_weekly value is malformed")
+    try:
+        value = float(raw)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError("CoinSentry rsi_weekly value is malformed") from exc
+    if not math.isfinite(value) or not 0 <= value <= 100:
+        raise ValueError("CoinSentry rsi_weekly must be between 0 and 100")
+    observed = _validate_source_date(row.get("date"), now, "CoinSentry weekly RSI")
+    attribution = payload.get("attribution")
+    if not isinstance(attribution, str) or "coinsentry.app" not in attribution.lower():
+        raise ValueError("CoinSentry attribution and visible backlink requirement are missing")
+    return {
+        "value": value,
+        "date": observed.isoformat(),
+        "description": description,
+        "attribution": attribution,
+    }
+
+
+def parse_durden_daily_csv(contents, now=None):
+    """Validate DurdenBTC daily OHLCV rows and return completed, contiguous closes."""
+    now = now or utc_now()
+    if not isinstance(contents, str) or not contents.strip():
+        raise ValueError("DurdenBTC CSV is empty or malformed")
+    reader = csv.DictReader(io.StringIO(contents))
+    expected = ["Date", "Open", "High", "Low", "Close", "Volume"]
+    if reader.fieldnames != expected:
+        raise ValueError("DurdenBTC CSV schema does not match Date/Open/High/Low/Close/Volume")
+    dates, closes = [], []
+    for index, row in enumerate(reader):
+        if not isinstance(row, dict) or any(row.get(field) is None for field in expected):
+            raise ValueError(f"Malformed DurdenBTC CSV row at index {index}")
+        day = _iso_date(row["Date"], f"DurdenBTC date at row {index}")
+        if day > now.date():
+            raise ValueError(f"DurdenBTC CSV contains a future date at row {index}")
+        if dates and day <= dates[-1]:
+            if day == dates[-1]:
+                raise ValueError(f"Duplicate DurdenBTC CSV date: {day.isoformat()}")
+            raise ValueError("DurdenBTC CSV dates are not strictly chronological")
+        open_price, high, low, close = [
+            _finite_positive(row[field], f"DurdenBTC {field} at row {index}")
+            for field in ("Open", "High", "Low", "Close")
+        ]
+        if high < low or not low <= open_price <= high or not low <= close <= high:
+            raise ValueError(f"Inconsistent DurdenBTC OHLC prices at row {index}")
+        volume = row["Volume"]
+        if isinstance(volume, bool):
+            raise ValueError(f"Invalid DurdenBTC volume at row {index}")
+        try:
+            volume_value = float(volume)
+        except (TypeError, ValueError, OverflowError) as exc:
+            raise ValueError(f"Invalid DurdenBTC volume at row {index}") from exc
+        if not math.isfinite(volume_value) or volume_value < 0:
+            raise ValueError(f"Invalid DurdenBTC volume at row {index}")
+        dates.append(day)
+        closes.append(close)
+
+    if not dates:
+        raise ValueError("DurdenBTC CSV contains no observations")
+    if dates[0] > DURDEN_FIRST_CSV_DATE:
+        raise ValueError("DurdenBTC CSV is missing the source's early price history")
+    if any(later - earlier != timedelta(days=1) for earlier, later in zip(dates, dates[1:])):
+        raise ValueError("Gap in DurdenBTC daily CSV; data was not interpolated")
+
+    completed = [(day, close) for day, close in zip(dates, closes) if day < now.date()]
+    if len(completed) < 350:
+        raise ValueError("Insufficient completed DurdenBTC daily observations (need at least 350)")
+    latest = completed[-1][0]
+    age = (now.date() - latest).days
+    if age > MAX_SOURCE_AGE_DAYS:
+        raise ValueError(f"DurdenBTC daily CSV is stale ({age} days old)")
+    return [day.isoformat() for day, _ in completed], [close for _, close in completed]
+
+
+def pi_cycle_ratio(closes):
+    """DurdenBTC daily Pi Cycle Top ratio: 111-day SMA / (2 * 350-day SMA)."""
+    if len(closes) < 350:
+        raise ValueError("Pi Cycle calculation requires at least 350 daily closes")
+    latest_111 = sma(closes, 111)
+    latest_350 = sma(closes, 350)
+    if latest_350 is None or latest_350 <= 0:
+        raise ValueError("Pi Cycle 350-day average is unavailable")
+    return latest_111 / (2 * latest_350)
+
+
+def damped_harmonic_oscillator(dates, closes):
+    """Reproduce DurdenBTC's published log-power-law damped-harmonic JavaScript."""
+    if len(dates) != len(closes) or len(closes) < 350:
+        raise ValueError("Damped harmonic calculation requires matching daily history with at least 350 closes")
+    genesis = date(2009, 1, 3)
+    day_numbers, log_prices = [], []
+    for raw_day, close in zip(dates, closes):
+        day = _iso_date(raw_day, "DurdenBTC calculation date")
+        price = _finite_positive(close, "DurdenBTC calculation close")
+        day_number = (day - genesis).days
+        if day_number > 1:
+            day_numbers.append(day_number)
+            log_prices.append(math.log(price) / math.log(10))
+    count = len(log_prices)
+    if count < 350:
+        raise ValueError("Damped harmonic calculation has insufficient valid history")
+    log_days = [math.log(day_number) / math.log(10) for day_number in day_numbers]
+    sx = sy = sxx = sxy = 0.0
+    for x, y in zip(log_days, log_prices):
+        sx += x
+        sy += y
+        sxx += x * x
+        sxy += x * y
+    b = (count * sxy - sx * sy) / (count * sxx - sx * sx)
+    a = (sy - b * sx) / count
+    deviations = [y - (a + b * x) for x, y in zip(log_days, log_prices)]
+    t0 = day_numbers[0]
+    elapsed = [day_number - t0 for day_number in day_numbers]
+    sdd = 0.0
+    for deviation in deviations:
+        sdd += deviation * deviation
+
+    gamma = 8.5e-5
+    best = None
+    for index in range(400):
+        frequency = 0.0033 + (0.0054 - 0.0033) * index / 399
+        half_gamma = gamma / 2
+        damped_frequency = math.sqrt(max(frequency * frequency - half_gamma * half_gamma, 1e-8))
+        s11 = s12 = s22 = sd1 = sd2 = 0.0
+        for deviation, elapsed_day in zip(deviations, elapsed):
+            envelope = math.exp(-half_gamma * elapsed_day)
+            phase = damped_frequency * elapsed_day
+            q1 = envelope * math.cos(phase)
+            q2 = envelope * math.sin(phase)
+            s11 += q1 * q1
+            s12 += q1 * q2
+            s22 += q2 * q2
+            sd1 += deviation * q1
+            sd2 += deviation * q2
+        determinant = s11 * s22 - s12 * s12
+        if abs(determinant) < 1e-30:
+            continue
+        c1 = (s22 * sd1 - s12 * sd2) / determinant
+        c2 = (s11 * sd2 - s12 * sd1) / determinant
+        sse = sdd - (c1 * sd1 + c2 * sd2)
+        if best is None or sse < best[0]:
+            best = (sse, damped_frequency, c1, c2)
+    if best is None:
+        raise ValueError("DurdenBTC damped harmonic fit could not be solved")
+
+    _, damped_frequency, c1, c2 = best
+    amplitude = math.sqrt(c1 * c1 + c2 * c2)
+    phase = math.atan2(-c2, c1)
+    half_gamma = gamma / 2
+    residual_sse = 0.0
+    for deviation, elapsed_day in zip(deviations, elapsed):
+        envelope = amplitude * math.exp(-half_gamma * elapsed_day)
+        fitted = envelope * math.cos(damped_frequency * elapsed_day + phase)
+        difference = deviation - fitted
+        residual_sse += difference * difference
+    sigma = math.sqrt(residual_sse / count)
+
+    latest_index = count - 1
+    fair = a + b * log_days[latest_index]
+    envelope = amplitude * math.exp(-half_gamma * elapsed[latest_index])
+    denominator = max(envelope, sigma)
+    if denominator <= 0 or not math.isfinite(denominator):
+        raise ValueError("DurdenBTC damped harmonic scale is invalid")
+    oscillator = (log_prices[latest_index] - fair) / denominator * 100
+    return max(-100.0, min(100.0, oscillator))
+
+
+def compare_published_display(calculated, published, decimals, feed_name):
+    """Compare a reproduction with the precision actually published by its source."""
+    if not math.isfinite(calculated) or not math.isfinite(published):
+        raise ValueError(f"{feed_name} source comparison contains a non-finite value")
+    if round(calculated, decimals) != published:
+        raise ValueError(f"{feed_name} calculation does not match the published source value")
+    return {
+        "calculatedValue": calculated,
+        "publishedValue": published,
+        "displayPrecision": decimals,
+        "matchedAtPublishedPrecision": True,
+    }
+
+
+def verify_durden_pi_reference(dates, closes):
+    try:
+        index = dates.index(DURDEN_PI_REFERENCE_DATE)
+    except ValueError as exc:
+        raise ValueError("DurdenBTC Pi Cycle reference observation is missing from its CSV") from exc
+    calculated = pi_cycle_ratio(closes[:index + 1])
+    comparison = compare_published_display(
+        calculated, DURDEN_PI_PUBLISHED_VALUE, 3, "DurdenBTC Pi Cycle"
+    )
+    comparison.update({
+        "comparisonDate": DURDEN_PI_REFERENCE_DATE,
+        "sourcePublishedDate": DURDEN_PI_REFERENCE_DATE,
+        "source": DURDEN_PI_PAGE,
+    })
+    return comparison
 
 
 def _finite_positive(value, field):
@@ -216,6 +473,16 @@ def failure_record(feed, exc):
     return {"feed": feed, "type": type(exc).__name__, "message": str(exc)}
 
 
+def mark_feed_error(item, exc, feed_name):
+    item.update({
+        "rawValue": None,
+        "status": "feed_error",
+        "verificationStatus": "unavailable",
+        "error": {"type": type(exc).__name__, "message": str(exc)},
+        "note": f"{feed_name} feed failed; no reading is available.",
+    })
+
+
 def write_github_summary(output):
     summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
     if not summary_path:
@@ -255,34 +522,86 @@ def main():
         candle_dates, closes = get_daily_closes(now=now)
         latest_date = candle_dates[-1]
         btc_price.update({"usdt": closes[-1], "status": "available", "lastUpdated": latest_date})
-        rsi = rsi_wilder(closes, 14)
-        if rsi is not None and math.isfinite(rsi):
-            by_name["Bitcoin RSI"].update({
-                "rawValue": round(rsi, 4), "status": "raw_available_score_pending",
-                "source": BINANCE_DOCS, "referenceSource": SOURCE_LINKS["Bitcoin RSI"],
-                "lastUpdated": latest_date,
-                "calculation": "Wilder RSI(14), daily BTCUSDT closes",
-                "note": "Raw calculation from completed public Binance BTCUSDT candles; score mapping is not implemented."
-            })
-        ma111, ma350 = sma(closes, 111), sma(closes, 350)
-        if ma111 is not None and ma350 is not None and ma350 > 0:
-            # Raw indicator calculation retained; no SDCA transformation is applied.
-            ratio = ma111 / (2 * ma350)
-            by_name["Bitcoin Pi Cycle Top"].update({
-                "rawValue": round(ratio, 6), "status": "raw_available_score_pending",
-                "source": BINANCE_DOCS, "referenceSource": SOURCE_LINKS["Bitcoin Pi Cycle Top"],
-                "lastUpdated": latest_date,
-                "calculation": "111-day SMA / (2 × 350-day SMA), completed daily BTCUSDT closes",
-                "note": "Raw calculation only; no SDCA score mapping is implemented."
-            })
     except Exception as exc:
         failures.append(failure_record("Binance BTCUSDT daily candles", exc))
         btc_price["error"] = {"type": type(exc).__name__, "message": str(exc)}
-        for name in ("Bitcoin RSI", "Bitcoin Pi Cycle Top"):
-            by_name[name].update({
-                "status": "feed_error", "error": {"type": type(exc).__name__, "message": str(exc)},
-                "note": f"Binance candle feed failed: {exc}"
+
+    try:
+        weekly = parse_coinsentry_weekly_rsi(get_json(COINSENTRY_RSI_URL), now=now)
+        by_name["Bitcoin RSI"].update({
+            "rawValue": weekly["value"],
+            "status": "raw_available_score_pending",
+            "verificationStatus": "verified_field",
+            "source": COINSENTRY_RSI_URL,
+            "sourceName": "CoinSentry public indicators API",
+            "sourceField": "rsi_weekly",
+            "referenceSource": COINSENTRY_RSI_PAGE,
+            "attributionUrl": COINSENTRY_ATTRIBUTION_URL,
+            "attribution": weekly["attribution"],
+            "timeframe": "weekly",
+            "sourceTimestamp": weekly["date"],
+            "lastUpdated": weekly["date"],
+            "quoteCurrency": "USD",
+            "quoteCurrencyDetails": "CoinSentry documents its Bitstamp BTC/USD close series as the underlying price source.",
+            "calculation": weekly["description"],
+            "verificationDetails": "The published rsi_weekly field is consumed directly; no daily RSI substitute or local transformation is used.",
+            "note": "CoinSentry weekly RSI reading. A visible CoinSentry backlink is required. No SDCA score is assigned."
+        })
+    except Exception as exc:
+        failures.append(failure_record("CoinSentry weekly RSI", exc))
+        mark_feed_error(by_name["Bitcoin RSI"], exc, "CoinSentry weekly RSI")
+
+    try:
+        durden_dates, durden_closes = parse_durden_daily_csv(get_text(DURDEN_DAILY_CSV_URL), now=now)
+    except Exception as exc:
+        for feed_name, indicator_name in (
+            ("DurdenBTC Damped Harmonic Oscillator CSV", "BTC Damped Harmonic Oscillator"),
+            ("DurdenBTC Pi Cycle Top CSV", "Bitcoin Pi Cycle Top"),
+        ):
+            failures.append(failure_record(feed_name, exc))
+            mark_feed_error(by_name[indicator_name], exc, feed_name)
+    else:
+        source_date = durden_dates[-1]
+        by_name["BTC Damped Harmonic Oscillator"].update({
+            "rawValue": None,
+            "status": "unverified",
+            "verificationStatus": "unavailable",
+            "source": DURDEN_DAILY_CSV_URL,
+            "sourceName": "DurdenBTC daily BTC close CSV",
+            "referenceSource": DURDEN_DHO_PAGE,
+            "timeframe": "daily",
+            "quoteCurrency": "USD",
+            "quoteCurrencyDetails": "DurdenBTC chart labels prices in USD; the CSV header itself does not declare a quote-currency column.",
+            "sourceTimestamp": source_date,
+            "lastUpdated": source_date,
+            "calculation": "DurdenBTC published model: OLS fit log10(close) = a + b·log10(days since 2009-01-03); fit residuals to A·exp(−γt/2)·cos(ωd·t + φ), γ=8.5e−5, searching 400 ω values from 0.0033 to 0.0054; oscillator = clip((log10(close)−fair)/max(envelope,σ)×100, −100, +100).",
+            "verificationDetails": "Reading withheld: only one ambiguous historical comparison was located, and multiple reliable date-specific reference values are unavailable. The CSV alone cannot independently verify the published oscillator output.",
+            "note": "DHO is unavailable pending multiple independently supportable historical reference values. No SDCA score is assigned."
+        })
+
+        try:
+            ratio = pi_cycle_ratio(durden_closes)
+            source_comparison = verify_durden_pi_reference(durden_dates, durden_closes)
+            by_name["Bitcoin Pi Cycle Top"].update({
+                "rawValue": round(ratio, 9),
+                "status": "raw_available_score_pending",
+                "verificationStatus": "verified_calculation",
+                "source": DURDEN_DAILY_CSV_URL,
+                "sourceName": "DurdenBTC daily BTC close CSV",
+                "referenceSource": DURDEN_PI_PAGE,
+                "timeframe": "daily",
+                "quoteCurrency": "USD",
+                "quoteCurrencyDetails": "DurdenBTC chart labels prices in USD; the CSV header itself does not declare a quote-currency column.",
+                "sourceTimestamp": source_date,
+                "lastUpdated": source_date,
+                "sourceComparison": source_comparison,
+                "calculation": "111-day simple moving average of daily closes ÷ (2 × 350-day simple moving average of daily closes).",
+                "verificationDetails": f"Reproduced DurdenBTC's documented 111DMA ÷ (2×350DMA) formula and matched {source_comparison['publishedValue']:.3f} on {source_comparison['comparisonDate']} at the source's displayed precision.",
+                "note": "DurdenBTC Pi Cycle Top ratio. No SDCA score is assigned."
             })
+        except Exception as exc:
+            failures.append(failure_record("DurdenBTC Pi Cycle Top", exc))
+            mark_feed_error(by_name["Bitcoin Pi Cycle Top"], exc, "DurdenBTC Pi Cycle Top")
 
     try:
         payload = get_json(FNG_URL)

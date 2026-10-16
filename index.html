@@ -524,11 +524,20 @@
         const reading = item.rawValue === undefined || item.rawValue === null
           ? "Raw reading not connected"
           : `Raw reading: ${escapeHTML(String(item.rawValue))}`;
-        const source = item.source && /^https:\/\//i.test(item.source)
-          ? `<a href="${escapeHTML(item.source)}" target="_blank" rel="noopener noreferrer">${escapeHTML(item.substituteProvider ? `${item.substituteProvider} · substitute` : (item.rawValue === null || item.rawValue === undefined ? "Reference source" : "Reading source"))}</a>`
-          : "Source unavailable";
-        const updated = item.lastUpdated ? `Updated: ${escapeHTML(formatTimestamp(item.lastUpdated))}` : "Updated: unavailable";
+        const source = renderSourceLinks(item);
+        const observedAt = item.sourceTimestamp || item.lastUpdated;
+        const updated = observedAt ? `Source observation: ${escapeHTML(formatObservationTimestamp(observedAt))}` : "Source observation: unavailable";
+        const timeframe = item.timeframe ? `Timeframe: ${escapeHTML(item.timeframe)}` : "";
+        const sourceField = item.sourceField ? `Source field: ${escapeHTML(item.sourceField)}` : "";
+        const denomination = item.quoteCurrency
+          ? `Quote denomination: ${escapeHTML(item.quoteCurrency)}${item.quoteCurrencyDetails ? ` (${escapeHTML(item.quoteCurrencyDetails)})` : ""}`
+          : "";
+        const verification = item.verificationStatus ? `Verification: ${escapeHTML(item.verificationStatus)}` : "";
+        const sourceComparison = item.sourceComparison
+          ? `Published source cross-check: ${escapeHTML(item.sourceComparison.comparisonDate)} · calculated ${escapeHTML(Number(item.sourceComparison.calculatedValue).toFixed(item.sourceComparison.displayPrecision))} / published ${escapeHTML(Number(item.sourceComparison.publishedValue).toFixed(item.sourceComparison.displayPrecision))}`
+          : "";
         const calculation = item.calculation ? `Calculation: ${escapeHTML(item.calculation)}` : "Calculation: not provided";
+        const verificationDetails = item.verificationDetails ? `Verification details: ${escapeHTML(item.verificationDetails)}` : "";
         const substitute = item.substituteStatus ? `Provider status: ${escapeHTML(item.substituteStatus)}` : "";
         const feedError = item.error && typeof item.error === "object"
           ? `Feed error (${escapeHTML(String(item.error.type || "Error"))}): ${escapeHTML(String(item.error.message || "No details provided"))}`
@@ -543,7 +552,7 @@
               <div class="indicator-score ${scoreClass}">${score}</div>
             </div>
             <div class="indicator-reading">${reading}</div>
-            <div class="indicator-meta">${source}<br>${updated}<br>${calculation}${substitute ? `<br>${substitute}` : ""}${feedError ? `<br>${feedError}` : ""}</div>
+            <div class="indicator-meta">${source}<br>${updated}${timeframe ? `<br>${timeframe}` : ""}${sourceField ? `<br>${sourceField}` : ""}${denomination ? `<br>${denomination}` : ""}${verification ? `<br>${verification}` : ""}<br>${calculation}${sourceComparison ? `<br>${sourceComparison}` : ""}${verificationDetails ? `<br>${verificationDetails}` : ""}${substitute ? `<br>${substitute}` : ""}${feedError ? `<br>${feedError}` : ""}</div>
             <div class="indicator-status"><span class="status-square"></span>${escapeHTML(status)}</div>
           </article>`;
       }).join("");
@@ -554,18 +563,50 @@
         const raw = item.rawValue === undefined || item.rawValue === null
           ? "—" : escapeHTML(String(item.rawValue));
         const score = Number.isFinite(item.score) ? formatScore(item.score) : "—";
-        const source = item.source && /^https:\/\//i.test(item.source)
-          ? `<a class="table-link" href="${escapeHTML(item.source)}" target="_blank" rel="noopener noreferrer">${escapeHTML(item.substituteProvider ? `${item.substituteProvider} · substitute` : (item.rawValue === null || item.rawValue === undefined ? "Reference source" : "Reading source ↗"))}</a>`
-          : "Unavailable";
+        const source = renderSourceLinks(item, true);
+        const observedAt = item.sourceTimestamp || item.lastUpdated;
+        const provenance = [
+          observedAt ? `Source observation: ${escapeHTML(formatObservationTimestamp(observedAt))}` : "Timestamp unavailable",
+          item.timeframe ? `Timeframe: ${escapeHTML(item.timeframe)}` : "",
+          item.sourceField ? `Source field: ${escapeHTML(item.sourceField)}` : "",
+          item.quoteCurrency ? `Quote: ${escapeHTML(item.quoteCurrency)}${item.quoteCurrencyDetails ? ` (${escapeHTML(item.quoteCurrencyDetails)})` : ""}` : "",
+          item.verificationStatus ? `Verification: ${escapeHTML(item.verificationStatus)}` : "",
+          item.calculation ? `Calculation: ${escapeHTML(item.calculation)}` : "",
+          item.sourceComparison ? `Published source cross-check: ${escapeHTML(item.sourceComparison.comparisonDate)} · calculated ${escapeHTML(Number(item.sourceComparison.calculatedValue).toFixed(item.sourceComparison.displayPrecision))} / published ${escapeHTML(Number(item.sourceComparison.publishedValue).toFixed(item.sourceComparison.displayPrecision))}` : "",
+          item.verificationDetails ? `Verification details: ${escapeHTML(item.verificationDetails)}` : "",
+          item.substituteStatus ? `Provider status: ${escapeHTML(item.substituteStatus)}` : ""
+        ].filter(Boolean).join("<br>");
         return `<tr>
           <td>${escapeHTML(item.name)}</td>
           <td>${escapeHTML(item.category)}</td>
           <td>${raw}</td>
           <td>${score}</td>
           <td>${escapeHTML(item.status || "Awaiting integration")}</td>
-          <td>${source}<br><span class="muted">${escapeHTML(item.lastUpdated ? formatTimestamp(item.lastUpdated) : "Timestamp unavailable")}</span>${item.calculation ? `<br><span class="muted">${escapeHTML(item.calculation)}</span>` : ""}${item.substituteStatus ? `<br><span class="muted">${escapeHTML(item.substituteStatus)}</span>` : ""}</td>
+          <td>${source}<br><span class="muted">${provenance}</span></td>
         </tr>`;
       }).join("");
+    }
+
+    function renderSourceLinks(item, table = false) {
+      const links = [];
+      const add = (url, label) => {
+        if (typeof url !== "string" || !/^https:\/\//i.test(url)) return;
+        const klass = table ? ' class="table-link"' : "";
+        links.push(`<a${klass} href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(label)}</a>`);
+      };
+      const hasReading = item.rawValue !== null && item.rawValue !== undefined;
+      const sourceLabel = item.substituteProvider
+        ? `${item.substituteProvider} · substitute`
+        : (hasReading ? (item.sourceName || "Reading source") : "Reference source");
+      add(item.source, `${sourceLabel}${hasReading ? " ↗" : ""}`);
+      if (item.referenceSource && item.referenceSource !== item.source) add(item.referenceSource, "Indicator page ↗");
+      if (item.sourceComparison && item.sourceComparison.source && item.sourceComparison.source !== item.source && item.sourceComparison.source !== item.referenceSource) {
+        add(item.sourceComparison.source, "Published value check ↗");
+      }
+      if (item.attributionUrl && item.attributionUrl !== item.source && item.attributionUrl !== item.referenceSource) {
+        add(item.attributionUrl, "Required backlink ↗");
+      }
+      return links.length ? links.join(" · ") : "Source unavailable";
     }
 
     function escapeHTML(value) {
@@ -721,7 +762,7 @@
       }
       $("btc-price").textContent = `${new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(quote.usdt)} USDT`;
       $("btc-change").textContent = "Completed Binance daily close; not an actual USD quote";
-      $("btc-updated").textContent = quote.lastUpdated ? `Close date ${escapeHTML(formatTimestamp(quote.lastUpdated))}` : "Close date unavailable";
+      $("btc-updated").textContent = quote.lastUpdated ? `Close date ${escapeHTML(SDCAIntegrity.formatObservationTimestamp(quote.lastUpdated, formatTimestamp))}` : "Close date unavailable";
     }
 
     function showDataError(kind, message) {
@@ -787,7 +828,7 @@
         $("pipeline-updated").textContent = formatTimestamp(data.updatedAt);
         const latestReading = SDCAIntegrity.latestIndicatorTimestamp(merged);
         $("data-freshness").textContent = latestReading
-          ? formatTimestamp(latestReading)
+          ? SDCAIntegrity.formatObservationTimestamp(latestReading, formatTimestamp)
           : "No indicator timestamp available";
         const visibleFailures = (failures || []).map((failure) =>
           `<div><strong>${escapeHTML(failure.feed)}</strong> (${escapeHTML(failure.type)}): ${escapeHTML(failure.message)}</div>`

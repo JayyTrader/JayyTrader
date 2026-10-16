@@ -239,6 +239,7 @@
       box-shadow: 0 0 9px rgba(255,255,255,.65);
       transform: translateX(-50%);
     }
+    .scale-marker[hidden] { display: none; }
 
     .chart-panel { padding: 22px 18px 15px; }
     .chart-top { display: flex; justify-content: space-between; align-items: start; gap: 15px; }
@@ -273,6 +274,8 @@
     }
     .indicator-score { font-size: 21px; font-weight: 650; white-space: nowrap; }
     .indicator-reading { margin-top: 15px; font-size: 10px; color: #82978b; line-height: 1.5; }
+    .indicator-meta { margin-top: 8px; color: #70877a; font-size: 9px; line-height: 1.55; overflow-wrap: anywhere; }
+    .indicator-meta a { color: #8de6bf; text-decoration: underline; text-underline-offset: 2px; }
     .indicator-status { margin-top: 12px; display: flex; align-items: center; gap: 7px; color: #7b8f83; font-size: 9px; }
     .status-square { width: 6px; height: 6px; background: #77877d; border-radius: 50%; }
     .indicator-link { color: inherit; text-decoration: none; }
@@ -374,17 +377,18 @@
         <p class="small-note" id="composite-label">Waiting for validated data</p>
         <div class="scale-wrap">
           <div class="scale-labels"><span>+3 · CHEAP</span><span>0 · NEUTRAL</span><span>−3 · EXPENSIVE</span></div>
-          <div class="scale"><span class="scale-marker" id="scale-marker"></span></div>
+          <div class="scale"><span class="scale-marker" id="scale-marker" hidden></span></div>
         </div>
         <p class="small-note">Positive scores indicate lower valuation / greater potential value. Negative scores indicate higher valuation / greater expense.</p>
       </article>
 
       <article class="panel">
-        <div class="panel-label">Bitcoin / USD</div>
-        <div class="big-number price" id="btc-price">Loading...</div>
-        <p class="small-note" id="btc-change">Connecting to market data</p>
+        <div class="panel-label">Bitcoin / USDT · daily close</div>
+        <div class="big-number price" id="btc-price">Unavailable</div>
+        <p class="small-note" id="btc-change">No completed Binance daily candle loaded</p>
         <div class="panel-divider"></div>
-        <div class="panel-footer"><span>BTC · USD</span><span id="btc-updated">Awaiting quote</span></div>
+        <div class="panel-footer"><span>BTC · USDT</span><span id="btc-updated">Daily close unavailable</span></div>
+        <p class="small-note">USDT is not USD. No live USD quote source is configured.</p>
       </article>
 
       <article class="panel">
@@ -392,7 +396,10 @@
         <div class="big-number" id="valid-count">0 / 15</div>
         <p class="small-note" id="integrity-note">Indicator feed has not been connected.</p>
         <div class="panel-divider"></div>
-        <div class="panel-footer"><span>Last pipeline run</span><span id="pipeline-updated">Not yet run</span></div>
+        <div class="panel-footer"><span>Pipeline run time</span><span id="pipeline-updated">Not yet run</span></div>
+        <div class="panel-footer"><span>Most recent indicator reading</span><span id="data-freshness">Unavailable</span></div>
+        <p class="small-note">Pipeline run time records when this file was generated. Indicator timestamps record when source data was observed.</p>
+        <div class="notice" id="feed-errors" hidden aria-live="polite"></div>
       </article>
     </section>
 
@@ -485,6 +492,7 @@
 
   <footer>JAYYTRADER &nbsp; / &nbsp; QUANTITATIVE RESEARCH</footer>
 
+  <script src="scripts/dashboard-integrity.js"></script>
   <script>
     const INDICATORS = [
       { name: "MVRV-Z Score", category: "Fundamental", url: "https://www.lookintobitcoin.com/charts/mvrv-zscore/" },
@@ -505,9 +513,6 @@
     ];
 
     const $ = (id) => document.getElementById(id);
-    const money = new Intl.NumberFormat("en-US", {
-      style: "currency", currency: "USD", maximumFractionDigits: 2
-    });
 
     function renderIndicatorCards(indicators) {
       $("indicator-grid").innerHTML = indicators.map((item) => {
@@ -519,6 +524,15 @@
         const reading = item.rawValue === undefined || item.rawValue === null
           ? "Raw reading not connected"
           : `Raw reading: ${escapeHTML(String(item.rawValue))}`;
+        const source = item.source && /^https:\/\//i.test(item.source)
+          ? `<a href="${escapeHTML(item.source)}" target="_blank" rel="noopener noreferrer">${escapeHTML(item.substituteProvider ? `${item.substituteProvider} · substitute` : (item.rawValue === null || item.rawValue === undefined ? "Reference source" : "Reading source"))}</a>`
+          : "Source unavailable";
+        const updated = item.lastUpdated ? `Updated: ${escapeHTML(formatTimestamp(item.lastUpdated))}` : "Updated: unavailable";
+        const calculation = item.calculation ? `Calculation: ${escapeHTML(item.calculation)}` : "Calculation: not provided";
+        const substitute = item.substituteStatus ? `Provider status: ${escapeHTML(item.substituteStatus)}` : "";
+        const feedError = item.error && typeof item.error === "object"
+          ? `Feed error (${escapeHTML(String(item.error.type || "Error"))}): ${escapeHTML(String(item.error.message || "No details provided"))}`
+          : "";
         return `
           <article class="panel indicator-card">
             <div class="indicator-top">
@@ -529,6 +543,7 @@
               <div class="indicator-score ${scoreClass}">${score}</div>
             </div>
             <div class="indicator-reading">${reading}</div>
+            <div class="indicator-meta">${source}<br>${updated}<br>${calculation}${substitute ? `<br>${substitute}` : ""}${feedError ? `<br>${feedError}` : ""}</div>
             <div class="indicator-status"><span class="status-square"></span>${escapeHTML(status)}</div>
           </article>`;
       }).join("");
@@ -539,13 +554,16 @@
         const raw = item.rawValue === undefined || item.rawValue === null
           ? "—" : escapeHTML(String(item.rawValue));
         const score = Number.isFinite(item.score) ? formatScore(item.score) : "—";
+        const source = item.source && /^https:\/\//i.test(item.source)
+          ? `<a class="table-link" href="${escapeHTML(item.source)}" target="_blank" rel="noopener noreferrer">${escapeHTML(item.substituteProvider ? `${item.substituteProvider} · substitute` : (item.rawValue === null || item.rawValue === undefined ? "Reference source" : "Reading source ↗"))}</a>`
+          : "Unavailable";
         return `<tr>
           <td>${escapeHTML(item.name)}</td>
           <td>${escapeHTML(item.category)}</td>
           <td>${raw}</td>
           <td>${score}</td>
           <td>${escapeHTML(item.status || "Awaiting integration")}</td>
-          <td><a class="table-link" href="${item.url}" target="_blank" rel="noopener noreferrer">Open source ↗</a></td>
+          <td>${source}<br><span class="muted">${escapeHTML(item.lastUpdated ? formatTimestamp(item.lastUpdated) : "Timestamp unavailable")}</span>${item.calculation ? `<br><span class="muted">${escapeHTML(item.calculation)}</span>` : ""}${item.substituteStatus ? `<br><span class="muted">${escapeHTML(item.substituteStatus)}</span>` : ""}</td>
         </tr>`;
       }).join("");
     }
@@ -562,7 +580,10 @@
 
     function formatTimestamp(value) {
       if (!value) return "Not available";
-      const date = new Date(value);
+      const epoch = typeof value === "string" && /^\d{10}$/.test(value)
+        ? Number(value) * 1000
+        : value;
+      const date = new Date(epoch);
       if (Number.isNaN(date.getTime())) return "Invalid timestamp";
       return date.toLocaleString("en-GB", {
         timeZone: "UTC", year: "numeric", month: "short", day: "2-digit",
@@ -573,21 +594,24 @@
     function setComposite(score, label) {
       if (!Number.isFinite(score)) {
         $("composite-score").textContent = "—";
+        $("composite-score").className = "big-number muted";
         $("chart-latest").textContent = "No validated score";
+        $("chart-latest").className = "chart-score muted";
         $("composite-label").textContent = "Waiting for validated data";
-        $("scale-marker").style.left = "50%";
+        $("scale-marker").hidden = true;
         return;
       }
-      const bounded = Math.max(-3, Math.min(3, score));
-      $("composite-score").textContent = formatScore(bounded);
-      $("chart-latest").textContent = formatScore(bounded);
+      SDCAIntegrity.validateScore(score, "composite score");
+      $("scale-marker").hidden = false;
+      $("composite-score").textContent = formatScore(score);
+      $("chart-latest").textContent = formatScore(score);
       $("composite-label").textContent = label || "Validated SDCA composite";
       // +3 is on the left (cheap); -3 is on the right (expensive).
-      $("scale-marker").style.left = `${((3 - bounded) / 6) * 100}%`;
+      $("scale-marker").style.left = `${SDCAIntegrity.compositeMarkerPercent(score)}%`;
       $("composite-score").className = "big-number " +
-        (bounded > 0 ? "positive" : bounded < 0 ? "negative" : "neutral");
+        (score > 0 ? "positive" : score < 0 ? "negative" : "neutral");
       $("chart-latest").className = "chart-score " +
-        (bounded > 0 ? "positive" : bounded < 0 ? "negative" : "neutral");
+        (score > 0 ? "positive" : score < 0 ? "negative" : "neutral");
     }
 
     function drawChart(history) {
@@ -631,9 +655,7 @@
       });
       ctx.setLineDash([]);
 
-      const valid = Array.isArray(history)
-        ? history.filter((point) => Number.isFinite(point.score) && point.date)
-        : [];
+      const valid = SDCAIntegrity.validateHistory(history);
 
       if (valid.length < 2) {
         ctx.fillStyle = "#71877a";
@@ -655,7 +677,7 @@
       // Soft fill to neutral baseline.
       ctx.beginPath();
       points.forEach((point, i) => {
-        const px = x(i), py = y(Math.max(-3, Math.min(3, point.score)));
+        const px = x(i), py = y(point.score);
         if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
       });
       ctx.lineTo(x(points.length - 1), y(0));
@@ -666,7 +688,7 @@
 
       ctx.beginPath();
       points.forEach((point, i) => {
-        const px = x(i), py = y(Math.max(-3, Math.min(3, point.score)));
+        const px = x(i), py = y(point.score);
         if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
       });
       ctx.strokeStyle = "#00f5a0";
@@ -684,94 +706,115 @@
       ctx.fillText(points[points.length - 1].date, pad.left + plotW, h - 5);
     }
 
-    async function updateBitcoinPrice() {
-      try {
-        const response = await fetch(
-          "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true",
-          { cache: "no-store" }
-        );
-        if (!response.ok) throw new Error("Price request failed");
-        const data = await response.json();
-        const btc = data.bitcoin;
-        if (typeof btc?.usd !== "number") throw new Error("Invalid BTC price");
+    let lastValidatedHistory = [];
 
-        $("btc-price").textContent = money.format(btc.usd);
-        if (typeof btc.usd_24h_change === "number") {
-          const change = btc.usd_24h_change;
-          $("btc-change").textContent =
-            `${change >= 0 ? "+" : ""}${change.toFixed(2)}% over 24 hours`;
-          $("btc-change").className = "small-note " + (change >= 0 ? "positive" : "negative");
-        } else {
-          $("btc-change").textContent = "24-hour change unavailable";
-        }
-        $("btc-updated").textContent = "Updated " +
-          new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      } catch (error) {
-        $("btc-price").textContent = "Unavailable";
-        $("btc-change").textContent = "Market quote temporarily unavailable";
-        $("btc-updated").textContent = "Retrying";
+    function renderUnavailableQuote() {
+      $("btc-price").textContent = "Unavailable";
+      $("btc-change").textContent = "No no-key live USD quote source is configured";
+      $("btc-updated").textContent = "USD quote unavailable";
+    }
+
+    function renderDailyClose(quote) {
+      if (!quote || quote.status !== "available" || !Number.isFinite(quote.usdt) || quote.usdt <= 0) {
+        renderUnavailableQuote();
+        return;
       }
+      $("btc-price").textContent = `${new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(quote.usdt)} USDT`;
+      $("btc-change").textContent = "Completed Binance daily close; not an actual USD quote";
+      $("btc-updated").textContent = quote.lastUpdated ? `Close date ${escapeHTML(formatTimestamp(quote.lastUpdated))}` : "Close date unavailable";
+    }
+
+    function showDataError(kind, message) {
+      $("system-status").textContent = kind;
+      $("valid-count").textContent = "0 / 15";
+      $("integrity-note").textContent = message;
+      $("chart-notice").textContent = message;
+      $("pipeline-updated").textContent = "Unavailable";
+      $("data-freshness").textContent = "Unavailable";
+      $("feed-errors").hidden = true;
+      $("feed-errors").textContent = "";
+      setComposite(NaN);
+      $("history-count").textContent = "0 valid observations";
+      try { drawChart([]); } catch (_) { /* Keep the rendering failure visible even if canvas is unavailable. */ }
+      renderUnavailableQuote();
     }
 
     async function loadSDCAData() {
-      renderIndicatorCards(INDICATORS);
-      renderIndicatorTable(INDICATORS);
-      drawChart([]);
+      try {
+        renderIndicatorCards(INDICATORS);
+        renderIndicatorTable(INDICATORS);
+        drawChart([]);
+      } catch (error) {
+        showDataError("Dashboard rendering error", `Dashboard could not initialize: ${error.message}`);
+        return;
+      }
+
+      let response;
+      try {
+        response = await fetch(`data/sdca-latest.json?t=${Date.now()}`, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      } catch (error) {
+        showDataError("Data fetch error", `Could not fetch SDCA data: ${error.message}`);
+        return;
+      }
+
+      let data;
+      try {
+        data = await response.json();
+      } catch (error) {
+        showDataError("JSON parsing error", `SDCA data is not valid JSON: ${error.message}`);
+        return;
+      }
 
       try {
-        const response = await fetch(`data/sdca-latest.json?t=${Date.now()}`, {
-          cache: "no-store"
-        });
-        if (!response.ok) throw new Error("SDCA data file is not available yet");
+        SDCAIntegrity.validateData(data, INDICATORS.map((item) => item.name));
+      } catch (error) {
+        showDataError("Data schema error", `SDCA data failed validation: ${error.message}`);
+        return;
+      }
 
-        const data = await response.json();
-        if (!data || !Array.isArray(data.indicators)) {
-          throw new Error("SDCA data file has an invalid structure");
-        }
-
+      try {
         const byName = new Map(data.indicators.map((item) => [item.name, item]));
-        const merged = INDICATORS.map((base) => {
-          const item = byName.get(base.name) || {};
-          return { ...base, ...item, url: base.url };
-        });
-
+        const merged = INDICATORS.map((base) => ({ ...base, ...byName.get(base.name), url: base.url }));
         renderIndicatorCards(merged);
         renderIndicatorTable(merged);
 
-        const validCount = merged.filter((item) =>
-          Number.isFinite(item.score) &&
-          item.status === "valid"
-        ).length;
+        const validCount = merged.filter((item) => Number.isFinite(item.score) && item.status === "valid").length;
         $("valid-count").textContent = `${validCount} / 15`;
-        $("integrity-note").textContent =
-          validCount === 15
-            ? "All 15 readings marked valid by the data pipeline."
-            : `${15 - validCount} indicator(s) are missing, stale, or not validated.`;
-
+        const failures = Array.isArray(data.feedFailures) ? data.feedFailures : null;
+        const failureLabel = failures ? `${failures.length} feed failure(s)` : "feed failures not reported";
+        $("integrity-note").textContent = `${validCount} verified scores · ${merged.filter((item) => item.rawValue !== null && item.rawValue !== undefined).length} raw readings · ${failureLabel}.`;
         $("pipeline-updated").textContent = formatTimestamp(data.updatedAt);
-        $("system-status").textContent = data.status === "complete"
-          ? "Pipeline complete"
-          : "Partial data";
-        $("chart-notice").textContent = data.note ||
-          "Scores reflect the available validated data. Review individual source timestamps before interpreting the composite.";
-
-        setComposite(
-          Number.isFinite(data.compositeScore) ? data.compositeScore : NaN,
-          data.compositeLabel
+        const latestReading = SDCAIntegrity.latestIndicatorTimestamp(merged);
+        $("data-freshness").textContent = latestReading
+          ? formatTimestamp(latestReading)
+          : "No indicator timestamp available";
+        const visibleFailures = (failures || []).map((failure) =>
+          `<div><strong>${escapeHTML(failure.feed)}</strong> (${escapeHTML(failure.type)}): ${escapeHTML(failure.message)}</div>`
         );
+        if (visibleFailures.length === 0) {
+          merged.filter((item) => item.status === "feed_error" && item.error && typeof item.error === "object")
+            .forEach((item) => visibleFailures.push(`<div><strong>${escapeHTML(item.name)}</strong> (${escapeHTML(String(item.error.type || "Error"))}): ${escapeHTML(String(item.error.message || "No details provided"))}</div>`));
+        }
+        $("feed-errors").hidden = visibleFailures.length === 0;
+        $("feed-errors").innerHTML = visibleFailures.length
+          ? `<strong>Individual feed errors</strong>${visibleFailures.join("")}`
+          : "";
+        $("system-status").textContent = failures && failures.length ? "Partial data · feed failures" : (data.status === "complete" ? "Pipeline complete" : "Partial data");
+        $("chart-notice").textContent = data.note || "SDCA scoring and composite are unavailable pending approved rules.";
+        setComposite(data.compositeScore === null || data.compositeScore === undefined ? NaN : data.compositeScore, data.compositeLabel);
+        renderDailyClose(data.bitcoinPriceUSDT);
 
-        const history = Array.isArray(data.history) ? data.history : [];
-        $("history-count").textContent = `${history.length} observation${history.length === 1 ? "" : "s"}`;
-        drawChart(history);
+        const historyState = SDCAIntegrity.validateHistoryState(data);
+        const historyError = historyState.error;
+        lastValidatedHistory = historyState.history;
+        const displayedHistory = lastValidatedHistory.slice(-180);
+        $("history-count").textContent = `${lastValidatedHistory.length} valid observation${lastValidatedHistory.length === 1 ? "" : "s"}${lastValidatedHistory.length > 180 ? " · showing last 180" : ""}`;
+        if (historyError) $("chart-notice").textContent += ` Historical scores hidden because history validation failed: ${historyError}.`;
+        drawChart(displayedHistory);
       } catch (error) {
-        $("system-status").textContent = "Data pipeline not connected";
-        $("valid-count").textContent = "0 / 15";
-        $("integrity-note").textContent = "No validated SDCA data file found.";
-        $("pipeline-updated").textContent = "Not yet run";
-        $("chart-notice").textContent =
-          "The dashboard is installed, but the automated SDCA feed has not been connected. No scores or historical readings have been fabricated.";
-        setComposite(NaN);
-        drawChart([]);
+        lastValidatedHistory = [];
+        showDataError("Dashboard rendering error", `Validated data could not be rendered: ${error.message}`);
       }
     }
 
@@ -782,12 +825,14 @@
       glow.style.top = `${event.clientY}px`;
     }, { passive: true });
 
-    updateBitcoinPrice();
-    setInterval(updateBitcoinPrice, 60000);
     loadSDCAData();
     window.addEventListener("resize", () => {
-      // Redraw from the last loaded JSON data on the next page load.
-      loadSDCAData();
+      // Redraw already validated data; resizing never triggers another request.
+      try {
+        drawChart(lastValidatedHistory.slice(-180));
+      } catch (error) {
+        showDataError("Dashboard rendering error", `Chart could not be resized: ${error.message}`);
+      }
     });
   </script>
 </body>

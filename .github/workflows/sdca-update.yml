@@ -2,6 +2,9 @@
 name: Daily SDCA Update
 
 on:
+  push:
+    paths-ignore:
+      - "data/**"
   schedule:
     # GitHub Actions uses UTC. Run daily at 00:00 UTC.
     - cron: "0 0 * * *"
@@ -28,10 +31,18 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Test calculations and data validation
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+
+      - name: Test dashboard integrity
+        run: node --test tests/dashboard-integrity.test.js
+
       - name: Run SDCA data pipeline
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: python scripts/update_sdca.py
 
       - name: Commit updated SDCA data
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: |
           if [[ -n "$(git status --porcelain data/)" ]]; then
             git config user.name "github-actions[bot]"

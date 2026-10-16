@@ -1,0 +1,178 @@
+{
+  "updatedAt": "2026-10-16T21:31:34+00:00",
+  "status": "partial",
+  "dataIntegrity": {
+    "indicatorCount": 15,
+    "rawReadingsAvailable": 3,
+    "verifiedScores": 0,
+    "unverifiedOrMissing": 15,
+    "compositeCalculated": false,
+    "message": "Raw data collection has begun. Composite withheld until the approved workbook scoring rules are implemented."
+  },
+  "bitcoinPriceUSD": {
+    "usd": 81737.32,
+    "status": "available",
+    "source": "Binance public BTCUSDT daily candle close",
+    "lastUpdated": "2026-10-16"
+  },
+  "indicators": [
+    {
+      "name": "MVRV-Z Score",
+      "category": "Fundamental",
+      "score": null,
+      "rawValue": null,
+      "status": "unverified",
+      "source": "https://www.lookintobitcoin.com/charts/mvrv-zscore/",
+      "lastUpdated": null,
+      "note": "Awaiting a verified free data feed and approved score mapping."
+    },
+    {
+      "name": "Realized Cap HODL Waves",
+      "category": "Fundamental",
+      "score": null,
+      "rawValue": null,
+      "status": "unverified",
+      "source": "https://www.lookintobitcoin.com/charts/realized-cap-hodl-waves/",
+      "lastUpdated": null,
+      "note": "Awaiting a verified free data feed and approved score mapping."
+    },
+    {
+      "name": "CBBI",
+      "category": "Fundamental",
+      "score": null,
+      "rawValue": null,
+      "status": "unverified",
+      "source": "https://colintalkscrypto.com/cbbi/",
+      "lastUpdated": null,
+      "note": "Awaiting a verified free data feed and approved score mapping."
+    },
+    {
+      "name": "VDD Multiple",
+      "category": "Fundamental",
+      "score": null,
+      "rawValue": null,
+      "status": "unverified",
+      "source": "https://charts.bitbo.io/vdd-multiple/",
+      "lastUpdated": null,
+      "note": "Awaiting a verified free data feed and approved score mapping."
+    },
+    {
+      "name": "NUPL",
+      "category": "Fundamental",
+      "score": null,
+      "rawValue": null,
+      "status": "unverified",
+      "source": "https://charts.bitbo.io/net-unrealized-profit-loss/",
+      "lastUpdated": null,
+      "note": "Awaiting a verified free data feed and approved score mapping."
+    },
+    {
+      "name": "BTC 50 MARP",
+      "category": "Fundamental",
+      "score": null,
+      "rawValue": null,
+      "status": "unverified",
+      "source": "https://kotecharts.com/c/fifty-marp",
+      "lastUpdated": null,
+      "note": "Awaiting a verified free data feed and approved score mapping."
+    },
+    {
+      "name": "LTH/STH SOPR Ratio",
+      "category": "Fundamental",
+      "score": null,
+      "rawValue": null,
+      "status": "unverified",
+      "source": "https://kotecharts.com/c/sopr-ratio",
+      "lastUpdated": null,
+      "note": "Awaiting a verified free data feed and approved score mapping."
+    },
+    {
+      "name": "BTC Damped Harmonic Oscillator",
+      "category": "Technical",
+      "score": null,
+      "rawValue": null,
+      "status": "unverified",
+      "source": "https://durdenbtc.com/charts/btc-damped-harmonic-oscillator",
+      "lastUpdated": null,
+      "note": "Awaiting a verified free data feed and approved score mapping."
+    },
+    {
+      "name": "Bitcoin RSI",
+      "category": "Technical",
+      "score": null,
+      "rawValue": 47.0886,
+      "status": "raw_available_score_pending",
+      "source": "https://coinsentry.app/indicators/bitcoin-rsi?hide=daily%2Cmonthly",
+      "lastUpdated": "2026-10-16",
+      "note": "Calculated from public Binance candles. Verify timeframe and settings against the selected RSI before scoring.",
+      "calculation": "Wilder RSI(14), daily BTCUSDT closes"
+    },
+    {
+      "name": "Bitcoin Pi Cycle Top",
+      "category": "Technical",
+      "score": null,
+      "rawValue": 0.471972,
+      "status": "raw_available_score_pending",
+      "source": "https://durdenbtc.com/charts/btc-pi-cycle-top",
+      "lastUpdated": "2026-10-16",
+      "note": "Ratio 1.00 is the crossover. Confirm exchange and daily-close conventions against the selected source.",
+      "calculation": "111-day SMA / (2 × 350-day SMA)"
+    },
+    {
+      "name": "Market Extreme Zone Index",
+      "category": "Technical",
+      "score": null,
+      "rawValue": null,
+      "status": "unverified",
+      "source": "https://www.tradingview.com/script/Z9EoqtA7-Market-Extreme-Zones-Index/",
+      "lastUpdated": null,
+      "note": "Awaiting a verified free data feed and approved score mapping."
+    },
+    {
+      "name": "Relative Valuation Oscillator",
+      "category": "Technical",
+      "score": null,
+      "rawValue": null,
+      "status": "unverified",
+      "source": "https://www.tradingview.com/script/zq7SYdHZ-Relative-Valuation-Oscillator-QuantAlgo/",
+      "lastUpdated": null,
+      "note": "Awaiting a verified free data feed and approved score mapping."
+    },
+    {
+      "name": "Volume-Weighted Price Z-Score",
+      "category": "Technical",
+      "score": null,
+      "rawValue": null,
+      "status": "unverified",
+      "source": "https://www.tradingview.com/script/633Bjz5u-Volume-Weighted-Price-Z-Score-QuantAlgo/",
+      "lastUpdated": null,
+      "note": "Awaiting a verified free data feed and approved score mapping."
+    },
+    {
+      "name": "Crypto Fear and Greed Index",
+      "category": "Sentiment",
+      "score": null,
+      "rawValue": 63.0,
+      "status": "raw_available_source_substitute",
+      "source": "https://coinstats.app/fear-and-greed/",
+      "lastUpdated": "1792108800",
+      "note": "Alternative.me reading; not assumed identical to CoinStats. SDCA score awaits the workbook's approved transformation.",
+      "candidateSource": "Alternative.me",
+      "candidateApi": "https://api.alternative.me/fng/?limit=1&format=json"
+    },
+    {
+      "name": "Composite Sentiment Score",
+      "category": "Sentiment",
+      "score": null,
+      "rawValue": null,
+      "status": "unverified",
+      "source": "https://alphabitlab.com/crypto/sentiment-lab",
+      "lastUpdated": null,
+      "note": "Awaiting a verified free data feed and approved score mapping."
+    }
+  ],
+  "compositeScore": null,
+  "compositeLabel": "Unavailable",
+  "history": [],
+  "note": "SDCA direction: positive = BTC cheap; negative = BTC expensive. Raw technical readings are not SDCA scores. No missing value is treated as neutral."
+}

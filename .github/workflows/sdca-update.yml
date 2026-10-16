@@ -2,6 +2,9 @@
 name: Daily SDCA Update
 
 on:
+  push:
+    paths-ignore:
+      - "data/**"
   schedule:
     # GitHub Actions uses UTC. Run daily at 00:00 UTC.
     - cron: "0 0 * * *"
@@ -27,6 +30,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - name: Test calculations and data validation
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+
+      - name: Test dashboard integrity
+        run: node --test tests/dashboard-integrity.test.js
 
       - name: Run SDCA data pipeline
         run: python scripts/update_sdca.py

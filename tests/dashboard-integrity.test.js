@@ -54,6 +54,15 @@ test('validateData checks history content and cross-checks pipeline history meta
   assert.deepEqual(integrity.validateHistoryState(integrity.validateData(rejectedByPipeline, names)), { history: [], error: 'Duplicate history date' });
 });
 
+test('data freshness comes from indicator source timestamps, not the pipeline run time', () => {
+  const data = baseData();
+  data.updatedAt = '2026-10-16T23:59:00Z';
+  data.indicators[0].lastUpdated = '2026-10-15';
+  data.indicators[1].lastUpdated = '1792108800';
+  assert.equal(integrity.latestIndicatorTimestamp(data.indicators), '2026-10-16T00:00:00.000Z');
+  assert.equal(integrity.latestIndicatorTimestamp(data.indicators.slice(2)), null);
+});
+
 test('data schema rejects unknown, duplicate, missing indicators and invalid composite', () => {
   assert.equal(integrity.validateData(baseData(), names).indicators.length, 15);
   const duplicate = baseData();

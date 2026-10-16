@@ -785,12 +785,9 @@
         const failureLabel = failures ? `${failures.length} feed failure(s)` : "feed failures not reported";
         $("integrity-note").textContent = `${validCount} verified scores · ${merged.filter((item) => item.rawValue !== null && item.rawValue !== undefined).length} raw readings · ${failureLabel}.`;
         $("pipeline-updated").textContent = formatTimestamp(data.updatedAt);
-        const readingTimes = merged
-          .filter((item) => item.lastUpdated)
-          .map((item) => new Date(/^\d{10}$/.test(item.lastUpdated) ? Number(item.lastUpdated) * 1000 : item.lastUpdated))
-          .filter((value) => Number.isFinite(value.getTime()));
-        $("data-freshness").textContent = readingTimes.length
-          ? formatTimestamp(new Date(Math.max(...readingTimes.map((value) => value.getTime()))).toISOString())
+        const latestReading = SDCAIntegrity.latestIndicatorTimestamp(merged);
+        $("data-freshness").textContent = latestReading
+          ? formatTimestamp(latestReading)
           : "No indicator timestamp available";
         const visibleFailures = (failures || []).map((failure) =>
           `<div><strong>${escapeHTML(failure.feed)}</strong> (${escapeHTML(failure.type)}): ${escapeHTML(failure.message)}</div>`

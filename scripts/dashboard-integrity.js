@@ -72,6 +72,15 @@
     if (!Number.isFinite(new Date(epoch).getTime())) throw new TypeError(`${label} is invalid`);
   }
 
+  function latestIndicatorTimestamp(indicators) {
+    const timestamps = indicators
+      .map((item) => item.lastUpdated)
+      .filter((value) => typeof value === "string")
+      .map((value) => /^\d{10}$/.test(value) ? Number(value) * 1000 : Date.parse(value))
+      .filter(Number.isFinite);
+    return timestamps.length ? new Date(Math.max(...timestamps)).toISOString() : null;
+  }
+
   function validateData(data, expectedNames) {
     if (!data || typeof data !== "object" || Array.isArray(data)) {
       throw new TypeError("Data must be an object");
@@ -131,7 +140,7 @@
     return data;
   }
 
-  const api = { validateScore, compositeMarkerPercent, validateHistory, validateHistoryState, validateTimestamp, validateData };
+  const api = { validateScore, compositeMarkerPercent, validateHistory, validateHistoryState, validateTimestamp, latestIndicatorTimestamp, validateData };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   root.SDCAIntegrity = api;
 })(typeof window !== "undefined" ? window : globalThis);

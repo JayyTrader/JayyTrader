@@ -87,8 +87,30 @@
     }
 
     .brand span, .accent { color: var(--green); }
-    .cursor { color: var(--green); animation: blink 1s steps(2, start) infinite; }
-    @keyframes blink { to { visibility: hidden; } }
+    .heartbeat {
+      display: inline-block;
+      width: 38px;
+      height: 18px;
+      margin-left: 6px;
+      vertical-align: -3px;
+      overflow: visible;
+      color: var(--green);
+    }
+    .heartbeat path {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.7;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .heartbeat-base { opacity: .65; }
+    .heartbeat-sweep {
+      stroke-width: 2.2;
+      filter: drop-shadow(0 0 3px rgba(0,245,160,.7));
+      stroke-dasharray: 12 60;
+      animation: heartbeat-sweep 1.8s linear infinite;
+    }
+    @keyframes heartbeat-sweep { to { stroke-dashoffset: -72; } }
 
     .market-status, .eyebrow, .micro-label {
       text-transform: uppercase;
@@ -140,7 +162,7 @@
 
     .motto {
       margin-top: 17px;
-      color: #60776b;
+      color: var(--green);
       font-size: 11px;
       letter-spacing: .5px;
     }
@@ -347,7 +369,7 @@
   <div id="cursor-glow" aria-hidden="true"></div>
 
   <header>
-    <div class="brand">Jayy<span>Trader</span><span class="cursor">_</span></div>
+    <div class="brand">Jayy<span>Trader</span><svg class="heartbeat" viewBox="0 0 44 20" aria-hidden="true" focusable="false"><path class="heartbeat-base" d="M1 10h8l4-6 4 12 4-9 4 5h18"/><path class="heartbeat-sweep" d="M1 10h8l4-6 4 12 4-9 4 5h18"/></svg></div>
     <div class="market-status">
       <span class="status-dot"></span>
       <span>Quantitative Research</span>

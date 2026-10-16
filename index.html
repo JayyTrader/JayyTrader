@@ -1,0 +1,428 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#020504">
+  <title>JayyTrader | BTC Intelligence</title>
+  <meta name="description" content="JayyTrader — quantitative Bitcoin research.">
+
+  <style>
+    :root {
+      --bg: #020403;
+      --green: #00f5a0;
+      --mint: #a2ffdc;
+      --muted: #788b82;
+      --line: rgba(0, 245, 160, 0.20);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { min-height: 100%; }
+
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: #effff8;
+      background:
+        radial-gradient(ellipse at 50% 48%, rgba(0, 80, 49, .20), transparent 55%),
+        #020403;
+      font-family: Inter, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+    }
+
+    /* Subtle technical grid */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(0, 245, 160, .025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 245, 160, .025) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: linear-gradient(to bottom, black, transparent 90%);
+    }
+
+    /* Green cursor-following light */
+    #cursor-glow {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 520px;
+      height: 520px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0;
+      background: radial-gradient(
+        circle,
+        rgba(0, 255, 153, .085) 0%,
+        rgba(0, 200, 120, .045) 32%,
+        rgba(0, 150, 90, .015) 55%,
+        transparent 72%
+      );
+      transform: translate(-50%, -50%);
+      transition: opacity .35s ease;
+      will-change: left, top;
+    }
+
+    header {
+      height: 68px;
+      padding: 0 6%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 2;
+      border-bottom: 1px solid rgba(0, 245, 160, .13);
+      background: rgba(0, 0, 0, .62);
+    }
+
+    .brand {
+      font-size: 21px;
+      font-weight: 750;
+      letter-spacing: -1px;
+    }
+
+    .brand span {
+      color: var(--green);
+    }
+
+    .market-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #a0b4aa;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 12px rgba(0, 255, 153, .8);
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      min-height: calc(100vh - 125px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 75px 20px 95px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      color: var(--green);
+      font-size: 10px;
+      font-weight: 650;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      margin-bottom: 27px;
+    }
+
+    h1 {
+      max-width: 900px;
+      font-size: clamp(43px, 8vw, 88px);
+      line-height: 1.06;
+      letter-spacing: -4px;
+      font-weight: 800;
+    }
+
+    h1 span {
+      color: #72ffd0;
+      background: linear-gradient(100deg, #eafff6, #00f5a0 55%, #9affdc);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      margin-top: 22px;
+      color: #83948b;
+      font-size: 13px;
+      letter-spacing: .7px;
+      line-height: 1.8;
+    }
+
+    .price-panel {
+      position: relative;
+      width: min(100%, 440px);
+      margin-top: 60px;
+      padding: 31px 28px 25px;
+      border: 1px solid rgba(0, 245, 160, .34);
+      border-radius: 9px;
+      background: rgba(1, 7, 4, .82);
+      box-shadow:
+        0 0 35px rgba(0, 245, 160, .035),
+        inset 0 0 30px rgba(0, 245, 160, .018);
+      text-align: left;
+      overflow: hidden;
+    }
+
+    .price-panel::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 12%;
+      width: 76%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--green), transparent);
+      opacity: .7;
+    }
+
+    .panel-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .asset-name {
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: #a8b9b0;
+    }
+
+    .asset-name strong {
+      color: #f2fff9;
+      font-weight: 700;
+    }
+
+    .live-label {
+      color: var(--green);
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .price {
+      margin-top: 28px;
+      font-size: clamp(35px, 7vw, 49px);
+      font-weight: 650;
+      letter-spacing: -2px;
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+    }
+
+    .change {
+      margin-top: 11px;
+      font-size: 12px;
+      color: #9aaba2;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .positive { color: #00e99a; }
+    .negative { color: #ff747d; }
+
+    .panel-divider {
+      height: 1px;
+      background: rgba(0, 245, 160, .13);
+      margin: 25px 0 17px;
+    }
+
+    .panel-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: #65796e;
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      min-height: 57px;
+      padding: 20px;
+      border-top: 1px solid rgba(0, 245, 160, .10);
+      text-align: center;
+      color: #4f6258;
+      font-size: 9px;
+      letter-spacing: 2px;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      body:hover #cursor-glow { opacity: 1; }
+    }
+
+    @media (max-width: 520px) {
+      header { height: 62px; padding: 0 22px; }
+      .brand { font-size: 19px; }
+      .market-status { font-size: 8px; letter-spacing: 1px; }
+      main { padding: 65px 20px 75px; }
+      h1 { letter-spacing: -2.5px; }
+      .eyebrow { letter-spacing: 3px; }
+      .price-panel { margin-top: 45px; padding: 26px 21px 22px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="cursor-glow" aria-hidden="true"></div>
+
+  <header>
+    <div class="brand">Jayy<span>Trader</span></div>
+    <div class="market-status">
+      <span class="status-dot"></span>
+      Market Monitor
+    </div>
+  </header>
+
+  <main>
+    <div class="eyebrow">Independent Bitcoin Research</div>
+
+    <h1>Built on Data.<br><span>Driven by Probability.</span></h1>
+
+    <p class="subtitle">
+      Bitcoin market intelligence.<br>
+      A systematic approach to the market.
+    </p>
+
+    <section class="price-panel" aria-label="Bitcoin market price">
+      <div class="panel-heading">
+        <div class="asset-name"><strong>BTC</strong> / USD</div>
+        <div class="live-label">
+          <span class="status-dot"></span>
+          MARKET DATA
+        </div>
+      </div>
+
+      <div class="price" id="price" aria-live="polite">Loading...</div>
+      <div class="change" id="change">Connecting to market data...</div>
+
+      <div class="panel-divider"></div>
+
+      <div class="panel-footer">
+        <span>Bitcoin · USD</span>
+        <span id="updated">Awaiting data</span>
+      </div>
+    </section>
+  </main>
+
+  <footer>JAYYTRADER &nbsp; / &nbsp; QUANTITATIVE RESEARCH</footer>
+
+  <script>
+    const priceEl = document.getElementById("price");
+    const changeEl = document.getElementById("change");
+    const updatedEl = document.getElementById("updated");
+
+    const money = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 2
+    });
+
+    async function updatePrice() {
+      try {
+        const response = await fetch(
+          "https://api.coingecko.com/api/v3/simple/price" +
+          "?ids=bitcoin&vs_currencies=usd&include_24hr_change=true",
+          { cache: "no-store" }
+        );
+
+        if (!response.ok) throw new Error("Price request failed");
+
+        const data = await response.json();
+        const btc = data.bitcoin;
+
+        if (typeof btc?.usd !== "number") {
+          throw new Error("Invalid price data");
+        }
+
+        priceEl.textContent = money.format(btc.usd);
+
+        if (typeof btc.usd_24h_change === "number") {
+          const change = btc.usd_24h_change;
+          changeEl.textContent =
+            `${change >= 0 ? "+" : ""}${change.toFixed(2)}% over 24 hours`;
+          changeEl.className =
+            "change " + (change >= 0 ? "positive" : "negative");
+        } else {
+          changeEl.textContent = "24-hour change unavailable";
+          changeEl.className = "change";
+        }
+
+        updatedEl.textContent = "UPDATED " +
+          new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit"
+          });
+      } catch (error) {
+        if (priceEl.textContent === "Loading...") {
+          priceEl.textContent = "Unavailable";
+        }
+        changeEl.textContent = "Market data temporarily unavailable";
+        changeEl.className = "change";
+        updatedEl.textContent = "RETRYING";
+      }
+    }
+
+    // Refresh the market quote every 60 seconds.
+    updatePrice();
+    setInterval(updatePrice, 60000);
+
+    // Soft green glow follows the mouse.
+    const glow = document.getElementById("cursor-glow");
+    let targetX = -600;
+    let targetY = -600;
+    let currentX = targetX;
+    let currentY = targetY;
+    let animationRunning = false;
+
+    if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+      document.addEventListener("mousemove", (event) => {
+        targetX = event.clientX;
+        targetY = event.clientY;
+
+        if (!animationRunning) {
+          animationRunning = true;
+          requestAnimationFrame(moveGlow);
+        }
+      });
+
+      document.addEventListener("mouseleave", () => {
+        glow.style.opacity = "0";
+      });
+
+      document.addEventListener("mouseenter", () => {
+        glow.style.opacity = "1";
+      });
+    }
+
+    function moveGlow() {
+      currentX += (targetX - currentX) * 0.12;
+      currentY += (targetY - currentY) * 0.12;
+
+      glow.style.left = currentX + "px";
+      glow.style.top = currentY + "px";
+
+      if (Math.abs(targetX - currentX) > 0.5 ||
+          Math.abs(targetY - currentY) > 0.5) {
+        requestAnimationFrame(moveGlow);
+      } else {
+        animationRunning = false;
+      }
+    }
+  </script>
+</body>
+</html>

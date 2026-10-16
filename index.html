@@ -87,8 +87,17 @@
     }
 
     .brand span, .accent { color: var(--green); }
-    .cursor { color: var(--green); animation: blink 1s steps(2, start) infinite; }
-    @keyframes blink { to { visibility: hidden; } }
+    .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      margin-left: 5px;
+      vertical-align: -2px;
+      background: var(--green);
+      box-shadow: 0 0 8px rgba(0, 245, 160, .65);
+      animation: cursor-blink 1s steps(2, start) infinite;
+    }
+    @keyframes cursor-blink { 50% { opacity: 0; } }
 
     .market-status, .eyebrow, .micro-label {
       text-transform: uppercase;
@@ -347,7 +356,7 @@
   <div id="cursor-glow" aria-hidden="true"></div>
 
   <header>
-    <div class="brand">Jayy<span>Trader</span><span class="cursor">_</span></div>
+    <div class="brand">Jayy<span>Trader</span><span class="cursor" aria-hidden="true"></span></div>
     <div class="market-status">
       <span class="status-dot"></span>
       <span>Quantitative Research</span>

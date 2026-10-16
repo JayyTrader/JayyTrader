@@ -1,6 +1,13 @@
 {
-  "updatedAt": "2026-10-16T21:31:34+00:00",
+  "schemaVersion": 2,
+  "updatedAt": "2026-10-16T22:07:26+00:00",
   "status": "partial",
+  "feedFailures": [],
+  "historyValidation": {
+    "valid": true,
+    "validCount": 0,
+    "error": null
+  },
   "dataIntegrity": {
     "indicatorCount": 15,
     "rawReadingsAvailable": 3,
@@ -11,12 +18,11 @@
     "message": "Raw readings only. SDCA scoring and composite calculation are not implemented."
   },
   "bitcoinPriceUSDT": {
-    "usdt": null,
-    "status": "unavailable",
-    "quoteCurrency": "USDT",
+    "usdt": 82245.93,
+    "status": "available",
     "source": "https://developers.binance.com/en/docs/products/spot/rest-api",
-    "lastUpdated": null,
-    "note": "The previous daily candle was not confirmed complete and is withheld."
+    "quoteCurrency": "USDT",
+    "lastUpdated": "2026-10-15"
   },
   "indicators": [
     {
@@ -103,25 +109,25 @@
       "name": "Bitcoin RSI",
       "category": "Technical",
       "score": null,
-      "rawValue": 47.0886,
+      "rawValue": 48.8799,
       "status": "raw_available_score_pending",
       "source": "https://developers.binance.com/en/docs/products/spot/rest-api",
+      "lastUpdated": "2026-10-15",
+      "note": "Raw calculation from completed public Binance BTCUSDT candles; score mapping is not implemented.",
       "referenceSource": "https://coinsentry.app/indicators/bitcoin-rsi?hide=daily%2Cmonthly",
-      "lastUpdated": "2026-10-16",
-      "note": "Calculated from public Binance candles. Verify timeframe and settings against the selected RSI before scoring.",
       "calculation": "Wilder RSI(14), daily BTCUSDT closes"
     },
     {
       "name": "Bitcoin Pi Cycle Top",
       "category": "Technical",
       "score": null,
-      "rawValue": 0.471972,
+      "rawValue": 0.470216,
       "status": "raw_available_score_pending",
       "source": "https://developers.binance.com/en/docs/products/spot/rest-api",
+      "lastUpdated": "2026-10-15",
+      "note": "Raw calculation only; no SDCA score mapping is implemented.",
       "referenceSource": "https://durdenbtc.com/charts/btc-pi-cycle-top",
-      "lastUpdated": "2026-10-16",
-      "note": "Ratio 1.00 is the crossover. Confirm exchange and daily-close conventions against the selected source.",
-      "calculation": "111-day SMA / (2 × 350-day SMA)"
+      "calculation": "111-day SMA / (2 × 350-day SMA), completed daily BTCUSDT closes"
     },
     {
       "name": "Market Extreme Zone Index",
@@ -160,9 +166,9 @@
       "rawValue": 63.0,
       "status": "raw_available_source_substitute",
       "source": "https://alternative.me/crypto/fear-and-greed-index/",
-      "referenceSource": "https://coinstats.app/fear-and-greed/",
       "lastUpdated": "2026-10-16T00:00:00+00:00",
-      "note": "Alternative.me reading; not assumed identical to CoinStats. SDCA score awaits the workbook's approved transformation.",
+      "note": "Alternative.me reading is a substitute for the selected CoinStats source; equivalence is unverified. No SDCA score is assigned.",
+      "referenceSource": "https://coinstats.app/fear-and-greed/",
       "substituteProvider": "Alternative.me",
       "substituteStatus": "substitute_not_equivalent_verified",
       "candidateApi": "https://api.alternative.me/fng/?limit=1&format=json"
@@ -181,5 +187,5 @@
   "compositeScore": null,
   "compositeLabel": "Unavailable",
   "history": [],
-  "note": "SDCA direction: positive = BTC cheap; negative = BTC expensive. Raw technical readings are not SDCA scores. No missing value is treated as neutral."
+  "note": "BTC daily candles are quoted in USDT. No live USD quote is configured. Missing values are not neutral; scores and composite are withheld pending approved rules."
 }

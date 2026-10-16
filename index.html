@@ -396,7 +396,10 @@
         <div class="big-number" id="valid-count">0 / 15</div>
         <p class="small-note" id="integrity-note">Indicator feed has not been connected.</p>
         <div class="panel-divider"></div>
-        <div class="panel-footer"><span>Last pipeline run</span><span id="pipeline-updated">Not yet run</span></div>
+        <div class="panel-footer"><span>Pipeline run time</span><span id="pipeline-updated">Not yet run</span></div>
+        <div class="panel-footer"><span>Most recent indicator reading</span><span id="data-freshness">Unavailable</span></div>
+        <p class="small-note">Pipeline run time records when this file was generated. Indicator timestamps record when source data was observed.</p>
+        <div class="notice" id="feed-errors" hidden aria-live="polite"></div>
       </article>
     </section>
 
@@ -527,6 +530,9 @@
         const updated = item.lastUpdated ? `Updated: ${escapeHTML(formatTimestamp(item.lastUpdated))}` : "Updated: unavailable";
         const calculation = item.calculation ? `Calculation: ${escapeHTML(item.calculation)}` : "Calculation: not provided";
         const substitute = item.substituteStatus ? `Provider status: ${escapeHTML(item.substituteStatus)}` : "";
+        const feedError = item.error && typeof item.error === "object"
+          ? `Feed error (${escapeHTML(String(item.error.type || "Error"))}): ${escapeHTML(String(item.error.message || "No details provided"))}`
+          : "";
         return `
           <article class="panel indicator-card">
             <div class="indicator-top">
@@ -537,7 +543,7 @@
               <div class="indicator-score ${scoreClass}">${score}</div>
             </div>
             <div class="indicator-reading">${reading}</div>
-            <div class="indicator-meta">${source}<br>${updated}<br>${calculation}${substitute ? `<br>${substitute}` : ""}</div>
+            <div class="indicator-meta">${source}<br>${updated}<br>${calculation}${substitute ? `<br>${substitute}` : ""}${feedError ? `<br>${feedError}` : ""}</div>
             <div class="indicator-status"><span class="status-square"></span>${escapeHTML(status)}</div>
           </article>`;
       }).join("");
@@ -724,6 +730,9 @@
       $("integrity-note").textContent = message;
       $("chart-notice").textContent = message;
       $("pipeline-updated").textContent = "Unavailable";
+      $("data-freshness").textContent = "Unavailable";
+      $("feed-errors").hidden = true;
+      $("feed-errors").textContent = "";
       setComposite(NaN);
       $("history-count").textContent = "0 valid observations";
       try { drawChart([]); } catch (_) { /* Keep the rendering failure visible even if canvas is unavailable. */ }
@@ -776,22 +785,32 @@
         const failureLabel = failures ? `${failures.length} feed failure(s)` : "feed failures not reported";
         $("integrity-note").textContent = `${validCount} verified scores · ${merged.filter((item) => item.rawValue !== null && item.rawValue !== undefined).length} raw readings · ${failureLabel}.`;
         $("pipeline-updated").textContent = formatTimestamp(data.updatedAt);
+        const readingTimes = merged
+          .filter((item) => item.lastUpdated)
+          .map((item) => new Date(/^\d{10}$/.test(item.lastUpdated) ? Number(item.lastUpdated) * 1000 : item.lastUpdated))
+          .filter((value) => Number.isFinite(value.getTime()));
+        $("data-freshness").textContent = readingTimes.length
+          ? formatTimestamp(new Date(Math.max(...readingTimes.map((value) => value.getTime()))).toISOString())
+          : "No indicator timestamp available";
+        const visibleFailures = (failures || []).map((failure) =>
+          `<div><strong>${escapeHTML(failure.feed)}</strong> (${escapeHTML(failure.type)}): ${escapeHTML(failure.message)}</div>`
+        );
+        if (visibleFailures.length === 0) {
+          merged.filter((item) => item.status === "feed_error" && item.error && typeof item.error === "object")
+            .forEach((item) => visibleFailures.push(`<div><strong>${escapeHTML(item.name)}</strong> (${escapeHTML(String(item.error.type || "Error"))}): ${escapeHTML(String(item.error.message || "No details provided"))}</div>`));
+        }
+        $("feed-errors").hidden = visibleFailures.length === 0;
+        $("feed-errors").innerHTML = visibleFailures.length
+          ? `<strong>Individual feed errors</strong>${visibleFailures.join("")}`
+          : "";
         $("system-status").textContent = failures && failures.length ? "Partial data · feed failures" : (data.status === "complete" ? "Pipeline complete" : "Partial data");
         $("chart-notice").textContent = data.note || "SDCA scoring and composite are unavailable pending approved rules.";
         setComposite(data.compositeScore === null || data.compositeScore === undefined ? NaN : data.compositeScore, data.compositeLabel);
         renderDailyClose(data.bitcoinPriceUSDT);
 
-        let history = [];
-        let historyError = data.historyValidation && data.historyValidation.valid === false
-          ? (data.historyValidation.error || "Pipeline marked history invalid") : null;
-        if (!historyError) {
-          try {
-            history = SDCAIntegrity.validateHistory(data.history);
-          } catch (error) {
-            historyError = error.message;
-          }
-        }
-        lastValidatedHistory = historyError ? [] : history;
+        const historyState = SDCAIntegrity.validateHistoryState(data);
+        const historyError = historyState.error;
+        lastValidatedHistory = historyState.history;
         const displayedHistory = lastValidatedHistory.slice(-180);
         $("history-count").textContent = `${lastValidatedHistory.length} valid observation${lastValidatedHistory.length === 1 ? "" : "s"}${lastValidatedHistory.length > 180 ? " · showing last 180" : ""}`;
         if (historyError) $("chart-notice").textContent += ` Historical scores hidden because history validation failed: ${historyError}.`;

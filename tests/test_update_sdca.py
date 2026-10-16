@@ -22,7 +22,21 @@ def candle_rows(count=351, start=datetime(2025, 1, 1, tzinfo=timezone.utc)):
     return rows
 
 
+def daily_close_fixture(count=351, start=datetime(2025, 1, 1, tzinfo=timezone.utc)):
+    """Build valid, strictly chronological daily dates for mocked feed output."""
+    dates = [(start + timedelta(days=index)).date().isoformat() for index in range(count)]
+    closes = [50 + index / 10 for index in range(count)]
+    return dates, closes
+
+
 class CandleValidationTests(unittest.TestCase):
+    def test_daily_close_fixture_dates_are_valid_and_contiguous(self):
+        dates, closes = daily_close_fixture()
+        self.assertEqual(len(dates), 351)
+        self.assertEqual(dates[0], "2025-01-01")
+        self.assertEqual(dates[-1], "2025-12-17")
+        self.assertEqual(sdca.validate_history([{"date": day, "score": 0} for day in dates]), len(closes))
+
     def test_accepts_completed_contiguous_candles_and_returns_order(self):
         rows = candle_rows()
         dates, closes = sdca.get_daily_closes(rows, now=datetime(2026, 1, 1, tzinfo=timezone.utc))
@@ -122,7 +136,7 @@ class HistoryAndFailureTests(unittest.TestCase):
             data_dir.mkdir()
             output_path = data_dir / "sdca-latest.json"
             output_path.write_text(json.dumps({"history": history}), encoding="utf-8")
-            with patch.object(sdca, "ROOT", root), patch.object(sdca, "DATA_DIR", data_dir), patch.object(sdca, "OUTPUT", output_path), patch.object(sdca, "get_daily_closes", return_value=([f"2025-01-{(i % 28) + 1:02d}" for i in range(351)], [50 + i / 10 for i in range(351)])), patch.object(sdca, "get_json", side_effect=TimeoutError("feed timeout")), patch.dict(os.environ, {}, clear=True):
+            with patch.object(sdca, "ROOT", root), patch.object(sdca, "DATA_DIR", data_dir), patch.object(sdca, "OUTPUT", output_path), patch.object(sdca, "get_daily_closes", return_value=daily_close_fixture()), patch.object(sdca, "get_json", side_effect=TimeoutError("feed timeout")), patch.dict(os.environ, {}, clear=True):
                 # `get_json` is the Fear & Greed feed here; Binance has its own validated fixture.
                 sdca.main()
             result = json.loads(output_path.read_text(encoding="utf-8"))
@@ -144,7 +158,7 @@ class HistoryAndFailureTests(unittest.TestCase):
             data_dir.mkdir()
             output_path = data_dir / "sdca-latest.json"
             output_path.write_text(json.dumps({"history": history}), encoding="utf-8")
-            with patch.object(sdca, "ROOT", root), patch.object(sdca, "DATA_DIR", data_dir), patch.object(sdca, "OUTPUT", output_path), patch.object(sdca, "get_daily_closes", return_value=([f"2025-01-{(i % 28) + 1:02d}" for i in range(351)], [50 + i / 10 for i in range(351)])), patch.object(sdca, "get_json", return_value=feed_payload), patch.dict(os.environ, {}, clear=True):
+            with patch.object(sdca, "ROOT", root), patch.object(sdca, "DATA_DIR", data_dir), patch.object(sdca, "OUTPUT", output_path), patch.object(sdca, "get_daily_closes", return_value=daily_close_fixture()), patch.object(sdca, "get_json", return_value=feed_payload), patch.dict(os.environ, {}, clear=True):
                 sdca.main()
             result = json.loads(output_path.read_text(encoding="utf-8"))
             fear_greed = result["indicators"][13]

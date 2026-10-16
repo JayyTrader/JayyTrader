@@ -27,7 +27,7 @@
         throw new TypeError(`History entry ${index} must have a YYYY-MM-DD date`);
       }
       const parsed = new Date(`${point.date}T00:00:00Z`);
-      if (!Number.isFinite(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== point.date) {
+      if (Number(point.date.slice(0, 4)) < 1 || !Number.isFinite(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== point.date) {
         throw new TypeError(`History entry ${index} has an invalid calendar date`);
       }
       if (seen.has(point.date)) throw new TypeError(`Duplicate history date: ${point.date}`);
@@ -37,6 +37,33 @@
       previous = point.date;
     });
     return history;
+  }
+
+  function validateHistoryState(data) {
+    const metadata = data.historyValidation;
+    if (metadata !== undefined && (!metadata || typeof metadata !== "object" || Array.isArray(metadata) ||
+        typeof metadata.valid !== "boolean" || !Number.isInteger(metadata.validCount) || metadata.validCount < 0 ||
+        (metadata.error !== null && metadata.error !== undefined && typeof metadata.error !== "string"))) {
+      throw new TypeError("History validation metadata is malformed");
+    }
+    let history = [];
+    let error = null;
+    try {
+      history = validateHistory(data.history);
+    } catch (validationError) {
+      error = validationError.message;
+    }
+    if (metadata) {
+      if (metadata.valid && error) error = `Pipeline marked history valid, but dashboard validation failed: ${error}`;
+      else if (metadata.valid && metadata.validCount !== history.length) {
+        error = `History observation count mismatch: pipeline reported ${metadata.validCount}, found ${history.length}`;
+      } else if (!metadata.valid) {
+        error = metadata.error || error || "Pipeline marked history invalid";
+      } else if (error) {
+        error = `History validation failed: ${error}`;
+      }
+    }
+    return { history: error ? [] : history, error };
   }
 
   function validateTimestamp(value, label) {
@@ -91,6 +118,8 @@
         throw new TypeError(`Feed failure ${index} is malformed`);
       }
     });
+    // History errors are surfaced separately so valid current readings remain visible.
+    validateHistoryState(data);
     if (data.bitcoinPriceUSDT !== undefined) {
       const quote = data.bitcoinPriceUSDT;
       if (!quote || typeof quote !== "object" ||
@@ -102,7 +131,7 @@
     return data;
   }
 
-  const api = { validateScore, compositeMarkerPercent, validateHistory, validateTimestamp, validateData };
+  const api = { validateScore, compositeMarkerPercent, validateHistory, validateHistoryState, validateTimestamp, validateData };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   root.SDCAIntegrity = api;
 })(typeof window !== "undefined" ? window : globalThis);

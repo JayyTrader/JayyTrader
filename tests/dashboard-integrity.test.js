@@ -38,6 +38,22 @@ test('history requires real unique ISO dates in chronological order', () => {
   for (const history of badHistories) assert.throws(() => integrity.validateHistory(history));
 });
 
+test('validateData checks history content and cross-checks pipeline history metadata', () => {
+  const data = baseData();
+  data.history = [{ date: '2025-01-01', score: 0 }];
+  data.historyValidation = { valid: true, validCount: 1, error: null };
+  assert.deepEqual(integrity.validateHistoryState(integrity.validateData(data, names)), { history: data.history, error: null });
+
+  const countMismatch = { ...data, historyValidation: { valid: true, validCount: 0, error: null } };
+  assert.match(integrity.validateHistoryState(integrity.validateData(countMismatch, names)).error, /count mismatch/);
+
+  const contentMismatch = { ...data, history: [{ date: '2025-02-30', score: 0 }] };
+  assert.match(integrity.validateHistoryState(integrity.validateData(contentMismatch, names)).error, /marked history valid/);
+
+  const rejectedByPipeline = { ...data, historyValidation: { valid: false, validCount: 0, error: 'Duplicate history date' } };
+  assert.deepEqual(integrity.validateHistoryState(integrity.validateData(rejectedByPipeline, names)), { history: [], error: 'Duplicate history date' });
+});
+
 test('data schema rejects unknown, duplicate, missing indicators and invalid composite', () => {
   assert.equal(integrity.validateData(baseData(), names).indicators.length, 15);
   const duplicate = baseData();
@@ -59,6 +75,10 @@ test('dashboard hides missing marker, displays provenance, avoids CoinGecko, and
   assert.match(html, /\$\("scale-marker"\)\.hidden = true/);
   assert.doesNotMatch(html, /api\.coingecko\.com/);
   assert.match(html, /formatTimestamp\(item\.lastUpdated\)/);
+  assert.match(html, /feed-errors/);
+  assert.match(html, /item\.error\.message/);
+  assert.match(html, /Most recent indicator reading/);
+  assert.match(html, /Pipeline run time records when this file was generated/);
   assert.match(html, /item\.calculation/);
   assert.match(html, /item\.substituteStatus/);
   assert.match(html, /Data fetch error/);

@@ -79,16 +79,63 @@ test('data schema rejects unknown, duplicate, missing indicators and invalid com
   assert.throws(() => integrity.validateData(invalidTimestamp, names), /updatedAt is invalid/);
 });
 
+test('verified raw readings require valid provenance metadata and source timestamps', () => {
+  const data = baseData();
+  data.indicators[8] = {
+    name: names[8], category: 'Technical', score: null, rawValue: 57.2915,
+    status: 'raw_available_score_pending', source: 'https://coinsentry.app/api/v1/indicators.json',
+    referenceSource: 'https://coinsentry.app/indicators/bitcoin-rsi',
+    attributionUrl: 'https://coinsentry.app/', sourceTimestamp: '2026-10-15',
+    lastUpdated: '2026-10-15', timeframe: 'weekly', verificationStatus: 'verified_field'
+  };
+  assert.equal(integrity.validateData(data, names).indicators[8].timeframe, 'weekly');
+  const noTimestamp = structuredClone(data);
+  delete noTimestamp.indicators[8].lastUpdated;
+  assert.throws(() => integrity.validateData(noTimestamp, names), /Verified reading/);
+  const noSourceTimestamp = structuredClone(data);
+  delete noSourceTimestamp.indicators[8].sourceTimestamp;
+  assert.throws(() => integrity.validateData(noSourceTimestamp, names), /Verified reading/);
+  const badBacklink = structuredClone(data);
+  badBacklink.indicators[8].attributionUrl = 'javascript:alert(1)';
+  assert.throws(() => integrity.validateData(badBacklink, names), /HTTPS URL/);
+
+  data.indicators[9] = {
+    name: names[9], category: 'Technical', score: null, rawValue: 0.47,
+    status: 'raw_available_score_pending', source: 'https://example.com/daily.csv',
+    lastUpdated: '2026-10-15', sourceTimestamp: '2026-10-15', timeframe: 'daily',
+    verificationStatus: 'verified_calculation', sourceComparison: {
+      comparisonDate: '2026-10-09', calculatedValue: 0.459894, publishedValue: 0.46,
+      displayPrecision: 3, matchedAtPublishedPrecision: true, source: 'https://example.com/chart'
+    }
+  };
+  assert.equal(integrity.validateData(data, names).indicators[9].sourceComparison.publishedValue, 0.46);
+  const noComparison = structuredClone(data);
+  delete noComparison.indicators[9].sourceComparison;
+  assert.throws(() => integrity.validateData(noComparison, names), /source comparison/);
+  const mismatchedComparison = structuredClone(data);
+  mismatchedComparison.indicators[9].sourceComparison.publishedValue = 0.47;
+  assert.throws(() => integrity.validateData(mismatchedComparison, names), /does not match/);
+});
+
 test('dashboard hides missing marker, displays provenance, avoids CoinGecko, and redraws retained history', () => {
   const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
   assert.match(html, /\$\("scale-marker"\)\.hidden = true/);
   assert.doesNotMatch(html, /api\.coingecko\.com/);
-  assert.match(html, /formatTimestamp\(item\.lastUpdated\)/);
+  assert.match(html, /formatObservationTimestamp\(observedAt\)/);
   assert.match(html, /feed-errors/);
   assert.match(html, /item\.error\.message/);
   assert.match(html, /Most recent indicator reading/);
   assert.match(html, /Pipeline run time records when this file was generated/);
   assert.match(html, /item\.calculation/);
+  assert.match(html, /item\.timeframe/);
+  assert.match(html, /item\.sourceField/);
+  assert.match(html, /item\.sourceTimestamp/);
+  assert.match(html, /item\.verificationDetails/);
+  assert.match(html, /item\.sourceComparison/);
+  assert.match(html, /Published source cross-check/);
+  assert.match(html, /Required backlink/);
+  assert.match(html, /formatObservationTimestamp/);
+  assert.doesNotMatch(html, /Wilder RSI\(14\), daily BTCUSDT closes/);
   assert.match(html, /item\.substituteStatus/);
   assert.match(html, /Data fetch error/);
   assert.match(html, /JSON parsing error/);

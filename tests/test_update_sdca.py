@@ -29,6 +29,15 @@ def daily_close_fixture(count=351, start=datetime(2025, 1, 1, tzinfo=timezone.ut
     return dates, closes
 
 
+def coinsentry_payload(day=None):
+    day = day or (sdca.utc_now().date() - timedelta(days=1)).isoformat()
+    return {
+        "source": "coinsentry", "asOf": day,
+        "attribution": "Free to use with a visible link to https://coinsentry.app",
+        "indicators": [{"code": "rsi_weekly", "description": "14-period weekly RSI (0–100)", "value": 57.2915, "date": day}],
+    }
+
+
 class CandleValidationTests(unittest.TestCase):
     def test_daily_close_fixture_dates_are_valid_and_contiguous(self):
         dates, closes = daily_close_fixture()
@@ -130,35 +139,97 @@ class HistoryAndFailureTests(unittest.TestCase):
 
     def test_independent_feed_failure_does_not_discard_valid_readings_or_history(self):
         history = [{"date": "2025-01-01", "score": 0.25}]
+        def json_for_url(url):
+            if url == sdca.COINSENTRY_RSI_URL:
+                return coinsentry_payload()
+            raise TimeoutError("feed timeout")
+
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             data_dir = root / "data"
             data_dir.mkdir()
             output_path = data_dir / "sdca-latest.json"
             output_path.write_text(json.dumps({"history": history}), encoding="utf-8")
-            with patch.object(sdca, "ROOT", root), patch.object(sdca, "DATA_DIR", data_dir), patch.object(sdca, "OUTPUT", output_path), patch.object(sdca, "get_daily_closes", return_value=daily_close_fixture()), patch.object(sdca, "get_json", side_effect=TimeoutError("feed timeout")), patch.dict(os.environ, {}, clear=True):
-                # `get_json` is the Fear & Greed feed here; Binance has its own validated fixture.
+            with patch.object(sdca, "ROOT", root), patch.object(sdca, "DATA_DIR", data_dir), patch.object(sdca, "OUTPUT", output_path), patch.object(sdca, "get_daily_closes", return_value=daily_close_fixture()), patch.object(sdca, "get_json", side_effect=json_for_url), patch.object(sdca, "get_text", return_value="source csv"), patch.object(sdca, "parse_durden_daily_csv", return_value=daily_close_fixture()), patch.object(sdca, "damped_harmonic_oscillator", return_value=-12.5), patch.object(sdca, "pi_cycle_ratio", return_value=0.47), patch.object(sdca, "verify_durden_dho_reference", return_value={"matchedAtPublishedPrecision": True, "publishedValue": -100, "comparisonDate": "2026-02-26"}), patch.object(sdca, "verify_durden_pi_reference", return_value={"matchedAtPublishedPrecision": True, "publishedValue": 0.460, "comparisonDate": "2026-10-09"}), patch.dict(os.environ, {}, clear=True):
                 sdca.main()
             result = json.loads(output_path.read_text(encoding="utf-8"))
             self.assertEqual(result["history"], history)
-            self.assertEqual(result["indicators"][8]["status"], "raw_available_score_pending")
+            self.assertEqual(result["indicators"][8]["rawValue"], 57.2915)
+            self.assertEqual(result["indicators"][8]["timeframe"], "weekly")
+            self.assertEqual(result["indicators"][8]["sourceField"], "rsi_weekly")
+            self.assertEqual(result["indicators"][8]["sourceTimestamp"], result["indicators"][8]["lastUpdated"])
+            self.assertEqual(result["indicators"][8]["source"], sdca.COINSENTRY_RSI_URL)
+            self.assertEqual(result["indicators"][7]["rawValue"], -12.5)
+            self.assertEqual(result["indicators"][7]["source"], sdca.DURDEN_DAILY_CSV_URL)
             self.assertEqual(result["indicators"][9]["status"], "raw_available_score_pending")
             self.assertEqual(result["indicators"][13]["status"], "feed_error")
             self.assertEqual(result["feedFailures"][0]["feed"], "Alternative.me Fear & Greed")
+            self.assertEqual(result["bitcoinPriceUSDT"]["quoteCurrency"], "USDT")
+            self.assertEqual(result["bitcoinPriceUSDT"]["status"], "available")
             self.assertEqual(result["dataIntegrity"]["verifiedScores"], 0)
-            self.assertEqual(result["dataIntegrity"]["missingRawReadings"], 13)
+            self.assertEqual(result["dataIntegrity"]["missingRawReadings"], 12)
             self.assertEqual(result["dataIntegrity"]["unverifiedScores"], 15)
+
+    def test_coinsentry_endpoint_failure_keeps_durden_and_sentiment_readings(self):
+        def json_for_url(url):
+            if url == sdca.COINSENTRY_RSI_URL:
+                raise TimeoutError("CoinSentry unavailable")
+            return {"data": [{"value": "50", "timestamp": "1792108800"}]}
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data_dir = root / "data"
+            data_dir.mkdir()
+            output_path = data_dir / "sdca-latest.json"
+            output_path.write_text(json.dumps({"history": []}), encoding="utf-8")
+            with patch.object(sdca, "ROOT", root), patch.object(sdca, "DATA_DIR", data_dir), patch.object(sdca, "OUTPUT", output_path), patch.object(sdca, "get_daily_closes", return_value=daily_close_fixture()), patch.object(sdca, "get_json", side_effect=json_for_url), patch.object(sdca, "get_text", return_value="source csv"), patch.object(sdca, "parse_durden_daily_csv", return_value=daily_close_fixture()), patch.object(sdca, "damped_harmonic_oscillator", return_value=-12.5), patch.object(sdca, "pi_cycle_ratio", return_value=0.47), patch.object(sdca, "verify_durden_dho_reference", return_value={"matchedAtPublishedPrecision": True, "publishedValue": -100, "comparisonDate": "2026-02-26"}), patch.object(sdca, "verify_durden_pi_reference", return_value={"matchedAtPublishedPrecision": True, "publishedValue": 0.460, "comparisonDate": "2026-10-09"}), patch.dict(os.environ, {}, clear=True):
+                sdca.main()
+            result = json.loads(output_path.read_text(encoding="utf-8"))
+            self.assertEqual(result["indicators"][8]["status"], "feed_error")
+            self.assertIsNone(result["indicators"][8]["rawValue"])
+            self.assertEqual(result["indicators"][7]["rawValue"], -12.5)
+            self.assertEqual(result["indicators"][9]["rawValue"], 0.47)
+            self.assertEqual(result["indicators"][13]["rawValue"], 50.0)
+            self.assertEqual([item["feed"] for item in result["feedFailures"]], ["CoinSentry weekly RSI"])
+
+    def test_durden_csv_endpoint_failure_keeps_weekly_rsi_and_sentiment_readings(self):
+        def json_for_url(url):
+            if url == sdca.COINSENTRY_RSI_URL:
+                return coinsentry_payload()
+            return {"data": [{"value": "50", "timestamp": "1792108800"}]}
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            data_dir = root / "data"
+            data_dir.mkdir()
+            output_path = data_dir / "sdca-latest.json"
+            output_path.write_text(json.dumps({"history": []}), encoding="utf-8")
+            with patch.object(sdca, "ROOT", root), patch.object(sdca, "DATA_DIR", data_dir), patch.object(sdca, "OUTPUT", output_path), patch.object(sdca, "get_daily_closes", return_value=daily_close_fixture()), patch.object(sdca, "get_json", side_effect=json_for_url), patch.object(sdca, "get_text", side_effect=TimeoutError("Durden CSV unavailable")), patch.dict(os.environ, {}, clear=True):
+                sdca.main()
+            result = json.loads(output_path.read_text(encoding="utf-8"))
+            self.assertEqual(result["indicators"][8]["rawValue"], 57.2915)
+            self.assertEqual(result["indicators"][7]["status"], "feed_error")
+            self.assertEqual(result["indicators"][9]["status"], "feed_error")
+            self.assertEqual(result["indicators"][13]["rawValue"], 50.0)
+            self.assertEqual([item["feed"] for item in result["feedFailures"]], [
+                "DurdenBTC Damped Harmonic Oscillator CSV", "DurdenBTC Pi Cycle Top CSV"
+            ])
 
     def test_substitute_source_timestamp_is_normalized_and_reported(self):
         history = []
         feed_payload = {"data": [{"value": "63", "timestamp": "1792108800"}]}
+        def json_for_url(url):
+            if url == sdca.COINSENTRY_RSI_URL:
+                return coinsentry_payload()
+            return feed_payload
+
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             data_dir = root / "data"
             data_dir.mkdir()
             output_path = data_dir / "sdca-latest.json"
             output_path.write_text(json.dumps({"history": history}), encoding="utf-8")
-            with patch.object(sdca, "ROOT", root), patch.object(sdca, "DATA_DIR", data_dir), patch.object(sdca, "OUTPUT", output_path), patch.object(sdca, "get_daily_closes", return_value=daily_close_fixture()), patch.object(sdca, "get_json", return_value=feed_payload), patch.dict(os.environ, {}, clear=True):
+            with patch.object(sdca, "ROOT", root), patch.object(sdca, "DATA_DIR", data_dir), patch.object(sdca, "OUTPUT", output_path), patch.object(sdca, "get_daily_closes", return_value=daily_close_fixture()), patch.object(sdca, "get_json", side_effect=json_for_url), patch.object(sdca, "get_text", return_value="source csv"), patch.object(sdca, "parse_durden_daily_csv", return_value=daily_close_fixture()), patch.object(sdca, "damped_harmonic_oscillator", return_value=-12.5), patch.object(sdca, "pi_cycle_ratio", return_value=0.47), patch.object(sdca, "verify_durden_dho_reference", return_value={"matchedAtPublishedPrecision": True, "publishedValue": -100, "comparisonDate": "2026-02-26"}), patch.object(sdca, "verify_durden_pi_reference", return_value={"matchedAtPublishedPrecision": True, "publishedValue": 0.460, "comparisonDate": "2026-10-09"}), patch.dict(os.environ, {}, clear=True):
                 sdca.main()
             result = json.loads(output_path.read_text(encoding="utf-8"))
             fear_greed = result["indicators"][13]
@@ -168,6 +239,8 @@ class HistoryAndFailureTests(unittest.TestCase):
             self.assertEqual(fear_greed["status"], "raw_available_source_substitute")
             self.assertEqual(fear_greed["substituteStatus"], "substitute_not_equivalent_verified")
             self.assertEqual(result["feedFailures"], [])
+            self.assertEqual(result["indicators"][8]["timeframe"], "weekly")
+            self.assertEqual(result["indicators"][9]["source"], sdca.DURDEN_DAILY_CSV_URL)
 
     def test_github_summary_includes_independent_feed_failures(self):
         with tempfile.TemporaryDirectory() as tmp:

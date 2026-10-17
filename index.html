@@ -231,6 +231,9 @@
     .price { font-size: clamp(28px, 4vw, 38px); }
     .panel-divider { height: 1px; background: var(--line); margin: 19px 0 14px; }
     .panel-footer { display: flex; justify-content: space-between; gap: 12px; color: #65796e; font-size: 9px; letter-spacing: .7px; text-transform: uppercase; }
+    .live-quote-status[data-status="live"] { color: var(--green); }
+    .live-quote-status[data-status="stale"] { color: #f0c36a; }
+    .live-quote-status[data-status="error"] { color: #d28e8e; }
 
     .scale-wrap { margin-top: 23px; }
     .scale-labels { display: flex; justify-content: space-between; gap: 8px; color: #7e9689; font-size: 9px; }
@@ -402,7 +405,17 @@
         <p class="small-note" id="btc-change">No completed Binance daily candle loaded</p>
         <div class="panel-divider"></div>
         <div class="panel-footer"><span>BTC · USDT</span><span id="btc-updated">Daily close unavailable</span></div>
-        <p class="small-note">USDT is not USD. No live USD quote source is configured.</p>
+        <p class="small-note">USDT is not USD. Live BTC/USD is shown separately.</p>
+      </article>
+
+      <article class="panel">
+        <div class="panel-label">Live Bitcoin / USD</div>
+        <div class="big-number price" id="live-btc-usd-price">Loading…</div>
+        <p class="small-note live-quote-status" id="live-btc-usd-status" role="status" aria-live="polite">Connecting to Coinbase Exchange…</p>
+        <div class="panel-divider"></div>
+        <div class="panel-footer"><a href="https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker" target="_blank" rel="noopener noreferrer">Coinbase Exchange</a></div>
+        <div class="panel-footer"><span>Last successful update</span><span id="live-btc-usd-updated">Unavailable</span></div>
+        <p class="small-note">BTC-USD last trade · refreshes about every 60 seconds.</p>
       </article>
 
       <article class="panel">
@@ -507,6 +520,7 @@
   <footer>JAYYTRADER &nbsp; / &nbsp; QUANTITATIVE RESEARCH</footer>
 
   <script src="scripts/dashboard-integrity.js"></script>
+  <script src="scripts/live-btc-usd.js"></script>
   <script>
     const INDICATORS = [
       { name: "MVRV-Z Score", category: "Fundamental", url: "https://www.lookintobitcoin.com/charts/mvrv-zscore/" },
@@ -763,6 +777,37 @@
 
     let lastValidatedHistory = [];
 
+    function renderLiveBTCUSD(state) {
+      const price = $("live-btc-usd-price");
+      const status = $("live-btc-usd-status");
+      const updated = $("live-btc-usd-updated");
+      status.dataset.status = state.status;
+
+      if (Number.isFinite(state.price) && state.price > 0) {
+        price.textContent = LiveBTCUSD.formatUSDPrice(state.price);
+      } else if (state.status === "loading") {
+        price.textContent = "Loading…";
+      } else {
+        price.textContent = "Unavailable";
+      }
+
+      updated.textContent = state.receivedAt
+        ? formatTimestamp(state.receivedAt)
+        : "Unavailable";
+
+      if (state.status === "live") {
+        status.textContent = `LIVE · Coinbase Exchange last trade ${formatTimestamp(state.sourceTime)}`;
+      } else if (state.status === "refreshing") {
+        status.textContent = "Refreshing · showing the last successful quote";
+      } else if (state.status === "stale") {
+        status.textContent = `STALE · refresh failed: ${state.error}. Displayed price is from the last successful update.`;
+      } else if (state.status === "error") {
+        status.textContent = `Connection error: ${state.error}. No current quote is available.`;
+      } else {
+        status.textContent = "Connecting to Coinbase Exchange…";
+      }
+    }
+
     function renderUnavailableQuote() {
       $("btc-price").textContent = "Unavailable";
       $("btc-change").textContent = "No no-key live USD quote source is configured";
@@ -879,6 +924,9 @@
       glow.style.left = `${event.clientX}px`;
       glow.style.top = `${event.clientY}px`;
     }, { passive: true });
+
+    const liveBTCUSDController = LiveBTCUSD.createController({ onState: renderLiveBTCUSD });
+    void liveBTCUSDController.start();
 
     loadSDCAData();
     window.addEventListener("resize", () => {

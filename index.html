@@ -95,9 +95,12 @@
       vertical-align: -2px;
       background: var(--green);
       box-shadow: 0 0 8px rgba(0, 245, 160, .65);
-      animation: cursor-blink 1s steps(2, start) infinite;
+      animation: cursor-blink 1.2s ease-in-out infinite;
     }
-    @keyframes cursor-blink { 50% { opacity: 0; } }
+    @keyframes cursor-blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .15; }
+    }
 
     .market-status, .eyebrow, .micro-label {
       text-transform: uppercase;
@@ -348,6 +351,8 @@
         animation-duration: .01ms !important;
         transition-duration: .01ms !important;
       }
+
+      .cursor { animation: none; }
     }
   </style>
 </head>

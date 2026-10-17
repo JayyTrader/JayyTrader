@@ -234,6 +234,21 @@
     .live-quote-status[data-status="live"] { color: var(--green); }
     .live-quote-status[data-status="stale"] { color: #f0c36a; }
     .live-quote-status[data-status="error"] { color: #d28e8e; }
+    .live-btc-usd-link:link, .live-btc-usd-link:visited {
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .18s ease;
+    }
+    .live-btc-usd-link:hover, .live-btc-usd-link:focus-visible {
+      color: var(--mint);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .live-btc-usd-link:focus-visible {
+      outline: 1px solid var(--green);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
 
     .scale-wrap { margin-top: 23px; }
     .scale-labels { display: flex; justify-content: space-between; gap: 8px; color: #7e9689; font-size: 9px; }
@@ -413,7 +428,7 @@
         <div class="big-number price" id="live-btc-usd-price">Loading…</div>
         <p class="small-note live-quote-status" id="live-btc-usd-status" role="status" aria-live="polite">Connecting to Coinbase Exchange…</p>
         <div class="panel-divider"></div>
-        <div class="panel-footer"><a href="https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker" target="_blank" rel="noopener noreferrer">Coinbase Exchange</a></div>
+        <div class="panel-footer"><a class="live-btc-usd-link" href="https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker" target="_blank" rel="noopener noreferrer">Coinbase Exchange</a></div>
         <div class="panel-footer"><span>Last successful update</span><span id="live-btc-usd-updated">Unavailable</span></div>
         <p class="small-note">BTC-USD last trade · refreshes about every 60 seconds.</p>
       </article>
@@ -554,7 +569,7 @@
           : `Raw reading: ${escapeHTML(String(item.rawValue))}`;
         const source = renderSourceLinks(item);
         const observedAt = item.sourceTimestamp || item.lastUpdated;
-        const updated = observedAt ? `Source observation: ${escapeHTML(formatObservationTimestamp(observedAt))}` : "Source observation: unavailable";
+        const updated = observedAt ? `Source observation: ${escapeHTML(SDCAIntegrity.formatObservationTimestamp(observedAt, formatTimestamp))}` : "Source observation: unavailable";
         const timeframe = item.timeframe ? `Timeframe: ${escapeHTML(item.timeframe)}` : "";
         const sourceField = item.sourceField ? `Source field: ${escapeHTML(item.sourceField)}` : "";
         const denomination = item.quoteCurrency
@@ -594,7 +609,7 @@
         const source = renderSourceLinks(item, true);
         const observedAt = item.sourceTimestamp || item.lastUpdated;
         const provenance = [
-          observedAt ? `Source observation: ${escapeHTML(formatObservationTimestamp(observedAt))}` : "Timestamp unavailable",
+          observedAt ? `Source observation: ${escapeHTML(SDCAIntegrity.formatObservationTimestamp(observedAt, formatTimestamp))}` : "Timestamp unavailable",
           item.timeframe ? `Timeframe: ${escapeHTML(item.timeframe)}` : "",
           item.sourceField ? `Source field: ${escapeHTML(item.sourceField)}` : "",
           item.quoteCurrency ? `Quote: ${escapeHTML(item.quoteCurrency)}${item.quoteCurrencyDetails ? ` (${escapeHTML(item.quoteCurrencyDetails)})` : ""}` : "",

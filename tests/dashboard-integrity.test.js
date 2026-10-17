@@ -148,7 +148,6 @@ test('dashboard hides missing marker, displays provenance, avoids CoinGecko, and
   assert.match(html, /item\.sourceTimestamp/);
   assert.match(html, /item\.verificationDetails/);
   assert.match(html, /item\.sourceComparison/);
-  assert.match(html, /quote\.lastUpdated[^\n]*SDCAIntegrity\.formatObservationTimestamp/);
   assert.match(html, /Published source cross-check/);
   assert.match(html, /Required backlink/);
   assert.match(html, /formatObservationTimestamp/);
@@ -471,13 +470,24 @@ test('a pending live quote request is aborted at the 10-second timeout and leave
 });
 
 
-test('dashboard keeps the live Coinbase BTC/USD quote separate from the Binance BTC/USDT daily close', () => {
-  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
-  assert.match(html, /id="live-btc-usd-price"/);
-  assert.match(html, /Coinbase Exchange/);
-  assert.match(html, /BTC-USD last trade/);
-  assert.match(html, /STALE · refresh failed/);
-  assert.match(html, /Connection error:/);
-  assert.match(html, /renderDailyClose\(data\.bitcoinPriceUSDT\)/);
-  assert.match(html, /USDT is not USD/);
+test('homepage shows one USD BTC price card and retains Binance daily-close data collection', () => {
+  const root = path.join(__dirname, '..');
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  const overview = html.match(/<section class="grid overview-grid"[^>]*>([\s\S]*?)<\/section>/);
+  assert.ok(overview, 'homepage overview grid exists');
+  const cards = [...overview[1].matchAll(/<article class="panel">([\s\S]*?)<\/article>/g)].map((match) => match[1]);
+  const btcPriceCards = cards.filter((card) => /class="big-number price"/.test(card));
+  assert.equal(btcPriceCards.length, 1, 'only one BTC price card is visible in the overview');
+  assert.match(btcPriceCards[0], /<div class="panel-label">Live Bitcoin \/ USD<\/div>/);
+  assert.match(btcPriceCards[0], /id="live-btc-usd-price"/);
+  assert.doesNotMatch(overview[1], /Bitcoin \/ USDT|id="btc-price"|id="btc-updated"/);
+  assert.match(btcPriceCards[0], /Coinbase Exchange/);
+  assert.match(btcPriceCards[0], /Last successful update/);
+  assert.match(btcPriceCards[0], /refreshes about every 60 seconds/);
+  assert.match(btcPriceCards[0], /live-quote-status/);
+
+  const data = JSON.parse(fs.readFileSync(path.join(root, 'data/sdca-latest.json'), 'utf8'));
+  assert.equal(data.bitcoinPriceUSDT.quoteCurrency, 'USDT');
+  const pipeline = fs.readFileSync(path.join(root, 'scripts/update_sdca.py'), 'utf8');
+  assert.match(pipeline, /"bitcoinPriceUSDT": btc_price/);
 });

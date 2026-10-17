@@ -279,6 +279,13 @@
     .chart-legend { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px; color: #82978b; font-size: 9px; }
     .legend-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; }
 
+    .market-chart-panel { padding: 12px; }
+    .market-chart-wrap { width: 100%; height: 540px; min-height: 360px; }
+    #btc-usd-chart-canvas { width: 100%; height: 100%; }
+    .market-chart-status { margin: 10px 10px 2px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .market-chart-status[data-status="error"] { color: var(--amber); }
+    .market-chart-source { color: #8de6bf; text-decoration: underline; text-underline-offset: 2px; }
+
     .notice {
       border: 1px solid rgba(240,195,106,.2);
       background: rgba(240,195,106,.045);
@@ -360,6 +367,7 @@
       .panel { padding: 18px; }
       .section-heading { align-items: start; flex-direction: column; }
       .chart-wrap { height: 235px; }
+      .market-chart-wrap { height: 380px; min-height: 320px; }
       .panel-footer { font-size: 8px; }
     }
 
@@ -434,6 +442,22 @@
         <p class="small-note">Pipeline run time records when this file was generated. Indicator timestamps record when source data was observed.</p>
         <div class="notice" id="feed-errors" hidden aria-live="polite"></div>
       </article>
+    </section>
+
+    <div class="section-heading">
+      <div>
+        <h2 id="btc-usd-chart-heading">Bitcoin / USD Market Chart</h2>
+        <p>COINBASE:BTCUSD · 12-hour candlesticks</p>
+      </div>
+      <span class="section-tag">TradingView · USD</span>
+    </div>
+
+    <section class="panel market-chart-panel" aria-labelledby="btc-usd-chart-heading">
+      <div class="market-chart-wrap" id="btc-usd-chart" role="region" aria-label="Interactive TradingView Lightweight Charts Bitcoin / US Dollar candlestick chart from Coinbase, 12-hour timeframe">
+        <div id="btc-usd-chart-canvas"></div>
+      </div>
+      <p class="market-chart-status" id="btc-usd-chart-status" role="status" aria-live="polite">Loading Coinbase BTC-USD 12-hour candles…</p>
+      <p class="market-chart-status">12-hour candles are paired from adjacent Coinbase BTC-USD 6-hour candles. Missing intervals are left unfilled. <a class="market-chart-source" href="https://api.exchange.coinbase.com/products/BTC-USD/candles?granularity=21600" target="_blank" rel="noopener noreferrer">Coinbase Exchange data</a> · chart by TradingView Lightweight Charts.</p>
     </section>
 
     <div class="section-heading">
@@ -527,6 +551,7 @@
 
   <script src="scripts/dashboard-integrity.js"></script>
   <script src="scripts/live-btc-usd.js"></script>
+  <script src="scripts/btc-usd-chart.js"></script>
   <script>
     const INDICATORS = [
       { name: "MVRV-Z Score", category: "Fundamental", url: "https://www.lookintobitcoin.com/charts/mvrv-zscore/" },
@@ -915,6 +940,8 @@
 
     const liveBTCUSDController = LiveBTCUSD.createController({ onState: renderLiveBTCUSD });
     void liveBTCUSDController.start();
+
+    BTCUSDChart.createController().start();
 
     loadSDCAData();
     window.addEventListener("resize", () => {

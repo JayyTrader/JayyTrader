@@ -257,7 +257,7 @@
       border-radius: 20px;
       margin: 10px 0;
       position: relative;
-      background: linear-gradient(90deg, #00b978 0%, #244c3a 35%, #26352e 50%, #59462a 70%, #a84c51 100%);
+      background: linear-gradient(90deg, #a84c51 0%, #59462a 30%, #26352e 50%, #244c3a 70%, #00b978 100%);
     }
     .scale-marker {
       position: absolute;
@@ -278,13 +278,6 @@
     #sdca-chart { width: 100%; height: 100%; display: block; }
     .chart-legend { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px; color: #82978b; font-size: 9px; }
     .legend-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; }
-
-    .market-chart-panel { padding: 12px; }
-    .market-chart-wrap { width: 100%; height: 540px; min-height: 360px; }
-    #btc-usd-chart-canvas { width: 100%; height: 100%; }
-    .market-chart-status { margin: 10px 10px 2px; color: var(--muted); font-size: 10px; line-height: 1.5; }
-    .market-chart-status[data-status="error"] { color: var(--amber); }
-    .market-chart-source { color: #8de6bf; text-decoration: underline; text-underline-offset: 2px; }
 
     .notice {
       border: 1px solid rgba(240,195,106,.2);
@@ -367,7 +360,6 @@
       .panel { padding: 18px; }
       .section-heading { align-items: start; flex-direction: column; }
       .chart-wrap { height: 235px; }
-      .market-chart-wrap { height: 380px; min-height: 320px; }
       .panel-footer { font-size: 8px; }
     }
 
@@ -414,12 +406,12 @@
       <article class="panel">
         <div class="panel-label">SDCA Composite Score</div>
         <div class="big-number" id="composite-score">—</div>
-        <p class="small-note" id="composite-label">Waiting for validated data</p>
+        <p class="small-note" id="composite-label">Unavailable · approved SDCA scoring rules are not configured.</p>
         <div class="scale-wrap">
-          <div class="scale-labels"><span>+3 · CHEAP</span><span>0 · NEUTRAL</span><span>−3 · EXPENSIVE</span></div>
+          <div class="scale-labels"><span>−2 · OVERVALUED</span><span>0 · NEUTRAL</span><span>+2 · UNDERVALUED</span></div>
           <div class="scale"><span class="scale-marker" id="scale-marker" hidden></span></div>
         </div>
-        <p class="small-note">Positive scores indicate lower valuation / greater potential value. Negative scores indicate higher valuation / greater expense.</p>
+        <p class="small-note">Negative scores indicate overvalued Bitcoin. Zero is neutral. Positive scores indicate undervalued Bitcoin.</p>
       </article>
 
       <article class="panel">
@@ -446,46 +438,31 @@
 
     <div class="section-heading">
       <div>
-        <h2 id="btc-usd-chart-heading">Bitcoin / USD Market Chart</h2>
-        <p>COINBASE:BTCUSD · 12-hour candlesticks</p>
-      </div>
-      <span class="section-tag">TradingView · USD</span>
-    </div>
-
-    <section class="panel market-chart-panel" aria-labelledby="btc-usd-chart-heading">
-      <div class="market-chart-wrap" id="btc-usd-chart" role="region" aria-label="Interactive TradingView Lightweight Charts Bitcoin / US Dollar candlestick chart from Coinbase, 12-hour timeframe">
-        <div id="btc-usd-chart-canvas"></div>
-      </div>
-      <p class="market-chart-status" id="btc-usd-chart-status" role="status" aria-live="polite">Loading Coinbase BTC-USD 12-hour candles…</p>
-      <p class="market-chart-status">12-hour candles are paired from adjacent Coinbase BTC-USD 6-hour candles. Missing intervals are left unfilled. <a class="market-chart-source" href="https://api.exchange.coinbase.com/products/BTC-USD/candles?granularity=21600" target="_blank" rel="noopener noreferrer">Coinbase Exchange data</a> · chart by TradingView Lightweight Charts.</p>
-    </section>
-
-    <div class="section-heading">
-      <div>
         <h2>SDCA Composite Oscillator</h2>
-        <p>Historical composite score · Custom SDCA scale from +3 to −3</p>
+        <p>Verified composite history · Fixed score range from −2.0 to +2.0</p>
       </div>
-      <span class="section-tag">Daily history</span>
+      <span class="section-tag">Daily · UTC observations</span>
     </div>
 
     <section class="panel chart-panel">
       <div class="chart-top">
         <div>
-          <div class="panel-label">Latest validated composite</div>
-          <div class="chart-score" id="chart-latest">No historical data</div>
+          <div class="panel-label">Latest verified 15-indicator composite</div>
+          <div class="chart-score muted" id="chart-latest">Unavailable</div>
+          <p class="small-note" id="chart-latest-time">UTC observation: unavailable</p>
         </div>
-        <span class="pill" id="history-count">0 observations</span>
+        <span class="pill" id="history-count">0 verified observations</span>
       </div>
       <div class="chart-wrap">
-        <canvas id="sdca-chart" role="img" aria-label="Historical SDCA composite oscillator. The chart will populate when validated daily history is available."></canvas>
+        <canvas id="sdca-chart" role="img" aria-label="JayyTrader composite oscillator with a fixed score range from minus 2 overvalued through zero neutral to plus 2 undervalued. No unverified or synthetic readings are plotted."></canvas>
       </div>
       <div class="chart-legend">
-        <span><i class="legend-dot" style="background:#00f5a0"></i>SDCA composite</span>
-        <span><i class="legend-dot" style="background:#62796b"></i>Zero / neutral line</span>
-        <span>+3 = cheaper · −3 = more expensive</span>
+        <span><i class="legend-dot" style="background:#00f5a0"></i>Verified composite</span>
+        <span><i class="legend-dot" style="background:#62796b"></i>Zero · neutral</span>
+        <span>−2 · overvalued &nbsp; 0 · neutral &nbsp; +2 · undervalued</span>
       </div>
       <div class="notice" id="chart-notice">
-        Historical chart is waiting for the data pipeline. No synthetic or placeholder history is being displayed.
+        Composite unavailable. Approved scoring rules are required before a 15-indicator score can be calculated.
       </div>
     </section>
 
@@ -534,11 +511,11 @@
     <section class="grid method-grid">
       <article class="panel method-card">
         <h3 class="accent">Scoring Direction</h3>
-        <p>The approved SDCA scoring rules determine how each raw indicator maps to its individual score. The intended composite direction is +3 for cheap and −3 for expensive Bitcoin.</p>
+        <p>The approved SDCA scoring rules must determine how each raw indicator maps to its score. The composite display range is −2 for overvalued, 0 for neutral, and +2 for undervalued Bitcoin. No mappings or normalization are currently implemented.</p>
       </article>
       <article class="panel method-card">
         <h3 class="accent">Daily Update</h3>
-        <p>The planned automation runs at 00:00 UTC. Each feed keeps its own source timestamp because not every provider publishes new data every day.</p>
+        <p>The raw-feed pipeline runs daily at 00:00 UTC. It does not calculate a composite or append scored history until the SDCA scoring rules are approved. Each source keeps its own observation timestamp.</p>
       </article>
       <article class="panel method-card">
         <h3 class="accent">Data Integrity</h3>
@@ -551,7 +528,6 @@
 
   <script src="scripts/dashboard-integrity.js"></script>
   <script src="scripts/live-btc-usd.js"></script>
-  <script src="scripts/btc-usd-chart.js"></script>
   <script>
     const INDICATORS = [
       { name: "MVRV-Z Score", category: "Fundamental", url: "https://www.lookintobitcoin.com/charts/mvrv-zscore/" },
@@ -691,22 +667,24 @@
       });
     }
 
-    function setComposite(score, label) {
-      if (!Number.isFinite(score)) {
+    function setComposite(observation) {
+      if (!observation || !observation.available) {
         $("composite-score").textContent = "—";
         $("composite-score").className = "big-number muted";
-        $("chart-latest").textContent = "No validated score";
+        $("chart-latest").textContent = "Unavailable";
         $("chart-latest").className = "chart-score muted";
-        $("composite-label").textContent = "Waiting for validated data";
+        $("composite-label").textContent = observation?.reason || "Unavailable · approved SDCA scoring rules are not configured.";
+        $("chart-latest-time").textContent = "UTC observation: unavailable";
         $("scale-marker").hidden = true;
         return;
       }
-      SDCAIntegrity.validateScore(score, "composite score");
+      const score = SDCAIntegrity.validateCompositeScore(observation.score);
       $("scale-marker").hidden = false;
       $("composite-score").textContent = formatScore(score);
       $("chart-latest").textContent = formatScore(score);
-      $("composite-label").textContent = label || "Validated SDCA composite";
-      // +3 is on the left (cheap); -3 is on the right (expensive).
+      $("composite-label").textContent = "Verified 15-indicator composite";
+      $("chart-latest-time").textContent = `UTC observation: ${SDCAIntegrity.formatObservationTimestamp(observation.date, formatTimestamp)}`;
+      // The fixed display range maps −2 to the left and +2 to the right.
       $("scale-marker").style.left = `${SDCAIntegrity.compositeMarkerPercent(score)}%`;
       $("composite-score").className = "big-number " +
         (score > 0 ? "positive" : score < 0 ? "negative" : "neutral");
@@ -730,19 +708,13 @@
       const pad = { top: 16, right: 37, bottom: 27, left: 12 };
       const plotW = w - pad.left - pad.right;
       const plotH = h - pad.top - pad.bottom;
-      const y = (v) => pad.top + ((3 - v) / 6) * plotH;
-
-      // Valuation zones: green for cheap, muted center, red for expensive.
-      ctx.fillStyle = "rgba(0,245,160,0.055)";
-      ctx.fillRect(pad.left, y(3), plotW, y(1.5) - y(3));
-      ctx.fillStyle = "rgba(255,116,125,0.05)";
-      ctx.fillRect(pad.left, y(-1.5), plotW, y(-3) - y(-1.5));
+      const y = (v) => pad.top + ((2 - v) / 4) * plotH;
 
       ctx.font = "10px Inter, sans-serif";
       ctx.textAlign = "right";
       ctx.textBaseline = "middle";
 
-      [3, 1.5, 0, -1.5, -3].forEach((value) => {
+      [2, 0, -2].forEach((value) => {
         const yy = y(value);
         ctx.beginPath();
         ctx.setLineDash(value === 0 ? [] : [3, 5]);
@@ -756,6 +728,14 @@
       ctx.setLineDash([]);
 
       const valid = SDCAIntegrity.validateHistory(history);
+
+      if (valid.some((point) => point.score < -2 || point.score > 2)) {
+        ctx.fillStyle = "#71877a";
+        ctx.textAlign = "center";
+        ctx.font = "11px Inter, sans-serif";
+        ctx.fillText("History outside fixed −2 to +2 range; no values were rescaled", pad.left + plotW / 2, pad.top + plotH / 2);
+        return;
+      }
 
       if (valid.length < 2) {
         ctx.fillStyle = "#71877a";
@@ -848,7 +828,7 @@
       $("data-freshness").textContent = "Unavailable";
       $("feed-errors").hidden = true;
       $("feed-errors").textContent = "";
-      setComposite(NaN);
+      setComposite(null);
       $("history-count").textContent = "0 valid observations";
       try { drawChart([]); } catch (_) { /* Keep the rendering failure visible even if canvas is unavailable. */ }
     }
@@ -915,15 +895,20 @@
           ? `<strong>Individual feed errors</strong>${visibleFailures.join("")}`
           : "";
         $("system-status").textContent = failures && failures.length ? "Partial data · feed failures" : (data.status === "complete" ? "Pipeline complete" : "Partial data");
-        $("chart-notice").textContent = data.note || "SDCA scoring and composite are unavailable pending approved rules.";
-        setComposite(data.compositeScore === null || data.compositeScore === undefined ? NaN : data.compositeScore, data.compositeLabel);
-
         const historyState = SDCAIntegrity.validateHistoryState(data);
         const historyError = historyState.error;
         lastValidatedHistory = historyState.history;
-        const displayedHistory = lastValidatedHistory.slice(-180);
-        $("history-count").textContent = `${lastValidatedHistory.length} valid observation${lastValidatedHistory.length === 1 ? "" : "s"}${lastValidatedHistory.length > 180 ? " · showing last 180" : ""}`;
+        const compositeObservation = SDCAIntegrity.verifiedCompositeObservation(data, historyState);
+        setComposite(compositeObservation);
+        const approvedHistory = data.dataIntegrity?.scoringRulesApproved === true &&
+          data.dataIntegrity?.compositeCalculated === true && data.dataIntegrity?.verifiedScores === 15;
+        const displayedHistory = approvedHistory ? lastValidatedHistory.slice(-180) : [];
+        $("history-count").textContent = approvedHistory
+          ? `${lastValidatedHistory.length} verified observation${lastValidatedHistory.length === 1 ? "" : "s"}${lastValidatedHistory.length > 180 ? " · showing last 180" : ""}`
+          : `${lastValidatedHistory.length} preserved · not verified for display`;
+        $("chart-notice").textContent = compositeObservation.reason || data.note || "Composite unavailable.";
         if (historyError) $("chart-notice").textContent += ` Historical scores hidden because history validation failed: ${historyError}.`;
+        else if (!approvedHistory && lastValidatedHistory.length) $("chart-notice").textContent += " Preserved history is not plotted because approved scoring rules and all 15 verified scores are not available.";
         drawChart(displayedHistory);
       } catch (error) {
         lastValidatedHistory = [];
@@ -940,8 +925,6 @@
 
     const liveBTCUSDController = LiveBTCUSD.createController({ onState: renderLiveBTCUSD });
     void liveBTCUSDController.start();
-
-    BTCUSDChart.createController().start();
 
     loadSDCAData();
     window.addEventListener("resize", () => {

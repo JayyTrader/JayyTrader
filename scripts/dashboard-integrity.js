@@ -9,10 +9,52 @@
     return score;
   }
 
+  function validateCompositeScore(score, label = "composite score") {
+    if (typeof score !== "number" || !Number.isFinite(score) || score < -2 || score > 2) {
+      throw new TypeError(`${label} must be a finite number from -2 to +2`);
+    }
+    return score;
+  }
+
   function compositeMarkerPercent(score) {
     if (score === null || score === undefined) return null;
-    validateScore(score, "composite score");
-    return ((3 - score) / 6) * 100;
+    validateCompositeScore(score);
+    return ((2 - score) / 4) * 100;
+  }
+
+  // This only validates a composite produced by an explicitly approved upstream
+  // method. It never maps indicator readings or calculates a score.
+  function verifiedCompositeObservation(data, historyState) {
+    const unavailable = (reason) => ({ available: false, score: null, date: null, reason });
+    if (!data || data.dataIntegrity?.scoringRulesApproved !== true) {
+      return unavailable("Unavailable · approved SDCA scoring rules are not configured.");
+    }
+    if (data.dataIntegrity.compositeCalculated !== true || data.dataIntegrity.verifiedScores !== 15) {
+      return unavailable("Unavailable · all 15 indicator scores are not verified.");
+    }
+    if (!Array.isArray(data.indicators) || data.indicators.length !== 15 ||
+        data.indicators.some((item) => !item || item.status !== "valid" ||
+          typeof item.score !== "number" || !Number.isFinite(item.score))) {
+      return unavailable("Unavailable · all 15 indicator scores are not verified.");
+    }
+    if (!historyState || historyState.error || !Array.isArray(historyState.history) || historyState.history.length === 0) {
+      return unavailable("Unavailable · no validated, dated composite observation is available.");
+    }
+    try {
+      validateHistory(historyState.history);
+    } catch (error) {
+      return unavailable(`Unavailable · history failed validation: ${error.message}.`);
+    }
+    try {
+      validateCompositeScore(data.compositeScore);
+    } catch (error) {
+      return unavailable(`Unavailable · ${error.message}.`);
+    }
+    const latest = historyState.history[historyState.history.length - 1];
+    if (!latest || data.compositeScore !== latest.score) {
+      return unavailable("Unavailable · the current score does not match the latest dated observation.");
+    }
+    return { available: true, score: latest.score, date: latest.date, reason: null };
   }
 
   function validateHistory(history) {
@@ -171,7 +213,7 @@
       if (item.lastUpdated !== null && item.lastUpdated !== undefined) validateTimestamp(item.lastUpdated, `Timestamp for ${item.name}`);
     });
     if (data.compositeScore !== null && data.compositeScore !== undefined) {
-      validateScore(data.compositeScore, "composite score");
+      validateCompositeScore(data.compositeScore);
     }
     if (data.feedFailures !== undefined && !Array.isArray(data.feedFailures)) {
       throw new TypeError("Feed failures must be an array");
@@ -194,7 +236,7 @@
     return data;
   }
 
-  const api = { validateScore, compositeMarkerPercent, validateHistory, validateHistoryState, validateTimestamp, latestIndicatorTimestamp, formatObservationTimestamp, validateData };
+  const api = { validateScore, validateCompositeScore, compositeMarkerPercent, verifiedCompositeObservation, validateHistory, validateHistoryState, validateTimestamp, latestIndicatorTimestamp, formatObservationTimestamp, validateData };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   root.SDCAIntegrity = api;
 })(typeof window !== "undefined" ? window : globalThis);

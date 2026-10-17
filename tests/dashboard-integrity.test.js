@@ -5,7 +5,6 @@ const path = require('node:path');
 const vm = require('node:vm');
 const integrity = require('../scripts/dashboard-integrity.js');
 const liveBTCUSD = require('../scripts/live-btc-usd.js');
-const btcUSDChart = require('../scripts/btc-usd-chart.js');
 
 const names = Array.from({ length: 15 }, (_, index) => `indicator-${index}`);
 const baseData = () => ({
@@ -18,15 +17,53 @@ test('missing composite has no marker position; real zero remains a valid zero',
   assert.equal(integrity.compositeMarkerPercent(null), null);
   assert.equal(integrity.compositeMarkerPercent(undefined), null);
   assert.equal(integrity.compositeMarkerPercent(0), 50);
-  assert.equal(integrity.compositeMarkerPercent(3), 0);
-  assert.equal(integrity.compositeMarkerPercent(-3), 100);
+  assert.equal(integrity.compositeMarkerPercent(2), 0);
+  assert.equal(integrity.compositeMarkerPercent(-2), 100);
+  assert.equal(integrity.validateCompositeScore(2), 2);
+  assert.equal(integrity.validateCompositeScore(-2), -2);
 });
 
-test('composite and history values outside display range are rejected', () => {
-  for (const value of [-3.001, 3.001, Infinity, NaN]) {
+test('composite values outside fixed oscillator range and malformed history scores are rejected', () => {
+  for (const value of [-2.001, 2.001, Infinity, NaN]) {
     assert.throws(() => integrity.compositeMarkerPercent(value), /finite number/);
   }
+  assert.equal(integrity.validateScore(3, 'indicator score'), 3, 'legacy indicator score validation remains unchanged');
   assert.throws(() => integrity.validateHistory([{ date: '2025-01-01', score: 3.1 }]), /finite number/);
+});
+
+test('verified composite requires explicit scoring approval, all 15 verified inputs, and a matching dated observation', () => {
+  const data = baseData();
+  data.indicators = names.map((name) => ({ name, category: 'Test', score: 0, status: 'valid' }));
+  data.compositeScore = 0.5;
+  data.dataIntegrity = { scoringRulesApproved: true, compositeCalculated: true, verifiedScores: 15 };
+  const historyState = { history: [{ date: '2026-10-15', score: 0.5 }], error: null };
+
+  const approved = integrity.verifiedCompositeObservation(data, historyState);
+  assert.deepEqual(approved, { available: true, score: 0.5, date: '2026-10-15', reason: null });
+
+  const noApproval = structuredClone(data);
+  noApproval.dataIntegrity.scoringRulesApproved = false;
+  assert.match(integrity.verifiedCompositeObservation(noApproval, historyState).reason, /approved SDCA scoring rules/);
+
+  const partialInputs = structuredClone(data);
+  partialInputs.indicators[14].status = 'unverified';
+  assert.match(integrity.verifiedCompositeObservation(partialInputs, historyState).reason, /all 15 indicator scores/);
+
+  const uncalculated = structuredClone(data);
+  uncalculated.dataIntegrity.compositeCalculated = false;
+  assert.match(integrity.verifiedCompositeObservation(uncalculated, historyState).reason, /all 15 indicator scores/);
+
+  const noDate = integrity.verifiedCompositeObservation(data, { history: [], error: null });
+  assert.match(noDate.reason, /no validated, dated composite observation/);
+
+  const invalidDate = integrity.verifiedCompositeObservation(data, { history: [{ date: '2026-02-30', score: 0.5 }], error: null });
+  assert.match(invalidDate.reason, /history failed validation/);
+
+  const mismatch = integrity.verifiedCompositeObservation(data, { history: [{ date: '2026-10-15', score: 0.4 }], error: null });
+  assert.match(mismatch.reason, /does not match/);
+
+  const outOfRange = { ...data, compositeScore: 2.01 };
+  assert.match(integrity.verifiedCompositeObservation(outOfRange, historyState).reason, /-2 to \+2/);
 });
 
 test('history requires real unique ISO dates in chronological order', () => {
@@ -256,96 +293,102 @@ test('Coinbase BTC-USD ticker parser accepts documented price and time fields on
   }
 });
 
-test('TradingView Lightweight Charts BTC/USD section is accessible and uses only Coinbase USD candles', () => {
+test('homepage uses the fixed-range composite oscillator and removes the BTC market chart feature', () => {
+  const root = path.join(__dirname, '..');
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  const data = JSON.parse(fs.readFileSync(path.join(root, 'data/sdca-latest.json'), 'utf8'));
+  assert.match(html, /<h2>SDCA Composite Oscillator<\/h2>/);
+  assert.match(html, /Fixed score range from −2\.0 to \+2\.0/);
+  assert.match(html, /−2 · OVERVALUED/);
+  assert.match(html, /0 · NEUTRAL/);
+  assert.match(html, /\+2 · UNDERVALUED/);
+  assert.match(html, /id="chart-latest-time"/);
+  assert.match(html, /scoringRulesApproved/);
+  assert.match(html, /History outside fixed −2 to \+2 range; no values were rescaled/);
+  assert.doesNotMatch(html, /Bitcoin \/ USD Market Chart|TradingView Lightweight Charts|btc-usd-chart|lightweight-charts/);
+  assert.doesNotMatch(html, /scripts\/btc-usd-chart\.js/);
+  assert.equal(fs.existsSync(path.join(root, 'scripts/btc-usd-chart.js')), false);
+
+  assert.equal(data.dataIntegrity.compositeCalculated, false);
+  assert.equal(data.dataIntegrity.verifiedScores, 0);
+  assert.equal(data.compositeScore, null);
+  assert.deepEqual(data.history, []);
+  assert.match(html, /Unavailable · approved SDCA scoring rules are not configured/);
+});
+
+test('actual oscillator renderer draws only the −2, 0, +2 scale and does not rescale legacy history', () => {
   const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
-  const chartSource = fs.readFileSync(path.join(__dirname, '..', 'scripts/btc-usd-chart.js'), 'utf8');
-  assert.match(html, /<section class="panel market-chart-panel" aria-labelledby="btc-usd-chart-heading">/);
-  assert.match(html, /id="btc-usd-chart" role="region" aria-label="Interactive TradingView Lightweight Charts Bitcoin \/ US Dollar candlestick chart from Coinbase, 12-hour timeframe"/);
-  assert.match(html, /COINBASE:BTCUSD · 12-hour candlesticks/);
-  assert.match(html, /granularity=21600/);
-  assert.match(html, /12-hour candles are paired from adjacent Coinbase BTC-USD 6-hour candles/);
-  assert.match(chartSource, /lightweight-charts@5\.2\.1/);
-  assert.match(html, /<script src="scripts\/btc-usd-chart\.js"><\/script>/);
-  assert.doesNotMatch(html, /<script src="https:\/\/unpkg\.com\/lightweight-charts/);
-  const panelStart = html.indexOf('<section class="panel market-chart-panel"');
-  const panelEnd = html.indexOf('</section>', panelStart) + '</section>'.length;
-  assert.doesNotMatch(html.slice(panelStart, panelEnd), /BTCUSDT|Binance/);
-  assert.equal(btcUSDChart.sourceUrl, 'https://api.exchange.coinbase.com/products/BTC-USD/candles?granularity=21600');
+  const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map((match) => match[1]);
+  const inlineScript = scripts.find((script) => script.includes('function drawChart(history)'));
+  assert.ok(inlineScript, 'actual oscillator renderer exists');
+  const start = inlineScript.indexOf('    function drawChart(history) {');
+  const end = inlineScript.indexOf('    let lastValidatedHistory = [];', start);
+  assert.ok(start >= 0 && end > start, 'actual drawChart function is available');
+  const rendererSource = inlineScript.slice(start, end);
+  const labels = [];
+  let strokeCount = 0;
+  const ctx = {
+    setTransform() {}, clearRect() {}, beginPath() {}, setLineDash() {}, moveTo() {}, lineTo() {},
+    stroke() { strokeCount += 1; }, fillText(value) { labels.push(value); }, fill() {}, closePath() {}
+  };
+  const canvas = { width: 0, height: 0, getContext: () => ctx, getBoundingClientRect: () => ({ width: 400, height: 300 }) };
+  const context = {
+    SDCAIntegrity: integrity,
+    window: { devicePixelRatio: 1 },
+    $: (id) => id === 'sdca-chart' ? canvas : null
+  };
+  vm.runInNewContext(`${rendererSource}\nthis.drawChart = drawChart;`, context);
+
+  context.drawChart([]);
+  assert.deepEqual(labels.slice(0, 3), ['+2', '0', '-2']);
+  assert.match(labels.at(-1), /Historical data will appear/);
+
+  labels.length = 0;
+  strokeCount = 0;
+  context.drawChart([{ date: '2026-10-15', score: 3 }]);
+  assert.equal(labels.at(-1), 'History outside fixed −2 to +2 range; no values were rescaled');
+  assert.equal(strokeCount, 3, 'only the three reference grid lines are drawn for out-of-range history');
 });
 
-test('Coinbase chart builder aggregates adjacent 6-hour USD candles without filling gaps', () => {
-  const now = 1_800_000_000;
-  const start = Math.floor(now / 43_200) * 43_200 - 43_200;
-  const rows = [
-    [start + 21_600, 110, 125, 115, 120, 3],
-    [start, 90, 120, 100, 115, 2],
-    [start + 43_200, 120, 130, 120, 125, 4]
-  ];
-  assert.deepEqual(btcUSDChart.aggregateTwelveHourCandles(rows, now), [
-    { time: start, open: 100, high: 125, low: 90, close: 120 }
-  ]);
-  assert.throws(() => btcUSDChart.aggregateTwelveHourCandles([rows[0], rows[2]], now), /No complete, contiguous/);
-  assert.throws(() => btcUSDChart.aggregateTwelveHourCandles([[start, 1, 2, 3, 4, 0]], now), /invalid OHLCV/);
-});
-
-test('TradingView chart initialization handles real candle load and unavailable states', async () => {
-  const host = {};
-  const status = { dataset: {}, textContent: '' };
-  const document = {};
-  const added = [];
-  const series = { setData(candles) { added.push(candles); } };
-  const library = {
-    CandlestickSeries: 'candlesticks',
-    CrosshairMode: { Normal: 0 },
-    createChart(container, config) {
-      assert.equal(container, host);
-      assert.equal(config.layout.background.color, '#020403');
-      return { addSeries() { return series; }, timeScale() { return { fitContent() {} }; }, remove() {} };
+test('composite observation renderer keeps missing values unavailable and displays date-only UTC source dates', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map((match) => match[1]);
+  const inlineScript = scripts.find((script) => script.includes('function setComposite(observation)'));
+  assert.ok(inlineScript, 'actual composite display renderer exists');
+  const start = inlineScript.indexOf('    function setComposite(observation) {');
+  const end = inlineScript.indexOf('    function drawChart(history) {', start);
+  const rendererSource = inlineScript.slice(start, end);
+  const elements = new Map();
+  const context = {
+    SDCAIntegrity: integrity,
+    formatScore: (value) => `${value > 0 ? '+' : ''}${Number(value).toFixed(2)}`,
+    formatTimestamp: (value) => `timestamp:${value}`,
+    $: (id) => {
+      if (!elements.has(id)) elements.set(id, { textContent: '', className: '', hidden: true, style: {} });
+      return elements.get(id);
     }
   };
-  const start = Math.floor(1_800_000_000 / 43_200) * 43_200 - 43_200;
-  const controller = btcUSDChart.createController({
-    document,
-    container: host,
-    status,
-    library,
-    nowSeconds: start + 86_400,
-    fetch: async (url, request) => {
-      assert.equal(url, btcUSDChart.sourceUrl);
-      assert.ok(request.signal instanceof AbortSignal);
-      return { ok: true, json: async () => [
-        [start + 21_600, 110, 125, 115, 120, 3],
-        [start, 90, 120, 100, 115, 2]
-      ] };
-    }
-  });
-  await controller.start();
-  assert.equal(status.dataset.status, 'loaded');
-  assert.equal(added[0].length, 1);
-  assert.match(status.textContent, /complete 12-hour BTC-USD candles from Coinbase Exchange/);
-  controller.destroy();
+  vm.runInNewContext(`${rendererSource}\nthis.setComposite = setComposite;`, context);
 
-  const failedStatus = { dataset: {}, textContent: '' };
-  const failed = btcUSDChart.createController({
-    document,
-    container: host,
-    status: failedStatus,
-    library,
-    fetch: async () => { throw new Error('network unavailable'); }
-  });
-  await failed.start();
-  assert.equal(failedStatus.dataset.status, 'error');
-  assert.match(failedStatus.textContent, /network unavailable/);
+  context.setComposite({ available: false, reason: 'Unavailable · approved SDCA scoring rules are not configured.' });
+  assert.equal(elements.get('composite-score').textContent, '—');
+  assert.equal(elements.get('scale-marker').hidden, true);
+  assert.equal(elements.get('chart-latest-time').textContent, 'UTC observation: unavailable');
+
+  context.setComposite({ available: true, score: 1.25, date: '2026-10-15' });
+  assert.equal(elements.get('chart-latest').textContent, '+1.25');
+  assert.equal(elements.get('chart-latest-time').textContent, 'UTC observation: 2026-10-15 (UTC source date)');
+  assert.equal(elements.get('scale-marker').style.left, '18.75%');
 });
 
-test('market chart leaves the live Coinbase quote separate from retained Binance USDT data', () => {
+test('live Coinbase USD quote remains separate from retained Binance USDT daily-close data', () => {
   const root = path.join(__dirname, '..');
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   const data = JSON.parse(fs.readFileSync(path.join(root, 'data/sdca-latest.json'), 'utf8'));
   assert.match(html, /Live Bitcoin \/ USD/);
   assert.match(html, /Coinbase Exchange/);
   assert.match(html, /BTC-USD last trade/);
-  assert.match(html, /Bitcoin \/ USD Market Chart/);
+  assert.doesNotMatch(html, /Bitcoin \/ USD Market Chart/);
   assert.equal(data.bitcoinPriceUSDT.quoteCurrency, 'USDT');
   assert.equal(data.bitcoinPriceUSDT.lastUpdated, '2026-10-16');
   assert.match(fs.readFileSync(path.join(root, 'scripts/update_sdca.py'), 'utf8'), /bitcoinPriceUSDT/);

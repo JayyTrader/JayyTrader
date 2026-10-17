@@ -5,6 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const integrity = require('../scripts/dashboard-integrity.js');
 const liveBTCUSD = require('../scripts/live-btc-usd.js');
+const btcUSDChart = require('../scripts/btc-usd-chart.js');
 
 const names = Array.from({ length: 15 }, (_, index) => `indicator-${index}`);
 const baseData = () => ({
@@ -253,6 +254,101 @@ test('Coinbase BTC-USD ticker parser accepts documented price and time fields on
   ]) {
     assert.throws(() => liveBTCUSD.parseTicker(payload));
   }
+});
+
+test('TradingView Lightweight Charts BTC/USD section is accessible and uses only Coinbase USD candles', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  const chartSource = fs.readFileSync(path.join(__dirname, '..', 'scripts/btc-usd-chart.js'), 'utf8');
+  assert.match(html, /<section class="panel market-chart-panel" aria-labelledby="btc-usd-chart-heading">/);
+  assert.match(html, /id="btc-usd-chart" role="region" aria-label="Interactive TradingView Lightweight Charts Bitcoin \/ US Dollar candlestick chart from Coinbase, 12-hour timeframe"/);
+  assert.match(html, /COINBASE:BTCUSD · 12-hour candlesticks/);
+  assert.match(html, /granularity=21600/);
+  assert.match(html, /12-hour candles are paired from adjacent Coinbase BTC-USD 6-hour candles/);
+  assert.match(chartSource, /lightweight-charts@5\.2\.1/);
+  assert.match(html, /<script src="scripts\/btc-usd-chart\.js"><\/script>/);
+  assert.doesNotMatch(html, /<script src="https:\/\/unpkg\.com\/lightweight-charts/);
+  const panelStart = html.indexOf('<section class="panel market-chart-panel"');
+  const panelEnd = html.indexOf('</section>', panelStart) + '</section>'.length;
+  assert.doesNotMatch(html.slice(panelStart, panelEnd), /BTCUSDT|Binance/);
+  assert.equal(btcUSDChart.sourceUrl, 'https://api.exchange.coinbase.com/products/BTC-USD/candles?granularity=21600');
+});
+
+test('Coinbase chart builder aggregates adjacent 6-hour USD candles without filling gaps', () => {
+  const now = 1_800_000_000;
+  const start = Math.floor(now / 43_200) * 43_200 - 43_200;
+  const rows = [
+    [start + 21_600, 110, 125, 115, 120, 3],
+    [start, 90, 120, 100, 115, 2],
+    [start + 43_200, 120, 130, 120, 125, 4]
+  ];
+  assert.deepEqual(btcUSDChart.aggregateTwelveHourCandles(rows, now), [
+    { time: start, open: 100, high: 125, low: 90, close: 120 }
+  ]);
+  assert.throws(() => btcUSDChart.aggregateTwelveHourCandles([rows[0], rows[2]], now), /No complete, contiguous/);
+  assert.throws(() => btcUSDChart.aggregateTwelveHourCandles([[start, 1, 2, 3, 4, 0]], now), /invalid OHLCV/);
+});
+
+test('TradingView chart initialization handles real candle load and unavailable states', async () => {
+  const host = {};
+  const status = { dataset: {}, textContent: '' };
+  const document = {};
+  const added = [];
+  const series = { setData(candles) { added.push(candles); } };
+  const library = {
+    CandlestickSeries: 'candlesticks',
+    CrosshairMode: { Normal: 0 },
+    createChart(container, config) {
+      assert.equal(container, host);
+      assert.equal(config.layout.background.color, '#020403');
+      return { addSeries() { return series; }, timeScale() { return { fitContent() {} }; }, remove() {} };
+    }
+  };
+  const start = Math.floor(1_800_000_000 / 43_200) * 43_200 - 43_200;
+  const controller = btcUSDChart.createController({
+    document,
+    container: host,
+    status,
+    library,
+    nowSeconds: start + 86_400,
+    fetch: async (url, request) => {
+      assert.equal(url, btcUSDChart.sourceUrl);
+      assert.ok(request.signal instanceof AbortSignal);
+      return { ok: true, json: async () => [
+        [start + 21_600, 110, 125, 115, 120, 3],
+        [start, 90, 120, 100, 115, 2]
+      ] };
+    }
+  });
+  await controller.start();
+  assert.equal(status.dataset.status, 'loaded');
+  assert.equal(added[0].length, 1);
+  assert.match(status.textContent, /complete 12-hour BTC-USD candles from Coinbase Exchange/);
+  controller.destroy();
+
+  const failedStatus = { dataset: {}, textContent: '' };
+  const failed = btcUSDChart.createController({
+    document,
+    container: host,
+    status: failedStatus,
+    library,
+    fetch: async () => { throw new Error('network unavailable'); }
+  });
+  await failed.start();
+  assert.equal(failedStatus.dataset.status, 'error');
+  assert.match(failedStatus.textContent, /network unavailable/);
+});
+
+test('market chart leaves the live Coinbase quote separate from retained Binance USDT data', () => {
+  const root = path.join(__dirname, '..');
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  const data = JSON.parse(fs.readFileSync(path.join(root, 'data/sdca-latest.json'), 'utf8'));
+  assert.match(html, /Live Bitcoin \/ USD/);
+  assert.match(html, /Coinbase Exchange/);
+  assert.match(html, /BTC-USD last trade/);
+  assert.match(html, /Bitcoin \/ USD Market Chart/);
+  assert.equal(data.bitcoinPriceUSDT.quoteCurrency, 'USDT');
+  assert.equal(data.bitcoinPriceUSDT.lastUpdated, '2026-10-16');
+  assert.match(fs.readFileSync(path.join(root, 'scripts/update_sdca.py'), 'utf8'), /bitcoinPriceUSDT/);
 });
 
 test('live quote controller reports loading, successful USD quote, and last successful update time', async () => {

@@ -303,6 +303,57 @@ test('live quote refresh starts immediately, repeats every minute, and stops its
   assert.equal(cleared, 'timer');
 });
 
+test('stopping during an active live quote request clears its interval and aborts safely', async () => {
+  const states = [];
+  let intervalCallback;
+  let intervalId;
+  const clearedIntervals = [];
+  let requestSignal;
+  let abortEvents = 0;
+  const controller = liveBTCUSD.createController({
+    fetchImpl: (_url, options) => new Promise((_resolve, reject) => {
+      requestSignal = options.signal;
+      options.signal.addEventListener('abort', () => {
+        abortEvents += 1;
+        const error = new Error('request aborted');
+        error.name = 'AbortError';
+        reject(error);
+      }, { once: true });
+    }),
+    onState: (state) => states.push(state),
+    setIntervalImpl: (callback) => {
+      intervalCallback = callback;
+      intervalId = { timer: 'quote-refresh' };
+      return intervalId;
+    },
+    clearIntervalImpl: (id) => clearedIntervals.push(id),
+    setTimeoutImpl: () => 'request-timeout',
+    clearTimeoutImpl: () => {}
+  });
+
+  const initialRequest = controller.start();
+  assert.equal(states.at(-1).status, 'loading');
+  assert.equal(typeof intervalCallback, 'function');
+  assert.equal(requestSignal.aborted, false);
+
+  assert.doesNotThrow(() => controller.stop());
+  assert.doesNotThrow(() => controller.stop());
+  let watchdog;
+  const result = await Promise.race([
+    initialRequest,
+    new Promise((resolve) => { watchdog = setTimeout(() => resolve('still-pending'), 100); })
+  ]);
+  clearTimeout(watchdog);
+
+  assert.notEqual(result, 'still-pending', 'start should settle after stop aborts its active request');
+  assert.equal(result, false);
+  assert.equal(requestSignal.aborted, true);
+  assert.equal(abortEvents, 1);
+  assert.deepEqual(clearedIntervals, [intervalId]);
+  assert.equal(states.at(-1).status, 'error');
+  assert.equal(states.at(-1).price, null);
+  assert.equal(states.some((state) => state.status === 'loading' || state.status === 'refreshing'), false);
+});
 test('overlapping live quote refreshes are skipped', async () => {
   let calls = 0;
   let resolveFetch;
@@ -323,21 +374,51 @@ test('overlapping live quote refreshes are skipped', async () => {
   assert.equal(await first, true);
 });
 
-test('live quote request timeout is reported without throwing', async () => {
+test('a pending live quote request is aborted at the 10-second timeout and leaves loading state', async () => {
   const states = [];
+  let requestSignal;
+  let timeoutCallback;
+  let timeoutDelay;
+  let clearedTimeout = null;
   const controller = liveBTCUSD.createController({
-    fetchImpl: async (_url, options) => {
-      if (options.signal.aborted) throw new Error('aborted');
-      return { ok: true, json: async () => ({}) };
-    },
+    fetchImpl: (_url, options) => new Promise((_resolve, reject) => {
+      requestSignal = options.signal;
+      options.signal.addEventListener('abort', () => {
+        const error = new Error('request aborted');
+        error.name = 'AbortError';
+        reject(error);
+      }, { once: true });
+    }),
     onState: (state) => states.push(state),
-    setTimeoutImpl: (callback) => { callback(); return 1; },
-    clearTimeoutImpl: () => {}
+    setTimeoutImpl: (callback, delay) => {
+      timeoutCallback = callback;
+      timeoutDelay = delay;
+      return 'request-timeout';
+    },
+    clearTimeoutImpl: (id) => { clearedTimeout = id; }
   });
 
-  assert.equal(await controller.refresh(), false);
+  const refresh = controller.refresh();
+  assert.equal(states.at(-1).status, 'loading');
+  assert.equal(timeoutDelay, 10_000);
+  assert.equal(requestSignal.aborted, false);
+
+  timeoutCallback();
+  let watchdog;
+  const result = await Promise.race([
+    refresh,
+    new Promise((resolve) => { watchdog = setTimeout(() => resolve('still-pending'), 100); })
+  ]);
+  clearTimeout(watchdog);
+
+  assert.notEqual(result, 'still-pending', 'refresh should settle when its request is aborted');
+  assert.equal(result, false);
+  assert.equal(requestSignal.aborted, true);
+  assert.equal(clearedTimeout, 'request-timeout');
   assert.equal(states.at(-1).status, 'error');
+  assert.equal(states.at(-1).price, null);
   assert.equal(states.at(-1).error, 'Request timed out');
+  assert.equal(states.some((state) => state.status === 'loading' || state.status === 'refreshing'), false);
 });
 
 

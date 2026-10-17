@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const vm = require('node:vm');
 const integrity = require('../scripts/dashboard-integrity.js');
 const liveBTCUSD = require('../scripts/live-btc-usd.js');
 
@@ -136,7 +137,7 @@ test('dashboard hides missing marker, displays provenance, avoids CoinGecko, and
   const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
   assert.match(html, /\$\("scale-marker"\)\.hidden = true/);
   assert.doesNotMatch(html, /api\.coingecko\.com/);
-  assert.match(html, /formatObservationTimestamp\(observedAt\)/);
+  assert.match(html, /SDCAIntegrity\.formatObservationTimestamp\(observedAt,\s*formatTimestamp\)/);
   assert.match(html, /feed-errors/);
   assert.match(html, /item\.error\.message/);
   assert.match(html, /Most recent indicator reading/);
@@ -159,6 +160,54 @@ test('dashboard hides missing marker, displays provenance, avoids CoinGecko, and
   assert.match(html, /Dashboard rendering error/);
   assert.match(html, /drawChart\(lastValidatedHistory\.slice\(-180\)\)/);
   assert.doesNotMatch(html, /window\.addEventListener\("resize",\s*\(\)\s*=>\s*\{\s*loadSDCAData\(\)/);
+});
+
+test('actual dashboard indicator renderers format source dates through the shared helper', () => {
+  const root = path.join(__dirname, '..');
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map((match) => match[1]);
+  const inlineScript = scripts.find((script) => script.includes('function renderIndicatorCards(indicators)'));
+  assert.ok(inlineScript, 'dashboard inline renderer script exists');
+
+  const start = inlineScript.indexOf('    function renderIndicatorCards(indicators) {');
+  const end = inlineScript.indexOf('    function renderSourceLinks(item, table = false) {', start);
+  assert.ok(start >= 0 && end > start, 'actual card and table renderer definitions are available');
+  const rendererSource = inlineScript.slice(start, end);
+  const rendered = new Map();
+  const context = {
+    SDCAIntegrity: integrity,
+    formatTimestamp: (value) => `formatted:${value}`,
+    formatScore: (value) => Number(value).toFixed(2),
+    escapeHTML: (value) => String(value).replace(/[&<>\"']/g, (char) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', "'": '&#39;'
+    })[char]),
+    renderSourceLinks: () => 'Source link',
+    $: (id) => {
+      if (!rendered.has(id)) rendered.set(id, { innerHTML: '' });
+      return rendered.get(id);
+    }
+  };
+  vm.runInNewContext(`${rendererSource}
+this.renderIndicatorCards = renderIndicatorCards;
+this.renderIndicatorTable = renderIndicatorTable;`, context);
+
+  const data = JSON.parse(fs.readFileSync(path.join(root, 'data/sdca-latest.json'), 'utf8'));
+  integrity.validateData(data, data.indicators.map((item) => item.name));
+  assert.doesNotThrow(() => context.renderIndicatorCards(data.indicators));
+  assert.doesNotThrow(() => context.renderIndicatorTable(data.indicators));
+  assert.match(rendered.get('indicator-grid').innerHTML, /Source observation: 2026-10-15 \(UTC source date\)/);
+  assert.match(rendered.get('indicator-table').innerHTML, /Source observation: 2026-10-15 \(UTC source date\)/);
+});
+
+test('Coinbase Exchange link styling is scoped and covers visited, hover, and keyboard focus states', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  const style = html.match(/<style>([\s\S]*?)<\/style>/);
+  assert.ok(style, 'dashboard stylesheet exists');
+  assert.match(html, /class=\"live-btc-usd-link\" href=\"https:\/\/docs\.cdp\.coinbase\.com\//);
+  assert.match(style[1], /\.live-btc-usd-link:link,\s*\.live-btc-usd-link:visited\s*\{[^}]*color:\s*var\(--muted\)/);
+  assert.match(style[1], /\.live-btc-usd-link:hover,\s*\.live-btc-usd-link:focus-visible\s*\{[^}]*color:\s*var\(--mint\)/);
+  assert.match(style[1], /\.live-btc-usd-link:focus-visible\s*\{[^}]*outline:\s*1px solid var\(--green\)/);
+  assert.doesNotMatch(style[1], /(?:^|[,\s])a:(?:link|visited|hover|focus-visible)/);
 });
 
 test('checked-in data indicator names match the dashboard and pass schema validation', () => {

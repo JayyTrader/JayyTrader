@@ -339,3 +339,15 @@ test('live quote request timeout is reported without throwing', async () => {
   assert.equal(states.at(-1).status, 'error');
   assert.equal(states.at(-1).error, 'Request timed out');
 });
+
+
+test('dashboard keeps the live Coinbase BTC/USD quote separate from the Binance BTC/USDT daily close', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  assert.match(html, /id="live-btc-usd-price"/);
+  assert.match(html, /Coinbase Exchange/);
+  assert.match(html, /BTC-USD last trade/);
+  assert.match(html, /STALE · refresh failed/);
+  assert.match(html, /Connection error:/);
+  assert.match(html, /renderDailyClose\(data\.bitcoinPriceUSDT\)/);
+  assert.match(html, /USDT is not USD/);
+});

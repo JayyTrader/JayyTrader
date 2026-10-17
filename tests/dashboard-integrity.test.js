@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const integrity = require('../scripts/dashboard-integrity.js');
+const liveBTCUSD = require('../scripts/live-btc-usd.js');
 
 const names = Array.from({ length: 15 }, (_, index) => `indicator-${index}`);
 const baseData = () => ({
@@ -174,4 +175,167 @@ test('checked-in data indicator names match the dashboard and pass schema valida
   assert.equal(dho.rawValue, null);
   assert.equal(dho.verificationStatus, 'unavailable');
   assert.match(dho.verificationDetails, /multiple reliable date-specific reference values/);
+});
+
+
+test('live BTC/USD formatting rejects invalid values and formats USD explicitly', () => {
+  assert.equal(liveBTCUSD.formatUSDPrice(1234.5), '$1,234.50');
+  for (const value of [0, -1, Infinity, NaN, '123']) {
+    assert.throws(() => liveBTCUSD.formatUSDPrice(value), /finite positive number/);
+  }
+});
+
+test('Coinbase BTC-USD ticker parser accepts documented price and time fields only when valid', () => {
+  assert.deepEqual(liveBTCUSD.parseTicker({
+    price: '81234.56',
+    time: '2026-10-17T00:00:00.123Z'
+  }), {
+    price: 81234.56,
+    sourceTime: '2026-10-17T00:00:00.123Z'
+  });
+
+  for (const payload of [
+    null,
+    [],
+    {},
+    { price: '0', time: '2026-10-17T00:00:00Z' },
+    { price: '-10', time: '2026-10-17T00:00:00Z' },
+    { price: 'not-a-price', time: '2026-10-17T00:00:00Z' },
+    { price: '12.34', time: 'not-a-date' }
+  ]) {
+    assert.throws(() => liveBTCUSD.parseTicker(payload));
+  }
+});
+
+test('live quote controller reports loading, successful USD quote, and last successful update time', async () => {
+  const states = [];
+  const receivedAt = new Date('2026-10-17T00:01:00.000Z');
+  const controller = liveBTCUSD.createController({
+    fetchImpl: async (url) => {
+      assert.equal(url, liveBTCUSD.ENDPOINT);
+      return {
+        ok: true,
+        json: async () => ({ price: '81234.56', time: '2026-10-17T00:00:59.000Z' })
+      };
+    },
+    onState: (state) => states.push(state),
+    now: () => receivedAt,
+    setTimeoutImpl: () => 1,
+    clearTimeoutImpl: () => {}
+  });
+
+  assert.equal(await controller.refresh(), true);
+  assert.deepEqual(states.map((state) => state.status), ['loading', 'live']);
+  assert.equal(states[1].price, 81234.56);
+  assert.equal(states[1].sourceTime, '2026-10-17T00:00:59.000Z');
+  assert.equal(states[1].receivedAt, receivedAt);
+});
+
+test('invalid JSON payload and connection errors are unavailable before first success', async () => {
+  for (const fetchImpl of [
+    async () => ({ ok: true, json: async () => ({ price: 'NaN', time: '2026-10-17T00:00:00Z' }) }),
+    async () => { throw new Error('network offline'); }
+  ]) {
+    const states = [];
+    const controller = liveBTCUSD.createController({
+      fetchImpl,
+      onState: (state) => states.push(state),
+      setTimeoutImpl: () => 1,
+      clearTimeoutImpl: () => {}
+    });
+    assert.equal(await controller.refresh(), false);
+    assert.equal(states.at(-1).status, 'error');
+    assert.equal(states.at(-1).price, null);
+  }
+});
+
+test('failed refresh preserves the last quote and marks it stale with its successful timestamp', async () => {
+  const states = [];
+  let calls = 0;
+  const receivedAt = new Date('2026-10-17T00:01:00.000Z');
+  const controller = liveBTCUSD.createController({
+    fetchImpl: async () => {
+      calls += 1;
+      if (calls === 1) {
+        return { ok: true, json: async () => ({ price: '81234.56', time: '2026-10-17T00:00:59Z' }) };
+      }
+      throw new Error('connection reset');
+    },
+    onState: (state) => states.push(state),
+    now: () => receivedAt,
+    setTimeoutImpl: () => 1,
+    clearTimeoutImpl: () => {}
+  });
+
+  assert.equal(await controller.refresh(), true);
+  assert.equal(await controller.refresh(), false);
+  const stale = states.at(-1);
+  assert.equal(stale.status, 'stale');
+  assert.equal(stale.price, 81234.56);
+  assert.equal(stale.receivedAt, receivedAt);
+  assert.match(stale.error, /connection reset/);
+});
+
+test('live quote refresh starts immediately, repeats every minute, and stops its timer', async () => {
+  let calls = 0;
+  let callback;
+  let delay;
+  let cleared = null;
+  const controller = liveBTCUSD.createController({
+    fetchImpl: async () => {
+      calls += 1;
+      return { ok: true, json: async () => ({ price: '81234.56', time: '2026-10-17T00:00:59Z' }) };
+    },
+    onState: () => {},
+    setIntervalImpl: (fn, ms) => { callback = fn; delay = ms; return 'timer'; },
+    clearIntervalImpl: (id) => { cleared = id; },
+    setTimeoutImpl: () => 1,
+    clearTimeoutImpl: () => {}
+  });
+
+  await controller.start();
+  assert.equal(calls, 1);
+  assert.equal(delay, 60_000);
+  callback();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(calls, 2);
+  controller.stop();
+  assert.equal(cleared, 'timer');
+});
+
+test('overlapping live quote refreshes are skipped', async () => {
+  let calls = 0;
+  let resolveFetch;
+  const controller = liveBTCUSD.createController({
+    fetchImpl: () => {
+      calls += 1;
+      return new Promise((resolve) => { resolveFetch = resolve; });
+    },
+    onState: () => {},
+    setTimeoutImpl: () => 1,
+    clearTimeoutImpl: () => {}
+  });
+
+  const first = controller.refresh();
+  assert.equal(await controller.refresh(), false);
+  assert.equal(calls, 1);
+  resolveFetch({ ok: true, json: async () => ({ price: '81234.56', time: '2026-10-17T00:00:59Z' }) });
+  assert.equal(await first, true);
+});
+
+test('live quote request timeout is reported without throwing', async () => {
+  const states = [];
+  const controller = liveBTCUSD.createController({
+    fetchImpl: async (_url, options) => {
+      if (options.signal.aborted) throw new Error('aborted');
+      return { ok: true, json: async () => ({}) };
+    },
+    onState: (state) => states.push(state),
+    setTimeoutImpl: (callback) => { callback(); return 1; },
+    clearTimeoutImpl: () => {}
+  });
+
+  assert.equal(await controller.refresh(), false);
+  assert.equal(states.at(-1).status, 'error');
+  assert.equal(states.at(-1).error, 'Request timed out');
 });

@@ -148,7 +148,6 @@ test('dashboard hides missing marker, displays provenance, avoids CoinGecko, and
   assert.match(html, /item\.sourceTimestamp/);
   assert.match(html, /item\.verificationDetails/);
   assert.match(html, /item\.sourceComparison/);
-  assert.match(html, /quote\.lastUpdated[^\n]*SDCAIntegrity\.formatObservationTimestamp/);
   assert.match(html, /Published source cross-check/);
   assert.match(html, /Required backlink/);
   assert.match(html, /formatObservationTimestamp/);

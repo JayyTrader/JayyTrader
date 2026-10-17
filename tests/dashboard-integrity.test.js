@@ -352,7 +352,7 @@ test('stopping during an active live quote request clears its interval and abort
   assert.deepEqual(clearedIntervals, [intervalId]);
   assert.equal(states.at(-1).status, 'error');
   assert.equal(states.at(-1).price, null);
-  assert.equal(states.some((state) => state.status === 'loading' || state.status === 'refreshing'), false);
+  assert.equal(['loading', 'refreshing'].includes(states.at(-1).status), false);
 });
 test('overlapping live quote refreshes are skipped', async () => {
   let calls = 0;
@@ -418,7 +418,7 @@ test('a pending live quote request is aborted at the 10-second timeout and leave
   assert.equal(states.at(-1).status, 'error');
   assert.equal(states.at(-1).price, null);
   assert.equal(states.at(-1).error, 'Request timed out');
-  assert.equal(states.some((state) => state.status === 'loading' || state.status === 'refreshing'), false);
+  assert.equal(['loading', 'refreshing'].includes(states.at(-1).status), false);
 });
 
 

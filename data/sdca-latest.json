@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "updatedAt": "2026-10-16T23:10:04+00:00",
+  "updatedAt": "2026-10-17T00:21:02+00:00",
   "status": "partial",
   "feedFailures": [],
   "historyValidation": {
@@ -18,11 +18,11 @@
     "message": "Raw readings only. SDCA scoring and composite calculation are not implemented."
   },
   "bitcoinPriceUSDT": {
-    "usdt": 82245.93,
+    "usdt": 81615.64,
     "status": "available",
     "source": "https://developers.binance.com/en/docs/products/spot/rest-api",
     "quoteCurrency": "USDT",
-    "lastUpdated": "2026-10-15"
+    "lastUpdated": "2026-10-16"
   },
   "indicators": [
     {
@@ -198,10 +198,10 @@
       "name": "Crypto Fear and Greed Index",
       "category": "Sentiment",
       "score": null,
-      "rawValue": 63.0,
+      "rawValue": 55.0,
       "status": "raw_available_source_substitute",
       "source": "https://alternative.me/crypto/fear-and-greed-index/",
-      "lastUpdated": "2026-10-16T00:00:00+00:00",
+      "lastUpdated": "2026-10-17T00:00:00+00:00",
       "note": "Alternative.me reading is a substitute for the selected CoinStats source; equivalence is unverified. No SDCA score is assigned.",
       "referenceSource": "https://coinstats.app/fear-and-greed/",
       "substituteProvider": "Alternative.me",

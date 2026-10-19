@@ -1,475 +1,202 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080D12">
-  <title>JxProbability | SDCA Intelligence</title>
-  <meta name="description" content="JxProbability — transparent, probability-oriented Bitcoin valuation research and SDCA intelligence.">
+  <title>JxProbability</title>
+  <meta name="description" content="Transparent Bitcoin valuation research. Probabilities are the currency of the markets. No noise. Just signal.">
   <link rel="stylesheet" href="styles/tokens.css">
-
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+    * { box-sizing: border-box; }
     body {
+      min-width: 320px;
       min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
       overflow-x: hidden;
       color: var(--text);
       background:
-        radial-gradient(ellipse at 50% 20%, rgba(0, 220, 255, .045), transparent 55%),
+        radial-gradient(ellipse at 50% 42%, color-mix(in srgb, var(--cyan) 4%, transparent), transparent 58%),
         var(--bg);
       font-family: var(--font-ui);
     }
-
     body::before {
-      content: "";
       position: fixed;
       inset: 0;
       z-index: 0;
-      pointer-events: none;
       background-image:
-        linear-gradient(rgba(0, 220, 255, .025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 220, 255, .025) 1px, transparent 1px);
+        linear-gradient(color-mix(in srgb, var(--cyan) 2.5%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--cyan) 2.5%, transparent) 1px, transparent 1px);
       background-size: 48px 48px;
-      mask-image: linear-gradient(to bottom, black, transparent 90%);
+      content: "";
+      pointer-events: none;
+      mask-image: linear-gradient(to bottom, #000, transparent 90%);
     }
-
     #cursor-glow {
       position: fixed;
+      z-index: 0;
       top: 0;
       left: 0;
       width: 520px;
       height: 520px;
       border-radius: 50%;
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0;
       background: radial-gradient(circle,
-        rgba(0,220,255,.065) 0%,
-        rgba(0,220,255,.035) 32%,
-        rgba(0,220,255,.012) 55%,
+        color-mix(in srgb, var(--cyan) 6.5%, transparent) 0%,
+        color-mix(in srgb, var(--cyan) 3.5%, transparent) 32%,
+        color-mix(in srgb, var(--cyan) 1.2%, transparent) 55%,
         transparent 72%);
+      opacity: 0;
+      pointer-events: none;
       transform: translate(-50%, -50%);
       transition: opacity .35s ease;
       will-change: left, top;
     }
-
-    header, main, footer { position: relative; z-index: 1; }
-
-    header {
-      min-height: 68px;
-      padding: 0 6%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      border-bottom: 1px solid var(--line);
-      background: rgba(0,0,0,.65);
+    @media (hover: hover) and (pointer: fine) {
+      body:hover #cursor-glow { opacity: 1; }
     }
-
-    .brand {
-      font-size: 21px;
+    .landing {
+      position: relative;
+      z-index: 1;
+      width: min(100% - 40px, 720px);
+      padding: 48px 0;
+      text-align: center;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(42px, 9vw, 76px);
       font-weight: 750;
-      letter-spacing: -1px;
-      white-space: nowrap;
+      letter-spacing: -.065em;
+      line-height: 1;
     }
-
-    .brand span, .accent { color: var(--cyan); }
-    .eyebrow::before {
-      content: "";
-      display: inline-block;
-      width: 3px;
-      height: 3px;
-      margin: 0 8px 2px 0;
-      background: var(--amber);
-      vertical-align: middle;
+    h1 span {
+      color: var(--cyan);
+      text-shadow: var(--glow-cyan-soft);
     }
     .cursor {
       display: inline-block;
-      width: 2px;
-      height: 1em;
-      margin-left: 5px;
-      vertical-align: -2px;
-      background: var(--cyan);
-      box-shadow: 0 0 8px rgba(0, 220, 255, .45);
-      animation: cursor-blink 1.2s ease-in-out infinite;
-    }
-    @keyframes cursor-blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: .15; }
-    }
-
-    .market-status, .eyebrow, .micro-label {
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      font-size: 9px;
-      color: var(--muted);
-    }
-
-    .market-status, .live-label, .status-inline {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-    }
-
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--muted);
-      box-shadow: none;
-      flex-shrink: 0;
-    }
-
-    main { max-width: 1180px; margin: 0 auto; padding: 64px 28px 85px; }
-
-    .hero { text-align: center; padding-bottom: 46px; }
-    .eyebrow { color: var(--cyan); letter-spacing: 4px; margin-bottom: 20px; }
-
-    h1 {
-      font-size: clamp(37px, 6.5vw, 70px);
-      line-height: 1.04;
-      letter-spacing: -3.5px;
-      font-weight: 730;
-    }
-
-    h1 span {
-      background: linear-gradient(100deg, var(--text) 5%, var(--cyan) 95%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .subtitle {
-      margin: 22px auto 0;
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.8;
-    }
-
-    .motto {
-      margin-top: 17px;
-      color: var(--cyan);
-      font-size: 11px;
-      letter-spacing: .5px;
-    }
-
-    .section-heading {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 18px;
-      margin: 42px 0 17px;
-    }
-
-    .section-heading h2 { font-size: 16px; font-weight: 650; letter-spacing: -.3px; }
-    .section-heading h2::before {
-      content: "";
-      display: inline-block;
       width: 3px;
-      height: 3px;
-      margin: 0 8px 3px 0;
-      background: var(--amber);
-      vertical-align: middle;
+      height: .82em;
+      margin-left: 8px;
+      background: var(--cyan);
+      box-shadow: var(--glow-cyan-soft);
+      vertical-align: -.02em;
+      animation: blink 1.2s ease-in-out infinite;
     }
-    .section-heading p { color: var(--muted); font-size: 10px; margin-top: 6px; }
-    .section-tag { color: var(--muted); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; }
-
-    .grid { display: grid; gap: 16px; }
-    .dashboard-topline { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin: 8px 0 24px; }
-
-    .panel {
-      min-width: 0;
-      position: relative;
-      border: 1px solid var(--line);
-      border-radius: 2px;
-      padding: 22px;
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .18; } }
+    .tagline {
+      margin: 22px 0 0;
+      color: var(--muted);
+      font-size: clamp(13px, 2vw, 16px);
+      line-height: 1.7;
+    }
+    .motto {
+      margin: 12px 0 0;
+      color: var(--cyan-soft);
+      font-size: 11px;
+      letter-spacing: .04em;
+      line-height: 1.7;
+    }
+    .quote {
+      width: min(100%, 390px);
+      margin: 38px auto 0;
+      padding: 16px 18px;
+      border: var(--border-hairline);
+      border-top: 1px solid color-mix(in srgb, var(--cyan) 42%, transparent);
       background: linear-gradient(145deg, var(--panel2), var(--panel));
-      box-shadow: 0 12px 40px rgba(0,0,0,.12);
-      overflow: hidden;
+      box-shadow: 0 14px 42px rgba(0, 0, 0, .22);
+      text-align: left;
     }
-
-    .panel::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 14%;
-      width: 72%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-      opacity: .5;
-    }
-
-    .panel-label {
-      color: var(--muted);
-      font-size: 9px;
-      letter-spacing: 1.8px;
-      text-transform: uppercase;
-    }
-
-    .big-number {
-      margin-top: 17px;
-      font-size: clamp(29px, 4vw, 43px);
-      font-weight: 650;
-      letter-spacing: -1.8px;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .muted { color: var(--muted); }
-    .small-note { margin-top: 9px; font-size: 11px; line-height: 1.6; color: var(--muted); }
-    .positive { color: var(--cyan); }
-    .negative, .neutral { color: var(--text); }
-
-    .pill {
-      display: inline-flex;
+    .quote-primary {
+      display: flex;
       align-items: center;
-      gap: 7px;
-      padding: 7px 9px;
-      border: 1px solid var(--line);
-      border-radius: 5px;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .quote-label {
+      padding-left: 7px;
+      border-left: 1px solid var(--amber);
       color: var(--muted);
       font-size: 9px;
-      letter-spacing: .8px;
-      text-transform: uppercase;
+      letter-spacing: .16em;
     }
-
-    .price { font-size: clamp(28px, 4vw, 38px); }
-    .panel-divider { height: 1px; background: var(--line); margin: 19px 0 14px; }
-    .panel-footer { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 9px; letter-spacing: .7px; text-transform: uppercase; }
+    .price {
+      display: block;
+      margin-top: 5px;
+      color: var(--text);
+      font-size: clamp(22px, 5vw, 27px);
+      font-variant-numeric: tabular-nums;
+      font-weight: 650;
+      letter-spacing: -.03em;
+    }
+    .live-quote-status {
+      max-width: 185px;
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.5;
+      text-align: right;
+    }
     .live-quote-status[data-status="live"] { color: var(--cyan); }
     .live-quote-status[data-status="stale"],
     .live-quote-status[data-status="error"] { color: var(--amber); }
-    .live-btc-usd-link:link, .live-btc-usd-link:visited {
+    .quote-details {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 8px;
+      line-height: 1.5;
+    }
+    .quote-details a {
       color: var(--muted);
       text-decoration: none;
-      transition: color .18s ease;
-    }
-    .live-btc-usd-link:hover, .live-btc-usd-link:focus-visible {
-      color: var(--cyan-soft);
-      text-decoration: underline;
       text-underline-offset: 3px;
     }
-    .live-btc-usd-link:focus-visible {
-      outline: 1px solid var(--cyan);
-      outline-offset: 3px;
-      border-radius: 2px;
+    .quote-details a:hover,
+    .quote-details a:focus-visible { color: var(--cyan); text-decoration: underline; }
+    .quote-details a:focus-visible { outline: 1px solid var(--cyan); outline-offset: 3px; }
+    @media (max-width: 480px) {
+      .landing { width: min(100% - 32px, 720px); }
+      .quote { margin-top: 30px; padding: 14px; }
+      .quote-primary { align-items: flex-start; flex-direction: column; gap: 9px; }
+      .live-quote-status { max-width: none; text-align: left; }
     }
-
-    .quote-compact { display: flex; align-items: center; gap: 14px; padding: 9px 12px; border: 1px solid var(--line); background: rgba(23,35,44,.72); }
-    .quote-compact .price { font-size: 17px; font-variant-numeric: tabular-nums; font-weight: 650; }
-    .quote-compact .micro-label { font-size: 8px; }
-    .quote-compact .micro-label {
-      padding-left: 6px;
-      border-left: 1px solid var(--amber);
-    }
-    .quote-compact .live-quote-status { margin: 0; max-width: 180px; font-size: 9px; line-height: 1.4; }
-    .quote-updated { color: var(--muted); font-size: 8px; }
-
-    .oscillator-panel { min-height: 330px; padding: 26px; display: grid; grid-template-rows: auto 1fr auto; }
-    .oscillator-panel::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 22px;
-      height: 2px;
-      background: var(--amber);
-      opacity: .7;
-    }
-    .oscillator-heading { display: flex; align-items: start; justify-content: space-between; gap: 20px; }
-    .oscillator-value { font-size: clamp(34px, 6vw, 64px); line-height: 1; letter-spacing: -3px; font-variant-numeric: tabular-nums; color: var(--muted); }
-    .oscillator-stage { min-height: 170px; margin: 24px 0 18px; display: grid; place-items: center; position: relative; border: 1px solid rgba(0,220,255,.08); background: linear-gradient(rgba(0,220,255,.018) 1px, transparent 1px), linear-gradient(90deg,rgba(0,220,255,.018) 1px,transparent 1px), rgba(8,13,18,.38); background-size: 28px 28px; }
-    .oscillator-stage::before, .oscillator-stage::after { content: ""; position: absolute; width: 12px; height: 12px; border-color: rgba(0,220,255,.4); }
-    .oscillator-stage::before { top: -1px; left: -1px; border-top: 1px solid; border-left: 1px solid; }
-    .oscillator-stage::after { right: -1px; bottom: -1px; border-right: 1px solid; border-bottom: 1px solid; }
-    .oscillator-message { max-width: 460px; padding: 20px; text-align: center; color: var(--muted); font-size: 12px; line-height: 1.7; }
-    .oscillator-message strong { display: block; margin-bottom: 8px; color: var(--text); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; }
-
-    .notice {
-      border: 1px solid rgba(255,170,35,.24);
-      background: rgba(255,170,35,.045);
-      border-radius: 2px;
-      padding: 13px 15px;
-      color: #c5b58e;
-      font-size: 11px;
-      line-height: 1.65;
-      margin-top: 16px;
-    }
-
-    .indicator-grid { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); }
-    .indicator-card { aspect-ratio: 1; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; background: linear-gradient(145deg, rgba(29,43,53,.75), rgba(23,35,44,.92)); }
-    .indicator-card::before { left: 12%; width: 28%; opacity: .18; }
-    .indicator-name { font-size: 12px; line-height: 1.45; font-weight: 620; overflow-wrap: anywhere; }
-    .indicator-code { color: var(--muted); font-size: 8px; letter-spacing: 1.3px; text-transform: uppercase; }
-    .indicator-status { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 8px; letter-spacing: 1.1px; text-transform: uppercase; }
-    .status-square { width: 6px; height: 6px; border: 1px solid var(--muted); border-radius: 50%; }
-    .method-link { color: var(--muted); font-size: 9px; letter-spacing: 1px; text-decoration: none; text-transform: uppercase; }
-    .method-link:hover, .method-link:focus-visible { color: var(--cyan); }
-
-    footer {
-      min-height: 60px;
-      padding: 22px 18px;
-      border-top: 1px solid rgba(0,220,255,.10);
-      text-align: center;
-      color: var(--muted);
-      font-size: 9px;
-      letter-spacing: 2px;
-    }
-
-    @media (hover:hover) and (pointer:fine) {
-      body:hover #cursor-glow { opacity: 1; }
-    }
-
-    @media (max-width: 800px) {
-      main { padding: 48px 20px 65px; }
-      .indicator-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
-    }
-
-    @media (max-width: 520px) {
-      header { min-height: 62px; padding: 0 20px; }
-      .brand { font-size: 19px; }
-      .market-status { font-size: 8px; letter-spacing: 1px; }
-      main { padding: 46px 15px 55px; }
-      h1 { letter-spacing: -2.2px; }
-      .eyebrow { letter-spacing: 2.5px; }
-      .subtitle { font-size: 13px; }
-      .indicator-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .panel { padding: 18px; }
-      .section-heading { align-items: start; flex-direction: column; }
-      .dashboard-topline { align-items: start; flex-direction: column; gap: 18px; }
-      .quote-compact { width: 100%; justify-content: space-between; flex-wrap: wrap; }
-      .oscillator-panel { min-height: 300px; padding: 18px; }
-      .oscillator-stage { min-height: 150px; }
-      .indicator-grid { gap: 9px; }
-      .indicator-card { padding: 12px; }
-    }
-
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        scroll-behavior: auto !important;
-        animation-duration: .01ms !important;
-        transition-duration: .01ms !important;
-      }
-
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
       .cursor { animation: none; }
     }
   </style>
 </head>
-
 <body>
   <div id="cursor-glow" aria-hidden="true"></div>
+  <main class="landing">
+    <h1>Jx<span>Probability</span><span class="cursor" aria-hidden="true"></span></h1>
+    <p class="tagline">Transparent valuation research. Systematic accumulation intelligence.</p>
+    <p class="motto">Probabilities are the currency of the markets. No noise. Just signal.</p>
 
-  <header>
-    <div class="brand">Jx<span>Probability</span><span class="cursor" aria-hidden="true"></span></div>
-    <a class="method-link" href="methodology.html">Methodology &amp; sources</a>
-  </header>
-
-  <main>
-    <section class="hero">
-      <div class="eyebrow">Independent Bitcoin Research</div>
-      <h1>Jx<span>Probability</span></h1>
-      <p class="subtitle">Transparent valuation research. Systematic accumulation intelligence.</p>
-      <p class="motto">Probabilities are the currency of the markets. No noise. Just signal.</p>
+    <section class="quote" aria-label="Live Bitcoin to US dollar quote">
+      <div class="quote-primary">
+        <div>
+          <span class="quote-label">BTC / USD</span>
+          <strong class="price" id="live-btc-usd-price">Loading…</strong>
+        </div>
+        <p class="live-quote-status" id="live-btc-usd-status" role="status" aria-live="polite">Connecting to Coinbase Exchange…</p>
+      </div>
+      <div class="quote-details">
+        <span>Updated <time id="live-btc-usd-updated">Unavailable</time></span>
+        <a id="live-btc-usd-source" href="https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker" target="_blank" rel="noopener noreferrer">Coinbase Exchange ↗</a>
+      </div>
     </section>
-
-    <section class="dashboard-topline" aria-label="Market quote and model status">
-      <div>
-        <div class="panel-label">SDCA Intelligence / 15-input framework</div>
-        <p class="small-note">Long-horizon valuation research</p>
-      </div>
-      <aside class="quote-compact" aria-label="Live Bitcoin to US dollar quote">
-        <div><div class="micro-label">BTC / USD</div><div class="price" id="live-btc-usd-price">Loading…</div></div>
-        <div><p class="small-note live-quote-status" id="live-btc-usd-status" role="status" aria-live="polite">Connecting to Coinbase Exchange…</p><p class="quote-updated">Updated <span id="live-btc-usd-updated">Unavailable</span> · <a class="live-btc-usd-link" href="https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker" target="_blank" rel="noopener noreferrer">Coinbase</a></p></div>
-      </aside>
-    </section>
-
-    <div class="section-heading">
-      <div>
-        <h2>SDCA Composite Oscillator</h2>
-        <p>Primary model output · validated observations only</p>
-      </div>
-      <span class="pill" id="oscillator-status">INACTIVE</span>
-    </div>
-
-    <section class="panel oscillator-panel" aria-labelledby="oscillator-title">
-      <div class="oscillator-heading">
-        <div><div class="panel-label" id="oscillator-title">Current composite</div><p class="small-note" id="oscillator-observation">No verified composite observation</p></div>
-        <div class="oscillator-value" id="oscillator-value" aria-live="polite">—</div>
-      </div>
-      <div class="oscillator-stage" role="status" aria-live="polite">
-        <p class="oscillator-message" id="oscillator-message"><strong>Signal output inactive</strong>Approved scoring methodology and validated underlying observations are required before a composite is displayed.</p>
-      </div>
-      <div class="panel-footer"><span>Composite status</span><span id="oscillator-reason">Awaiting approval and validated data</span></div>
-    </section>
-
-    <div class="section-heading">
-      <div>
-        <h2>Indicator Status</h2>
-        <p>Framework inputs · directional states are not approved</p>
-      </div>
-      <a class="method-link" href="methodology.html#sources">Sources &amp; definitions</a>
-    </div>
-
-    <section class="grid indicator-grid" id="indicator-grid" aria-label="SDCA indicator status tiles"></section>
   </main>
-
-  <footer>JXPROBABILITY &nbsp; / &nbsp; QUANTITATIVE RESEARCH &nbsp; · &nbsp; <a class="method-link" href="methodology.html">METHODOLOGY &amp; SOURCES</a></footer>
-
-  <script src="scripts/dashboard-integrity.js"></script>
   <script src="scripts/live-btc-usd.js"></script>
   <script>
-    const INDICATORS = [
-      { name: "MVRV-Z Score", category: "Fundamental", url: "https://www.lookintobitcoin.com/charts/mvrv-zscore/" },
-      { name: "Realized Cap HODL Waves", category: "Fundamental", url: "https://www.lookintobitcoin.com/charts/realized-cap-hodl-waves/" },
-      { name: "CBBI", category: "Fundamental", url: "https://colintalkscrypto.com/cbbi/" },
-      { name: "VDD Multiple", category: "Fundamental", url: "https://charts.bitbo.io/vdd-multiple/" },
-      { name: "NUPL", category: "Fundamental", url: "https://charts.bitbo.io/net-unrealized-profit-loss/" },
-      { name: "BTC 50 MARP", category: "Fundamental", url: "https://kotecharts.com/c/fifty-marp" },
-      { name: "LTH/STH SOPR Ratio", category: "Fundamental", url: "https://kotecharts.com/c/sopr-ratio" },
-      { name: "BTC Damped Harmonic Oscillator", category: "Technical", url: "https://durdenbtc.com/charts/btc-damped-harmonic-oscillator" },
-      { name: "Bitcoin RSI", category: "Technical", url: "https://coinsentry.app/indicators/bitcoin-rsi?hide=daily%2Cmonthly" },
-      { name: "Bitcoin Pi Cycle Top", category: "Technical", url: "https://durdenbtc.com/charts/btc-pi-cycle-top" },
-      { name: "Market Extreme Zone Index", category: "Technical", url: "https://www.tradingview.com/script/Z9EoqtA7-Market-Extreme-Zones-Index/" },
-      { name: "Relative Valuation Oscillator", category: "Technical", url: "https://www.tradingview.com/script/zq7SYdHZ-Relative-Valuation-Oscillator-QuantAlgo/" },
-      { name: "Volume-Weighted Price Z-Score", category: "Technical", url: "https://www.tradingview.com/script/633Bjz5u-Volume-Weighted-Price-Z-Score-QuantAlgo/" },
-      { name: "Crypto Fear and Greed Index", category: "Sentiment", url: "https://coinstats.app/fear-and-greed/" },
-      { name: "Composite Sentiment Score", category: "Sentiment", url: "https://alphabitlab.com/crypto/sentiment-lab" }
-    ];
-
-    const $ = (id) => document.getElementById(id);
-
-    function renderIndicatorCards(indicators) {
-      $("indicator-grid").innerHTML = indicators.map((item) => {
-        const hasRawReading = item.rawValue !== null && item.rawValue !== undefined;
-        const hasVerifiedScore = item.status === "valid" && Number.isFinite(item.score);
-        const state = item.status === "feed_error" || (!hasRawReading && !hasVerifiedScore)
-          ? "UNAVAILABLE"
-          : (hasRawReading ? "RAW · UNVERIFIED" : "UNVERIFIED");
-        return `
-          <article class="panel indicator-card" title="${escapeHTML(item.name)} — ${state.toLowerCase()}" aria-label="${escapeHTML(item.name)} — ${state.toLowerCase()}">
-            <span class="indicator-code">${escapeHTML(item.category || "Indicator")}</span>
-            <span class="indicator-name">${escapeHTML(item.name)}</span>
-            <span class="indicator-status"><i class="status-square" aria-hidden="true"></i>${state}</span>
-          </article>`;
-      }).join("");
-    }
-
-    function escapeHTML(value) {
-      return String(value).replace(/[&<>"']/g, (char) => ({
-        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-      })[char]);
-    }
-
-    function formatScore(value) {
-      return `${value > 0 ? "+" : ""}${Number(value).toFixed(2)}`;
-    }
-
     function formatTimestamp(value) {
       if (!value) return "Not available";
-      const epoch = typeof value === "string" && /^\d{10}$/.test(value)
-        ? Number(value) * 1000
-        : value;
+      const epoch = typeof value === "string" && /^\d{10}$/.test(value) ? Number(value) * 1000 : value;
       const date = new Date(epoch);
       if (Number.isNaN(date.getTime())) return "Invalid timestamp";
       return date.toLocaleString("en-GB", {
@@ -478,28 +205,10 @@
       });
     }
 
-    function setComposite(observation) {
-      const status = $("oscillator-status");
-      if (!observation || !observation.available) {
-        $("oscillator-value").textContent = "—";
-        $("oscillator-observation").textContent = "No verified composite observation";
-        $("oscillator-reason").textContent = observation?.reason || "Awaiting approved scoring rules and validated observations";
-        $("oscillator-message").innerHTML = `<strong>Signal output inactive</strong>${escapeHTML(observation?.reason || "Approved scoring methodology and validated underlying observations are required before a composite is displayed.")}`;
-        status.textContent = "INACTIVE";
-        return;
-      }
-      const score = SDCAIntegrity.validateCompositeScore(observation.score);
-      $("oscillator-value").textContent = formatScore(score);
-      $("oscillator-observation").textContent = `Verified observation · ${SDCAIntegrity.formatObservationTimestamp(observation.date, formatTimestamp)}`;
-      $("oscillator-reason").textContent = "Validated composite available";
-      $("oscillator-message").innerHTML = "<strong>Verified composite observation</strong>Value shown without a valuation interpretation.";
-      status.textContent = "VERIFIED";
-    }
-
     function renderLiveBTCUSD(state) {
-      const price = $("live-btc-usd-price");
-      const status = $("live-btc-usd-status");
-      const updated = $("live-btc-usd-updated");
+      const price = document.getElementById("live-btc-usd-price");
+      const status = document.getElementById("live-btc-usd-status");
+      const updated = document.getElementById("live-btc-usd-updated");
       status.dataset.status = state.status;
 
       if (Number.isFinite(state.price) && state.price > 0) {
@@ -510,10 +219,7 @@
         price.textContent = "Unavailable";
       }
 
-      updated.textContent = state.receivedAt
-        ? formatTimestamp(state.receivedAt)
-        : "Unavailable";
-
+      updated.textContent = state.receivedAt ? formatTimestamp(state.receivedAt) : "Unavailable";
       if (state.status === "live") {
         status.textContent = `LIVE · Coinbase Exchange last trade ${formatTimestamp(state.sourceTime)}`;
       } else if (state.status === "refreshing") {
@@ -527,54 +233,14 @@
       }
     }
 
-    function showDataError(kind, message) {
-      $("oscillator-status").textContent = kind.toUpperCase();
-      $("oscillator-value").textContent = "—";
-      $("oscillator-observation").textContent = "No verified composite observation";
-      $("oscillator-reason").textContent = message;
-      $("oscillator-message").innerHTML = `<strong>Signal output inactive</strong>${escapeHTML(message)}`;
-      renderIndicatorCards(INDICATORS.map((item) => ({ ...item, status: "unverified", rawValue: null })));
-    }
-
-    async function loadSDCAData() {
-      renderIndicatorCards(INDICATORS.map((item) => ({ ...item, status: "unverified", rawValue: null })));
-      let data;
-      try {
-        const response = await fetch(`data/sdca-latest.json?t=${Date.now()}`, { cache: "no-store" });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        data = await response.json();
-      } catch (error) {
-        showDataError("Data unavailable", `SDCA data could not be loaded: ${error.message}`);
-        return;
-      }
-
-      try {
-        SDCAIntegrity.validateData(data, INDICATORS.map((item) => item.name));
-        const byName = new Map(data.indicators.map((item) => [item.name, item]));
-        const merged = INDICATORS.map((base) => ({ ...base, ...byName.get(base.name), url: base.url }));
-        renderIndicatorCards(merged);
-        const historyState = SDCAIntegrity.validateHistoryState(data);
-        const compositeObservation = SDCAIntegrity.verifiedCompositeObservation(data, historyState);
-        setComposite(compositeObservation);
-        if (historyState.error) {
-          $("oscillator-reason").textContent += ` · history withheld: ${historyState.error}`;
-        }
-      } catch (error) {
-        showDataError("Data validation error", `SDCA data failed validation: ${error.message}`);
-      }
-    }
-
-    // Restrained cyan cursor-following light.
-    const glow = $("cursor-glow");
+    const cursorGlow = document.getElementById("cursor-glow");
     window.addEventListener("pointermove", (event) => {
-      glow.style.left = `${event.clientX}px`;
-      glow.style.top = `${event.clientY}px`;
+      cursorGlow.style.left = `${event.clientX}px`;
+      cursorGlow.style.top = `${event.clientY}px`;
     }, { passive: true });
 
     const liveBTCUSDController = LiveBTCUSD.createController({ onState: renderLiveBTCUSD });
     void liveBTCUSDController.start();
-
-    loadSDCAData();
   </script>
 </body>
 </html>

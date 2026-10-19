@@ -2,7 +2,6 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const vm = require('node:vm');
 const integrity = require('../scripts/dashboard-integrity.js');
 const liveBTCUSD = require('../scripts/live-btc-usd.js');
 
@@ -171,83 +170,59 @@ test('verified raw readings require valid provenance metadata and source timesta
   assert.throws(() => integrity.validateData(mismatchedComparison, names), /does not match/);
 });
 
-test('dashboard stays minimal while methodology retains source attribution', () => {
+test('landing page keeps only JxProbability branding, mottos, and the compact Coinbase quote', () => {
   const root = path.join(__dirname, '..');
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-  const methodology = fs.readFileSync(path.join(root, 'methodology.html'), 'utf8');
-  const methodScript = fs.readFileSync(path.join(root, 'scripts/methodology.js'), 'utf8');
-  assert.doesNotMatch(html, /<canvas|indicator-table|Source observation:|Required backlink/);
-  assert.match(html, /id="oscillator-status">INACTIVE/);
-  assert.match(html, /Approved scoring methodology and validated underlying observations are required/);
-  assert.match(html, /aria-label="SDCA indicator status tiles"/);
-  assert.match(html, /methodology\.html/);
-  assert.match(methodology, /Indicator sources/);
-  assert.match(methodScript, /item\.sourceTimestamp/);
-  assert.match(methodScript, /item\.sourceComparison/);
-  assert.match(methodScript, /item\.attributionUrl/);
-  assert.match(methodScript, /No source attribution has been inferred/);
-  assert.doesNotMatch(html, /api\.coingecko\.com/);
-  assert.doesNotMatch(html, /Bitcoin \/ USD Market Chart|TradingView Lightweight Charts|btc-usd-chart/);
+  const tokens = fs.readFileSync(path.join(root, 'styles/tokens.css'), 'utf8');
+  assert.match(html, /<title>JxProbability<\/title>/);
+  assert.match(html, /Transparent valuation research\. Systematic accumulation intelligence\./);
+  assert.match(html, /Probabilities are the currency of the markets\. No noise\. Just signal\./);
+  assert.match(html, /aria-label="Live Bitcoin to US dollar quote"/);
+  assert.match(html, /id="live-btc-usd-price"/);
+  assert.match(html, /scripts\/live-btc-usd\.js/);
+  assert.equal(liveBTCUSD.ENDPOINT, 'https://api.exchange.coinbase.com/products/BTC-USD/ticker');
+  assert.doesNotMatch(html, /JayyTrader|methodology\.html|indicator-grid|INDICATORS|oscillator|data\/sdca-latest|dashboard-integrity/);
+  assert.doesNotMatch(html, /<canvas|<svg|Bitcoin \/ USD Market Chart|TradingView Lightweight Charts|btc-usd-chart/);
+  assert.match(tokens, /--bg:\s*#080D12/i);
+  assert.match(tokens, /--panel:\s*rgba\(23,\s*35,\s*44/);
+  assert.match(tokens, /--cyan:\s*#00DCFF/i);
+  assert.match(tokens, /--amber:\s*#FFAA23/i);
+  assert.match(html, /pointermove/);
+  assert.match(html, /cursor-glow/);
 });
 
-test('indicator tiles use only approved names and keep every unclassified state neutral', () => {
-  const root = path.join(__dirname, '..');
-  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-  const inlineScript = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map((match) => match[1])
-    .find((script) => script.includes('function renderIndicatorCards(indicators)'));
-  assert.ok(inlineScript, 'dashboard tile renderer exists');
-  const start = inlineScript.indexOf('    function renderIndicatorCards(indicators) {');
-  const end = inlineScript.indexOf('    function escapeHTML(value) {', start);
-  const rendered = new Map();
-  const context = {
-    escapeHTML: (value) => String(value).replace(/[&<>\"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', "'": '&#39;' })[char]),
-    $: (id) => { if (!rendered.has(id)) rendered.set(id, { innerHTML: '' }); return rendered.get(id); }
-  };
-  vm.runInNewContext(`${inlineScript.slice(start, end)}\nthis.renderIndicatorCards = renderIndicatorCards;`, context);
-  const data = JSON.parse(fs.readFileSync(path.join(root, 'data/sdca-latest.json'), 'utf8'));
-  assert.doesNotThrow(() => context.renderIndicatorCards(data.indicators));
-  const tiles = rendered.get('indicator-grid').innerHTML;
-  assert.equal((tiles.match(/class="panel indicator-card"/g) || []).length, 15);
-  assert.match(tiles, /MVRV-Z Score/);
-  assert.match(tiles, /RAW · UNVERIFIED/);
-  assert.doesNotMatch(tiles, /class="positive|class="negative|Raw reading:|Source observation:/);
-});
-
-test('dashboard and methodology layouts define compact mobile and tablet breakpoints', () => {
-  const root = path.join(__dirname, '..');
-  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-  const methodologyStyles = fs.readFileSync(path.join(root, 'styles/methodology.css'), 'utf8');
-  const style = html.match(/<style>([\s\S]*?)<\/style>/);
-  assert.ok(style, 'dashboard styles exist');
-  assert.match(style[1], /\.indicator-card\s*\{[^}]*aspect-ratio:\s*1/);
-  assert.match(style[1], /\.indicator-grid\s*\{[^}]*repeat\(auto-fill,\s*minmax\(132px,\s*1fr\)\)/);
-  assert.match(style[1], /@media\s*\(max-width:\s*520px\)[\s\S]*?\.indicator-grid\s*\{\s*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
-  assert.match(style[1], /@media\s*\(max-width:\s*520px\)[\s\S]*?\.quote-compact\s*\{[^}]*width:\s*100%/);
-  assert.match(methodologyStyles, /\.table-wrap\s*\{\s*overflow-x:\s*auto/);
-  assert.match(methodologyStyles, /@media\s*\(max-width:\s*640px\)[\s\S]*?ul\s*\{\s*grid-template-columns:\s*1fr/);
-});
-
-test('Coinbase Exchange link styling is scoped and covers visited, hover, and keyboard focus states', () => {
+test('landing page quote and layout remain compact, responsive, and accessible', () => {
   const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
   const style = html.match(/<style>([\s\S]*?)<\/style>/);
-  assert.ok(style, 'dashboard stylesheet exists');
-  assert.match(html, /class=\"live-btc-usd-link\" href=\"https:\/\/docs\.cdp\.coinbase\.com\//);
-  assert.match(style[1], /\.live-btc-usd-link:link,\s*\.live-btc-usd-link:visited\s*\{[^}]*color:\s*var\(--muted\)/);
-  assert.match(style[1], /\.live-btc-usd-link:hover,\s*\.live-btc-usd-link:focus-visible\s*\{[^}]*color:\s*var\(--cyan-soft\)/);
-  assert.match(style[1], /\.live-btc-usd-link:focus-visible\s*\{[^}]*outline:\s*1px solid var\(--cyan\)/);
-  assert.doesNotMatch(style[1], /(?:^|[,\s])a:(?:link|visited|hover|focus-visible)/);
+  assert.ok(style, 'landing page styles exist');
+  assert.equal((html.match(/id="live-btc-usd-price"/g) || []).length, 1);
+  assert.match(html, /role="status" aria-live="polite"/);
+  assert.match(style[1], /\.quote\s*\{[^}]*width:\s*min\(100%,\s*390px\)/);
+  assert.match(style[1], /@media\s*\(max-width:\s*480px\)[\s\S]*?\.quote-primary\s*\{[^}]*flex-direction:\s*column/);
+  assert.match(style[1], /\.live-quote-status\[data-status="stale"\][\s\S]*?var\(--amber\)/);
+  assert.match(style[1], /\.live-quote-status\[data-status="live"\]\s*\{[^}]*var\(--cyan\)/);
+  assert.match(html, /id="live-btc-usd-source" href="https:\/\/docs\.cdp\.coinbase\.com\//);
 });
 
-test('checked-in data indicator names match the dashboard and pass schema validation', () => {
+test('Coinbase Exchange link styling keeps visible keyboard focus', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  const style = html.match(/<style>([\s\S]*?)<\/style>/);
+  assert.ok(style, 'landing page stylesheet exists');
+  assert.match(html, /id="live-btc-usd-source" href="https:\/\/docs\.cdp\.coinbase\.com\//);
+  assert.match(style[1], /\.quote-details a:hover,[\s\S]*?\.quote-details a:focus-visible\s*\{[^}]*color:\s*var\(--cyan\)/);
+  assert.match(style[1], /\.quote-details a:focus-visible\s*\{[^}]*outline:\s*1px solid var\(--cyan\)/);
+  assert.doesNotMatch(style[1], /(?:^|,)\s*a:(?:link|visited|hover|focus-visible)/);
+});
+
+test('retained SDCA data remains schema-valid but is not loaded by the landing page', () => {
   const root = path.join(__dirname, '..');
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-  const block = html.match(/const INDICATORS = \[([\s\S]*?)\n    \];/);
-  assert.ok(block, 'dashboard indicator list exists');
-  const expected = [...block[1].matchAll(/name: "([^"]+)"/g)].map((match) => match[1]);
   const data = JSON.parse(fs.readFileSync(path.join(root, 'data/sdca-latest.json'), 'utf8'));
-  assert.deepEqual(data.indicators.map((item) => item.name), expected);
+  const expected = data.indicators.map((item) => item.name);
+  assert.equal(expected.length, 15);
   integrity.validateData(data, expected);
   integrity.validateHistory(data.history);
+  assert.doesNotMatch(html, /data\/sdca-latest\.json|scripts\/dashboard-integrity\.js/);
   const dho = data.indicators.find((item) => item.name === 'BTC Damped Harmonic Oscillator');
   assert.equal(dho.rawValue, null);
   assert.equal(dho.verificationStatus, 'unavailable');
@@ -284,50 +259,11 @@ test('Coinbase BTC-USD ticker parser accepts documented price and time fields on
   }
 });
 
-test('homepage uses JxProbability branding and keeps oscillator output gated without fabricated chart history', () => {
+test('landing page omits all oscillator and indicator interface elements', () => {
   const root = path.join(__dirname, '..');
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-  const tokens = fs.readFileSync(path.join(root, 'styles/tokens.css'), 'utf8');
-  const data = JSON.parse(fs.readFileSync(path.join(root, 'data/sdca-latest.json'), 'utf8'));
-  assert.match(html, /<title>JxProbability \| SDCA Intelligence<\/title>/);
-  assert.match(html, /JxProbability/);
-  assert.doesNotMatch(html, /JayyTrader/);
-  assert.match(tokens, /--cyan:\s*#00DCFF/i);
-  assert.match(tokens, /--amber:\s*#FFAA23/i);
-  assert.match(html, /<h2>SDCA Composite Oscillator<\/h2>/);
-  assert.match(html, /id="oscillator-status">INACTIVE/);
-  assert.doesNotMatch(html, /<canvas|score range|OVERVALUED|UNDERVALUED|0 · NEUTRAL/);
-  assert.doesNotMatch(html, /Bitcoin \/ USD Market Chart|TradingView Lightweight Charts|btc-usd-chart|lightweight-charts/);
-  assert.equal(fs.existsSync(path.join(root, 'scripts/btc-usd-chart.js')), false);
-  assert.equal(data.dataIntegrity.compositeCalculated, false);
-  assert.equal(data.dataIntegrity.verifiedScores, 0);
-  assert.equal(data.compositeScore, null);
-  assert.deepEqual(data.history, []);
-});
-
-test('oscillator renderer displays only a validated raw composite and otherwise remains inactive', () => {
-  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
-  const inlineScript = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map((match) => match[1])
-    .find((script) => script.includes('function setComposite(observation)'));
-  const start = inlineScript.indexOf('    function setComposite(observation) {');
-  const end = inlineScript.indexOf('    function renderLiveBTCUSD(state) {', start);
-  const elements = new Map();
-  const context = {
-    SDCAIntegrity: integrity,
-    escapeHTML: (value) => String(value),
-    formatScore: (value) => `${value > 0 ? '+' : ''}${Number(value).toFixed(2)}`,
-    formatTimestamp: (value) => `timestamp:${value}`,
-    $: (id) => { if (!elements.has(id)) elements.set(id, { textContent: '', innerHTML: '', className: '' }); return elements.get(id); }
-  };
-  vm.runInNewContext(`${inlineScript.slice(start, end)}\nthis.setComposite = setComposite;`, context);
-  context.setComposite({ available: false, reason: 'Awaiting approved scoring rules.' });
-  assert.equal(elements.get('oscillator-value').textContent, '—');
-  assert.equal(elements.get('oscillator-status').textContent, 'INACTIVE');
-  assert.match(elements.get('oscillator-message').innerHTML, /Awaiting approved scoring rules/);
-  context.setComposite({ available: true, score: 1.25, date: '2026-10-15' });
-  assert.equal(elements.get('oscillator-value').textContent, '+1.25');
-  assert.equal(elements.get('oscillator-status').textContent, 'VERIFIED');
-  assert.match(elements.get('oscillator-message').innerHTML, /without a valuation interpretation/);
+  assert.doesNotMatch(html, /SDCA Composite Oscillator|indicator-grid|INDICATORS|oscillator|MVRV-Z Score|methodology\.html/);
+  assert.doesNotMatch(html, /dashboard-integrity\.js|data\/sdca-latest\.json|loadSDCAData|verifiedCompositeObservation/);
 });
 
 test('live Coinbase USD quote remains separate from retained Binance USDT daily-close data', () => {

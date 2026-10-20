@@ -1,663 +1,202 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#020403">
-  <title>JayyTrader | SDCA Intelligence</title>
-  <meta name="description" content="JayyTrader — systematic Bitcoin valuation research powered by probability and data.">
-
+  <meta name="theme-color" content="#080D12">
+  <title>JxProbability</title>
+  <meta name="description" content="Transparent Bitcoin valuation research. Probabilities are the currency of the markets. No noise. Just signal.">
+  <link rel="stylesheet" href="styles/tokens.css">
   <style>
-    :root {
-      --bg: #020403;
-      --panel: rgba(7, 16, 12, .88);
-      --panel2: rgba(10, 22, 16, .72);
-      --green: #00f5a0;
-      --mint: #a2ffdc;
-      --muted: #788b82;
-      --line: rgba(0, 245, 160, .16);
-      --red: #ff747d;
-      --amber: #f0c36a;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+    * { box-sizing: border-box; }
     body {
+      min-width: 320px;
       min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
       overflow-x: hidden;
-      color: #effff8;
+      color: var(--text);
       background:
-        radial-gradient(ellipse at 50% 20%, rgba(0, 80, 49, .18), transparent 55%),
+        radial-gradient(ellipse at 50% 42%, color-mix(in srgb, var(--cyan) 4%, transparent), transparent 58%),
         var(--bg);
-      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: var(--font-ui);
     }
-
     body::before {
-      content: "";
       position: fixed;
       inset: 0;
       z-index: 0;
-      pointer-events: none;
       background-image:
-        linear-gradient(rgba(0, 245, 160, .025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 245, 160, .025) 1px, transparent 1px);
+        linear-gradient(color-mix(in srgb, var(--cyan) 2.5%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--cyan) 2.5%, transparent) 1px, transparent 1px);
       background-size: 48px 48px;
-      mask-image: linear-gradient(to bottom, black, transparent 90%);
+      content: "";
+      pointer-events: none;
+      mask-image: linear-gradient(to bottom, #000, transparent 90%);
     }
-
     #cursor-glow {
       position: fixed;
+      z-index: 0;
       top: 0;
       left: 0;
       width: 520px;
       height: 520px;
       border-radius: 50%;
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0;
       background: radial-gradient(circle,
-        rgba(0,255,153,.085) 0%,
-        rgba(0,200,120,.045) 32%,
-        rgba(0,150,90,.015) 55%,
+        color-mix(in srgb, var(--cyan) 6.5%, transparent) 0%,
+        color-mix(in srgb, var(--cyan) 3.5%, transparent) 32%,
+        color-mix(in srgb, var(--cyan) 1.2%, transparent) 55%,
         transparent 72%);
+      opacity: 0;
+      pointer-events: none;
       transform: translate(-50%, -50%);
       transition: opacity .35s ease;
       will-change: left, top;
     }
-
-    header, main, footer { position: relative; z-index: 1; }
-
-    header {
-      min-height: 68px;
-      padding: 0 6%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      border-bottom: 1px solid var(--line);
-      background: rgba(0,0,0,.65);
-    }
-
-    .brand {
-      font-size: 21px;
-      font-weight: 750;
-      letter-spacing: -1px;
-      white-space: nowrap;
-    }
-
-    .brand span, .accent { color: var(--green); }
-    .cursor {
-      display: inline-block;
-      width: 2px;
-      height: 1em;
-      margin-left: 5px;
-      vertical-align: -2px;
-      background: var(--green);
-      box-shadow: 0 0 8px rgba(0, 245, 160, .65);
-      animation: cursor-blink 1.2s ease-in-out infinite;
-    }
-    @keyframes cursor-blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: .15; }
-    }
-
-    .market-status, .eyebrow, .micro-label {
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      font-size: 9px;
-      color: #a0b4aa;
-    }
-
-    .market-status, .live-label, .status-inline {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-    }
-
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 12px rgba(0,245,160,.55);
-      flex-shrink: 0;
-    }
-
-    main { max-width: 1180px; margin: 0 auto; padding: 64px 28px 85px; }
-
-    .hero { text-align: center; padding-bottom: 46px; }
-    .eyebrow { color: var(--green); letter-spacing: 4px; margin-bottom: 20px; }
-
-    h1 {
-      font-size: clamp(37px, 6.5vw, 70px);
-      line-height: 1.04;
-      letter-spacing: -3.5px;
-      font-weight: 730;
-    }
-
-    h1 span {
-      background: linear-gradient(100deg, #effff8 5%, var(--green) 95%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .subtitle {
-      margin: 22px auto 0;
-      color: #9aada3;
-      font-size: 15px;
-      line-height: 1.8;
-    }
-
-    .motto {
-      margin-top: 17px;
-      color: var(--green);
-      font-size: 11px;
-      letter-spacing: .5px;
-    }
-
-    .section-heading {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 18px;
-      margin: 42px 0 17px;
-    }
-
-    .section-heading h2 { font-size: 16px; font-weight: 650; letter-spacing: -.3px; }
-    .section-heading p { color: var(--muted); font-size: 10px; margin-top: 6px; }
-    .section-tag { color: #6d897a; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; }
-
-    .grid { display: grid; gap: 16px; }
-    .overview-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-
-    .panel {
-      min-width: 0;
-      position: relative;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 22px;
-      background: linear-gradient(145deg, var(--panel2), var(--panel));
-      box-shadow: 0 12px 40px rgba(0,0,0,.12);
-      overflow: hidden;
-    }
-
-    .panel::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 14%;
-      width: 72%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--green), transparent);
-      opacity: .5;
-    }
-
-    .panel-label {
-      color: #8da498;
-      font-size: 9px;
-      letter-spacing: 1.8px;
-      text-transform: uppercase;
-    }
-
-    .big-number {
-      margin-top: 17px;
-      font-size: clamp(29px, 4vw, 43px);
-      font-weight: 650;
-      letter-spacing: -1.8px;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .muted { color: var(--muted); }
-    .small-note { margin-top: 9px; font-size: 11px; line-height: 1.6; color: #82978b; }
-    .positive { color: var(--green); }
-    .negative { color: var(--red); }
-    .neutral { color: var(--amber); }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 7px 9px;
-      border: 1px solid var(--line);
-      border-radius: 5px;
-      color: #8ca598;
-      font-size: 9px;
-      letter-spacing: .8px;
-      text-transform: uppercase;
-    }
-
-    .price { font-size: clamp(28px, 4vw, 38px); }
-    .panel-divider { height: 1px; background: var(--line); margin: 19px 0 14px; }
-    .panel-footer { display: flex; justify-content: space-between; gap: 12px; color: #65796e; font-size: 9px; letter-spacing: .7px; text-transform: uppercase; }
-    .live-quote-status[data-status="live"] { color: var(--green); }
-    .live-quote-status[data-status="stale"] { color: #f0c36a; }
-    .live-quote-status[data-status="error"] { color: #d28e8e; }
-    .live-btc-usd-link:link, .live-btc-usd-link:visited {
-      color: var(--muted);
-      text-decoration: none;
-      transition: color .18s ease;
-    }
-    .live-btc-usd-link:hover, .live-btc-usd-link:focus-visible {
-      color: var(--mint);
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-    .live-btc-usd-link:focus-visible {
-      outline: 1px solid var(--green);
-      outline-offset: 3px;
-      border-radius: 2px;
-    }
-
-    .scale-wrap { margin-top: 23px; }
-    .scale-labels { display: flex; justify-content: space-between; gap: 8px; color: #7e9689; font-size: 9px; }
-    .scale {
-      height: 9px;
-      border-radius: 20px;
-      margin: 10px 0;
-      position: relative;
-      background: linear-gradient(90deg, #00b978 0%, #244c3a 35%, #26352e 50%, #59462a 70%, #a84c51 100%);
-    }
-    .scale-marker {
-      position: absolute;
-      top: -5px;
-      left: 50%;
-      width: 3px;
-      height: 19px;
-      background: white;
-      box-shadow: 0 0 9px rgba(255,255,255,.65);
-      transform: translateX(-50%);
-    }
-    .scale-marker[hidden] { display: none; }
-
-    .chart-panel { padding: 22px 18px 15px; }
-    .chart-top { display: flex; justify-content: space-between; align-items: start; gap: 15px; }
-    .chart-score { font-size: 27px; font-weight: 650; margin-top: 8px; letter-spacing: -1px; }
-    .chart-wrap { margin-top: 18px; width: 100%; height: 290px; position: relative; }
-    #sdca-chart { width: 100%; height: 100%; display: block; }
-    .chart-legend { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px; color: #82978b; font-size: 9px; }
-    .legend-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; }
-
-    .notice {
-      border: 1px solid rgba(240,195,106,.2);
-      background: rgba(240,195,106,.045);
-      border-radius: 8px;
-      padding: 13px 15px;
-      color: #c5b58e;
-      font-size: 11px;
-      line-height: 1.65;
-      margin-top: 16px;
-    }
-
-    .indicator-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .indicator-card { padding: 17px; }
-    .indicator-top { display: flex; align-items: start; justify-content: space-between; gap: 10px; }
-    .indicator-name { font-size: 12px; line-height: 1.5; font-weight: 600; }
-    .category {
-      display: inline-block;
-      margin-top: 7px;
-      color: #668777;
-      font-size: 8px;
-      letter-spacing: 1.1px;
-      text-transform: uppercase;
-    }
-    .indicator-score { font-size: 21px; font-weight: 650; white-space: nowrap; }
-    .indicator-reading { margin-top: 15px; font-size: 10px; color: #82978b; line-height: 1.5; }
-    .indicator-meta { margin-top: 8px; color: #70877a; font-size: 9px; line-height: 1.55; overflow-wrap: anywhere; }
-    .indicator-meta a { color: #8de6bf; text-decoration: underline; text-underline-offset: 2px; }
-    .indicator-status { margin-top: 12px; display: flex; align-items: center; gap: 7px; color: #7b8f83; font-size: 9px; }
-    .status-square { width: 6px; height: 6px; background: #77877d; border-radius: 50%; }
-    .indicator-link { color: inherit; text-decoration: none; }
-    .indicator-link:hover .indicator-name { color: var(--green); }
-    .indicator-link:focus-visible { outline: 1px solid var(--green); outline-offset: 4px; }
-
-    .data-table-wrap { overflow-x: auto; }
-    table { border-collapse: collapse; width: 100%; min-width: 620px; font-size: 11px; }
-    th, td { text-align: left; padding: 13px 12px; border-bottom: 1px solid rgba(0,245,160,.09); }
-    th { color: #6e887a; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; font-weight: 550; }
-    td { color: #c1d0c7; }
-    td:last-child, th:last-child { text-align: right; }
-    .table-link { color: var(--green); text-decoration: none; }
-    .table-link:hover { text-decoration: underline; }
-
-    .method-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .method-card h3 { font-size: 12px; margin-bottom: 9px; }
-    .method-card p { font-size: 11px; line-height: 1.7; color: #82978b; }
-
-    footer {
-      min-height: 60px;
-      padding: 22px 18px;
-      border-top: 1px solid rgba(0,245,160,.10);
-      text-align: center;
-      color: #4f6258;
-      font-size: 9px;
-      letter-spacing: 2px;
-    }
-
-    @media (hover:hover) and (pointer:fine) {
+    @media (hover: hover) and (pointer: fine) {
       body:hover #cursor-glow { opacity: 1; }
     }
-
-    @media (max-width: 800px) {
-      main { padding: 48px 20px 65px; }
-      .overview-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
-      .indicator-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
-      .method-grid { grid-template-columns: 1fr; }
-      .overview-grid .panel:last-child { grid-column: 1 / -1; }
+    .landing {
+      position: relative;
+      z-index: 1;
+      width: min(100% - 40px, 720px);
+      padding: 48px 0;
+      text-align: center;
     }
-
-    @media (max-width: 520px) {
-      header { min-height: 62px; padding: 0 20px; }
-      .brand { font-size: 19px; }
-      .market-status { font-size: 8px; letter-spacing: 1px; }
-      main { padding: 46px 15px 55px; }
-      h1 { letter-spacing: -2.2px; }
-      .eyebrow { letter-spacing: 2.5px; }
-      .subtitle { font-size: 13px; }
-      .overview-grid, .indicator-grid { grid-template-columns: 1fr; }
-      .overview-grid .panel:last-child { grid-column: auto; }
-      .panel { padding: 18px; }
-      .section-heading { align-items: start; flex-direction: column; }
-      .chart-wrap { height: 235px; }
-      .panel-footer { font-size: 8px; }
+    h1 {
+      margin: 0;
+      font-size: clamp(42px, 9vw, 76px);
+      font-weight: 750;
+      letter-spacing: -.065em;
+      line-height: 1;
     }
-
+    h1 span {
+      color: var(--cyan);
+      text-shadow: var(--glow-cyan-soft);
+    }
+    .cursor {
+      display: inline-block;
+      width: 3px;
+      height: .82em;
+      margin-left: 8px;
+      background: var(--cyan);
+      box-shadow: var(--glow-cyan-soft);
+      vertical-align: -.02em;
+      animation: blink 1.2s ease-in-out infinite;
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .18; } }
+    .tagline {
+      margin: 22px 0 0;
+      color: var(--muted);
+      font-size: clamp(13px, 2vw, 16px);
+      line-height: 1.7;
+    }
+    .motto {
+      margin: 12px 0 0;
+      color: var(--cyan-soft);
+      font-size: 11px;
+      letter-spacing: .04em;
+      line-height: 1.7;
+    }
+    .quote {
+      width: min(100%, 390px);
+      margin: 38px auto 0;
+      padding: 16px 18px;
+      border: var(--border-hairline);
+      border-top: 1px solid color-mix(in srgb, var(--cyan) 42%, transparent);
+      background: linear-gradient(145deg, var(--panel2), var(--panel));
+      box-shadow: 0 14px 42px rgba(0, 0, 0, .22);
+      text-align: left;
+    }
+    .quote-primary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .quote-label {
+      padding-left: 7px;
+      border-left: 1px solid var(--amber);
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: .16em;
+    }
+    .price {
+      display: block;
+      margin-top: 5px;
+      color: var(--text);
+      font-size: clamp(22px, 5vw, 27px);
+      font-variant-numeric: tabular-nums;
+      font-weight: 650;
+      letter-spacing: -.03em;
+    }
+    .live-quote-status {
+      max-width: 185px;
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.5;
+      text-align: right;
+    }
+    .live-quote-status[data-status="live"] { color: var(--cyan); }
+    .live-quote-status[data-status="stale"],
+    .live-quote-status[data-status="error"] { color: var(--amber); }
+    .quote-details {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 8px;
+      line-height: 1.5;
+    }
+    .quote-details a {
+      color: var(--muted);
+      text-decoration: none;
+      text-underline-offset: 3px;
+    }
+    .quote-details a:hover,
+    .quote-details a:focus-visible { color: var(--cyan); text-decoration: underline; }
+    .quote-details a:focus-visible { outline: 1px solid var(--cyan); outline-offset: 3px; }
+    @media (max-width: 480px) {
+      .landing { width: min(100% - 32px, 720px); }
+      .quote { margin-top: 30px; padding: 14px; }
+      .quote-primary { align-items: flex-start; flex-direction: column; gap: 9px; }
+      .live-quote-status { max-width: none; text-align: left; }
+    }
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        scroll-behavior: auto !important;
-        animation-duration: .01ms !important;
-        transition-duration: .01ms !important;
-      }
-
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
       .cursor { animation: none; }
     }
   </style>
 </head>
-
 <body>
   <div id="cursor-glow" aria-hidden="true"></div>
+  <main class="landing">
+    <h1>Jx<span>Probability</span><span class="cursor" aria-hidden="true"></span></h1>
+    <p class="tagline">Transparent valuation research. Systematic accumulation intelligence.</p>
+    <p class="motto">Probabilities are the currency of the markets. No noise. Just signal.</p>
 
-  <header>
-    <div class="brand">Jayy<span>Trader</span><span class="cursor" aria-hidden="true"></span></div>
-    <div class="market-status">
-      <span class="status-dot"></span>
-      <span>Quantitative Research</span>
-    </div>
-  </header>
-
-  <main>
-    <section class="hero">
-      <div class="eyebrow">Independent Bitcoin Research</div>
-      <h1>Built on Data.<br><span>Driven by Probability.</span></h1>
-      <p class="subtitle">Bitcoin market intelligence.<br>A systematic approach to the market.</p>
-      <p class="motto">Probabilities are the currency of the markets. No noise. Just signal.</p>
-    </section>
-
-    <div class="section-heading">
-      <div>
-        <h2>SDCA Intelligence</h2>
-        <p>Long-term valuation model · 15-indicator framework</p>
-      </div>
-      <span class="pill"><span class="status-dot"></span><span id="system-status">Awaiting data pipeline</span></span>
-    </div>
-
-    <section class="grid overview-grid" aria-label="SDCA overview">
-      <article class="panel">
-        <div class="panel-label">SDCA Composite Score</div>
-        <div class="big-number" id="composite-score">—</div>
-        <p class="small-note" id="composite-label">Waiting for validated data</p>
-        <div class="scale-wrap">
-          <div class="scale-labels"><span>+3 · CHEAP</span><span>0 · NEUTRAL</span><span>−3 · EXPENSIVE</span></div>
-          <div class="scale"><span class="scale-marker" id="scale-marker" hidden></span></div>
-        </div>
-        <p class="small-note">Positive scores indicate lower valuation / greater potential value. Negative scores indicate higher valuation / greater expense.</p>
-      </article>
-
-      <article class="panel">
-        <div class="panel-label">Live Bitcoin / USD</div>
-        <div class="big-number price" id="live-btc-usd-price">Loading…</div>
-        <p class="small-note live-quote-status" id="live-btc-usd-status" role="status" aria-live="polite">Connecting to Coinbase Exchange…</p>
-        <div class="panel-divider"></div>
-        <div class="panel-footer"><a class="live-btc-usd-link" href="https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker" target="_blank" rel="noopener noreferrer">Coinbase Exchange</a></div>
-        <div class="panel-footer"><span>Last successful update</span><span id="live-btc-usd-updated">Unavailable</span></div>
-        <p class="small-note">BTC-USD last trade · refreshes about every 60 seconds.</p>
-      </article>
-
-      <article class="panel">
-        <div class="panel-label">Data Integrity</div>
-        <div class="big-number" id="valid-count">0 / 15</div>
-        <p class="small-note" id="integrity-note">Indicator feed has not been connected.</p>
-        <div class="panel-divider"></div>
-        <div class="panel-footer"><span>Pipeline run time</span><span id="pipeline-updated">Not yet run</span></div>
-        <div class="panel-footer"><span>Most recent indicator reading</span><span id="data-freshness">Unavailable</span></div>
-        <p class="small-note">Pipeline run time records when this file was generated. Indicator timestamps record when source data was observed.</p>
-        <div class="notice" id="feed-errors" hidden aria-live="polite"></div>
-      </article>
-    </section>
-
-    <div class="section-heading">
-      <div>
-        <h2>SDCA Composite Oscillator</h2>
-        <p>Historical composite score · Custom SDCA scale from +3 to −3</p>
-      </div>
-      <span class="section-tag">Daily history</span>
-    </div>
-
-    <section class="panel chart-panel">
-      <div class="chart-top">
+    <section class="quote" aria-label="Live Bitcoin to US dollar quote">
+      <div class="quote-primary">
         <div>
-          <div class="panel-label">Latest validated composite</div>
-          <div class="chart-score" id="chart-latest">No historical data</div>
+          <span class="quote-label">BTC / USD</span>
+          <strong class="price" id="live-btc-usd-price">Loading…</strong>
         </div>
-        <span class="pill" id="history-count">0 observations</span>
+        <p class="live-quote-status" id="live-btc-usd-status" role="status" aria-live="polite">Connecting to Coinbase Exchange…</p>
       </div>
-      <div class="chart-wrap">
-        <canvas id="sdca-chart" role="img" aria-label="Historical SDCA composite oscillator. The chart will populate when validated daily history is available."></canvas>
+      <div class="quote-details">
+        <span>Updated <time id="live-btc-usd-updated">Unavailable</time></span>
+        <a id="live-btc-usd-source" href="https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker" target="_blank" rel="noopener noreferrer">Coinbase Exchange ↗</a>
       </div>
-      <div class="chart-legend">
-        <span><i class="legend-dot" style="background:#00f5a0"></i>SDCA composite</span>
-        <span><i class="legend-dot" style="background:#62796b"></i>Zero / neutral line</span>
-        <span>+3 = cheaper · −3 = more expensive</span>
-      </div>
-      <div class="notice" id="chart-notice">
-        Historical chart is waiting for the data pipeline. No synthetic or placeholder history is being displayed.
-      </div>
-    </section>
-
-    <div class="section-heading">
-      <div>
-        <h2>Indicator Matrix</h2>
-        <p>All 15 indicators in the Level 1 SDCA framework</p>
-      </div>
-      <span class="section-tag">7 Fundamental · 6 Technical · 2 Sentiment</span>
-    </div>
-
-    <section class="grid indicator-grid" id="indicator-grid" aria-label="SDCA indicators"></section>
-
-    <div class="section-heading">
-      <div>
-        <h2>Indicator Data Table</h2>
-        <p>Raw readings and transformed scores will appear after feed integration.</p>
-      </div>
-    </div>
-
-    <section class="panel data-table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Indicator</th>
-            <th>Category</th>
-            <th>Raw Reading</th>
-            <th>SDCA Score</th>
-            <th>Data Status</th>
-            <th>Source</th>
-          </tr>
-        </thead>
-        <tbody id="indicator-table">
-          <tr><td colspan="6" class="muted">Waiting for validated indicator data.</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <div class="section-heading">
-      <div>
-        <h2>System Notes</h2>
-        <p>Built for long-term valuation research, not high-frequency signals.</p>
-      </div>
-    </div>
-
-    <section class="grid method-grid">
-      <article class="panel method-card">
-        <h3 class="accent">Scoring Direction</h3>
-        <p>The approved SDCA scoring rules determine how each raw indicator maps to its individual score. The intended composite direction is +3 for cheap and −3 for expensive Bitcoin.</p>
-      </article>
-      <article class="panel method-card">
-        <h3 class="accent">Daily Update</h3>
-        <p>The planned automation runs at 00:00 UTC. Each feed keeps its own source timestamp because not every provider publishes new data every day.</p>
-      </article>
-      <article class="panel method-card">
-        <h3 class="accent">Data Integrity</h3>
-        <p>Missing, stale, or invalid readings must be flagged. The system must not invent readings, silently replace failures with neutral scores, or fabricate historical observations.</p>
-      </article>
     </section>
   </main>
-
-  <footer>JAYYTRADER &nbsp; / &nbsp; QUANTITATIVE RESEARCH</footer>
-
-  <script src="scripts/dashboard-integrity.js"></script>
   <script src="scripts/live-btc-usd.js"></script>
   <script>
-    const INDICATORS = [
-      { name: "MVRV-Z Score", category: "Fundamental", url: "https://www.lookintobitcoin.com/charts/mvrv-zscore/" },
-      { name: "Realized Cap HODL Waves", category: "Fundamental", url: "https://www.lookintobitcoin.com/charts/realized-cap-hodl-waves/" },
-      { name: "CBBI", category: "Fundamental", url: "https://colintalkscrypto.com/cbbi/" },
-      { name: "VDD Multiple", category: "Fundamental", url: "https://charts.bitbo.io/vdd-multiple/" },
-      { name: "NUPL", category: "Fundamental", url: "https://charts.bitbo.io/net-unrealized-profit-loss/" },
-      { name: "BTC 50 MARP", category: "Fundamental", url: "https://kotecharts.com/c/fifty-marp" },
-      { name: "LTH/STH SOPR Ratio", category: "Fundamental", url: "https://kotecharts.com/c/sopr-ratio" },
-      { name: "BTC Damped Harmonic Oscillator", category: "Technical", url: "https://durdenbtc.com/charts/btc-damped-harmonic-oscillator" },
-      { name: "Bitcoin RSI", category: "Technical", url: "https://coinsentry.app/indicators/bitcoin-rsi?hide=daily%2Cmonthly" },
-      { name: "Bitcoin Pi Cycle Top", category: "Technical", url: "https://durdenbtc.com/charts/btc-pi-cycle-top" },
-      { name: "Market Extreme Zone Index", category: "Technical", url: "https://www.tradingview.com/script/Z9EoqtA7-Market-Extreme-Zones-Index/" },
-      { name: "Relative Valuation Oscillator", category: "Technical", url: "https://www.tradingview.com/script/zq7SYdHZ-Relative-Valuation-Oscillator-QuantAlgo/" },
-      { name: "Volume-Weighted Price Z-Score", category: "Technical", url: "https://www.tradingview.com/script/633Bjz5u-Volume-Weighted-Price-Z-Score-QuantAlgo/" },
-      { name: "Crypto Fear and Greed Index", category: "Sentiment", url: "https://coinstats.app/fear-and-greed/" },
-      { name: "Composite Sentiment Score", category: "Sentiment", url: "https://alphabitlab.com/crypto/sentiment-lab" }
-    ];
-
-    const $ = (id) => document.getElementById(id);
-
-    function renderIndicatorCards(indicators) {
-      $("indicator-grid").innerHTML = indicators.map((item) => {
-        const score = Number.isFinite(item.score) ? formatScore(item.score) : "—";
-        const scoreClass = Number.isFinite(item.score)
-          ? (item.score > 0 ? "positive" : item.score < 0 ? "negative" : "neutral")
-          : "muted";
-        const status = item.status || "Awaiting integration";
-        const reading = item.rawValue === undefined || item.rawValue === null
-          ? "Raw reading not connected"
-          : `Raw reading: ${escapeHTML(String(item.rawValue))}`;
-        const source = renderSourceLinks(item);
-        const observedAt = item.sourceTimestamp || item.lastUpdated;
-        const updated = observedAt ? `Source observation: ${escapeHTML(SDCAIntegrity.formatObservationTimestamp(observedAt, formatTimestamp))}` : "Source observation: unavailable";
-        const timeframe = item.timeframe ? `Timeframe: ${escapeHTML(item.timeframe)}` : "";
-        const sourceField = item.sourceField ? `Source field: ${escapeHTML(item.sourceField)}` : "";
-        const denomination = item.quoteCurrency
-          ? `Quote denomination: ${escapeHTML(item.quoteCurrency)}${item.quoteCurrencyDetails ? ` (${escapeHTML(item.quoteCurrencyDetails)})` : ""}`
-          : "";
-        const verification = item.verificationStatus ? `Verification: ${escapeHTML(item.verificationStatus)}` : "";
-        const sourceComparison = item.sourceComparison
-          ? `Published source cross-check: ${escapeHTML(item.sourceComparison.comparisonDate)} · calculated ${escapeHTML(Number(item.sourceComparison.calculatedValue).toFixed(item.sourceComparison.displayPrecision))} / published ${escapeHTML(Number(item.sourceComparison.publishedValue).toFixed(item.sourceComparison.displayPrecision))}`
-          : "";
-        const calculation = item.calculation ? `Calculation: ${escapeHTML(item.calculation)}` : "Calculation: not provided";
-        const verificationDetails = item.verificationDetails ? `Verification details: ${escapeHTML(item.verificationDetails)}` : "";
-        const substitute = item.substituteStatus ? `Provider status: ${escapeHTML(item.substituteStatus)}` : "";
-        const feedError = item.error && typeof item.error === "object"
-          ? `Feed error (${escapeHTML(String(item.error.type || "Error"))}): ${escapeHTML(String(item.error.message || "No details provided"))}`
-          : "";
-        return `
-          <article class="panel indicator-card">
-            <div class="indicator-top">
-              <a class="indicator-link" href="${item.url}" target="_blank" rel="noopener noreferrer">
-                <div class="indicator-name">${escapeHTML(item.name)}</div>
-                <div class="category">${escapeHTML(item.category)}</div>
-              </a>
-              <div class="indicator-score ${scoreClass}">${score}</div>
-            </div>
-            <div class="indicator-reading">${reading}</div>
-            <div class="indicator-meta">${source}<br>${updated}${timeframe ? `<br>${timeframe}` : ""}${sourceField ? `<br>${sourceField}` : ""}${denomination ? `<br>${denomination}` : ""}${verification ? `<br>${verification}` : ""}<br>${calculation}${sourceComparison ? `<br>${sourceComparison}` : ""}${verificationDetails ? `<br>${verificationDetails}` : ""}${substitute ? `<br>${substitute}` : ""}${feedError ? `<br>${feedError}` : ""}</div>
-            <div class="indicator-status"><span class="status-square"></span>${escapeHTML(status)}</div>
-          </article>`;
-      }).join("");
-    }
-
-    function renderIndicatorTable(indicators) {
-      $("indicator-table").innerHTML = indicators.map((item) => {
-        const raw = item.rawValue === undefined || item.rawValue === null
-          ? "—" : escapeHTML(String(item.rawValue));
-        const score = Number.isFinite(item.score) ? formatScore(item.score) : "—";
-        const source = renderSourceLinks(item, true);
-        const observedAt = item.sourceTimestamp || item.lastUpdated;
-        const provenance = [
-          observedAt ? `Source observation: ${escapeHTML(SDCAIntegrity.formatObservationTimestamp(observedAt, formatTimestamp))}` : "Timestamp unavailable",
-          item.timeframe ? `Timeframe: ${escapeHTML(item.timeframe)}` : "",
-          item.sourceField ? `Source field: ${escapeHTML(item.sourceField)}` : "",
-          item.quoteCurrency ? `Quote: ${escapeHTML(item.quoteCurrency)}${item.quoteCurrencyDetails ? ` (${escapeHTML(item.quoteCurrencyDetails)})` : ""}` : "",
-          item.verificationStatus ? `Verification: ${escapeHTML(item.verificationStatus)}` : "",
-          item.calculation ? `Calculation: ${escapeHTML(item.calculation)}` : "",
-          item.sourceComparison ? `Published source cross-check: ${escapeHTML(item.sourceComparison.comparisonDate)} · calculated ${escapeHTML(Number(item.sourceComparison.calculatedValue).toFixed(item.sourceComparison.displayPrecision))} / published ${escapeHTML(Number(item.sourceComparison.publishedValue).toFixed(item.sourceComparison.displayPrecision))}` : "",
-          item.verificationDetails ? `Verification details: ${escapeHTML(item.verificationDetails)}` : "",
-          item.substituteStatus ? `Provider status: ${escapeHTML(item.substituteStatus)}` : ""
-        ].filter(Boolean).join("<br>");
-        return `<tr>
-          <td>${escapeHTML(item.name)}</td>
-          <td>${escapeHTML(item.category)}</td>
-          <td>${raw}</td>
-          <td>${score}</td>
-          <td>${escapeHTML(item.status || "Awaiting integration")}</td>
-          <td>${source}<br><span class="muted">${provenance}</span></td>
-        </tr>`;
-      }).join("");
-    }
-
-    function renderSourceLinks(item, table = false) {
-      const links = [];
-      const add = (url, label) => {
-        if (typeof url !== "string" || !/^https:\/\//i.test(url)) return;
-        const klass = table ? ' class="table-link"' : "";
-        links.push(`<a${klass} href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer">${escapeHTML(label)}</a>`);
-      };
-      const hasReading = item.rawValue !== null && item.rawValue !== undefined;
-      const sourceLabel = item.substituteProvider
-        ? `${item.substituteProvider} · substitute`
-        : (hasReading ? (item.sourceName || "Reading source") : "Reference source");
-      add(item.source, `${sourceLabel}${hasReading ? " ↗" : ""}`);
-      if (item.referenceSource && item.referenceSource !== item.source) add(item.referenceSource, "Indicator page ↗");
-      if (item.sourceComparison && item.sourceComparison.source && item.sourceComparison.source !== item.source && item.sourceComparison.source !== item.referenceSource) {
-        add(item.sourceComparison.source, "Published value check ↗");
-      }
-      if (item.attributionUrl && item.attributionUrl !== item.source && item.attributionUrl !== item.referenceSource) {
-        add(item.attributionUrl, "Required backlink ↗");
-      }
-      return links.length ? links.join(" · ") : "Source unavailable";
-    }
-
-    function escapeHTML(value) {
-      return String(value).replace(/[&<>"']/g, (char) => ({
-        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-      })[char]);
-    }
-
-    function formatScore(value) {
-      return `${value > 0 ? "+" : ""}${Number(value).toFixed(2)}`;
-    }
-
     function formatTimestamp(value) {
       if (!value) return "Not available";
-      const epoch = typeof value === "string" && /^\d{10}$/.test(value)
-        ? Number(value) * 1000
-        : value;
+      const epoch = typeof value === "string" && /^\d{10}$/.test(value) ? Number(value) * 1000 : value;
       const date = new Date(epoch);
       if (Number.isNaN(date.getTime())) return "Invalid timestamp";
       return date.toLocaleString("en-GB", {
@@ -666,127 +205,10 @@
       });
     }
 
-    function setComposite(score, label) {
-      if (!Number.isFinite(score)) {
-        $("composite-score").textContent = "—";
-        $("composite-score").className = "big-number muted";
-        $("chart-latest").textContent = "No validated score";
-        $("chart-latest").className = "chart-score muted";
-        $("composite-label").textContent = "Waiting for validated data";
-        $("scale-marker").hidden = true;
-        return;
-      }
-      SDCAIntegrity.validateScore(score, "composite score");
-      $("scale-marker").hidden = false;
-      $("composite-score").textContent = formatScore(score);
-      $("chart-latest").textContent = formatScore(score);
-      $("composite-label").textContent = label || "Validated SDCA composite";
-      // +3 is on the left (cheap); -3 is on the right (expensive).
-      $("scale-marker").style.left = `${SDCAIntegrity.compositeMarkerPercent(score)}%`;
-      $("composite-score").className = "big-number " +
-        (score > 0 ? "positive" : score < 0 ? "negative" : "neutral");
-      $("chart-latest").className = "chart-score " +
-        (score > 0 ? "positive" : score < 0 ? "negative" : "neutral");
-    }
-
-    function drawChart(history) {
-      const canvas = $("sdca-chart");
-      const ctx = canvas.getContext("2d");
-      const rect = canvas.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = Math.max(1, Math.floor(rect.width * dpr));
-      canvas.height = Math.max(1, Math.floor(rect.height * dpr));
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      const w = rect.width;
-      const h = rect.height;
-      ctx.clearRect(0, 0, w, h);
-
-      const pad = { top: 16, right: 37, bottom: 27, left: 12 };
-      const plotW = w - pad.left - pad.right;
-      const plotH = h - pad.top - pad.bottom;
-      const y = (v) => pad.top + ((3 - v) / 6) * plotH;
-
-      // Valuation zones: green for cheap, muted center, red for expensive.
-      ctx.fillStyle = "rgba(0,245,160,0.055)";
-      ctx.fillRect(pad.left, y(3), plotW, y(1.5) - y(3));
-      ctx.fillStyle = "rgba(255,116,125,0.05)";
-      ctx.fillRect(pad.left, y(-1.5), plotW, y(-3) - y(-1.5));
-
-      ctx.font = "10px Inter, sans-serif";
-      ctx.textAlign = "right";
-      ctx.textBaseline = "middle";
-
-      [3, 1.5, 0, -1.5, -3].forEach((value) => {
-        const yy = y(value);
-        ctx.beginPath();
-        ctx.setLineDash(value === 0 ? [] : [3, 5]);
-        ctx.strokeStyle = value === 0 ? "rgba(130,160,143,.55)" : "rgba(0,245,160,.13)";
-        ctx.moveTo(pad.left, yy);
-        ctx.lineTo(pad.left + plotW, yy);
-        ctx.stroke();
-        ctx.fillStyle = "#71877a";
-        ctx.fillText(value > 0 ? `+${value}` : `${value}`, w - 5, yy);
-      });
-      ctx.setLineDash([]);
-
-      const valid = SDCAIntegrity.validateHistory(history);
-
-      if (valid.length < 2) {
-        ctx.fillStyle = "#71877a";
-        ctx.textAlign = "center";
-        ctx.font = "11px Inter, sans-serif";
-        ctx.fillText(
-          valid.length === 1
-            ? "One observation saved — more daily history needed"
-            : "Historical data will appear after validated daily updates",
-          pad.left + plotW / 2,
-          pad.top + plotH / 2
-        );
-        return;
-      }
-
-      const points = valid.slice(-180);
-      const x = (i) => pad.left + (i / (points.length - 1)) * plotW;
-
-      // Soft fill to neutral baseline.
-      ctx.beginPath();
-      points.forEach((point, i) => {
-        const px = x(i), py = y(point.score);
-        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-      });
-      ctx.lineTo(x(points.length - 1), y(0));
-      ctx.lineTo(x(0), y(0));
-      ctx.closePath();
-      ctx.fillStyle = "rgba(0,245,160,.07)";
-      ctx.fill();
-
-      ctx.beginPath();
-      points.forEach((point, i) => {
-        const px = x(i), py = y(point.score);
-        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-      });
-      ctx.strokeStyle = "#00f5a0";
-      ctx.lineWidth = 2;
-      ctx.lineJoin = "round";
-      ctx.lineCap = "round";
-      ctx.stroke();
-
-      ctx.fillStyle = "#71877a";
-      ctx.textAlign = "left";
-      ctx.textBaseline = "alphabetic";
-      ctx.font = "9px Inter, sans-serif";
-      ctx.fillText(points[0].date, pad.left, h - 5);
-      ctx.textAlign = "right";
-      ctx.fillText(points[points.length - 1].date, pad.left + plotW, h - 5);
-    }
-
-    let lastValidatedHistory = [];
-
     function renderLiveBTCUSD(state) {
-      const price = $("live-btc-usd-price");
-      const status = $("live-btc-usd-status");
-      const updated = $("live-btc-usd-updated");
+      const price = document.getElementById("live-btc-usd-price");
+      const status = document.getElementById("live-btc-usd-status");
+      const updated = document.getElementById("live-btc-usd-updated");
       status.dataset.status = state.status;
 
       if (Number.isFinite(state.price) && state.price > 0) {
@@ -797,10 +219,7 @@
         price.textContent = "Unavailable";
       }
 
-      updated.textContent = state.receivedAt
-        ? formatTimestamp(state.receivedAt)
-        : "Unavailable";
-
+      updated.textContent = state.receivedAt ? formatTimestamp(state.receivedAt) : "Unavailable";
       if (state.status === "live") {
         status.textContent = `LIVE · Coinbase Exchange last trade ${formatTimestamp(state.sourceTime)}`;
       } else if (state.status === "refreshing") {
@@ -814,117 +233,14 @@
       }
     }
 
-    function showDataError(kind, message) {
-      $("system-status").textContent = kind;
-      $("valid-count").textContent = "0 / 15";
-      $("integrity-note").textContent = message;
-      $("chart-notice").textContent = message;
-      $("pipeline-updated").textContent = "Unavailable";
-      $("data-freshness").textContent = "Unavailable";
-      $("feed-errors").hidden = true;
-      $("feed-errors").textContent = "";
-      setComposite(NaN);
-      $("history-count").textContent = "0 valid observations";
-      try { drawChart([]); } catch (_) { /* Keep the rendering failure visible even if canvas is unavailable. */ }
-    }
-
-    async function loadSDCAData() {
-      try {
-        renderIndicatorCards(INDICATORS);
-        renderIndicatorTable(INDICATORS);
-        drawChart([]);
-      } catch (error) {
-        showDataError("Dashboard rendering error", `Dashboard could not initialize: ${error.message}`);
-        return;
-      }
-
-      let response;
-      try {
-        response = await fetch(`data/sdca-latest.json?t=${Date.now()}`, { cache: "no-store" });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      } catch (error) {
-        showDataError("Data fetch error", `Could not fetch SDCA data: ${error.message}`);
-        return;
-      }
-
-      let data;
-      try {
-        data = await response.json();
-      } catch (error) {
-        showDataError("JSON parsing error", `SDCA data is not valid JSON: ${error.message}`);
-        return;
-      }
-
-      try {
-        SDCAIntegrity.validateData(data, INDICATORS.map((item) => item.name));
-      } catch (error) {
-        showDataError("Data schema error", `SDCA data failed validation: ${error.message}`);
-        return;
-      }
-
-      try {
-        const byName = new Map(data.indicators.map((item) => [item.name, item]));
-        const merged = INDICATORS.map((base) => ({ ...base, ...byName.get(base.name), url: base.url }));
-        renderIndicatorCards(merged);
-        renderIndicatorTable(merged);
-
-        const validCount = merged.filter((item) => Number.isFinite(item.score) && item.status === "valid").length;
-        $("valid-count").textContent = `${validCount} / 15`;
-        const failures = Array.isArray(data.feedFailures) ? data.feedFailures : null;
-        const failureLabel = failures ? `${failures.length} feed failure(s)` : "feed failures not reported";
-        $("integrity-note").textContent = `${validCount} verified scores · ${merged.filter((item) => item.rawValue !== null && item.rawValue !== undefined).length} raw readings · ${failureLabel}.`;
-        $("pipeline-updated").textContent = formatTimestamp(data.updatedAt);
-        const latestReading = SDCAIntegrity.latestIndicatorTimestamp(merged);
-        $("data-freshness").textContent = latestReading
-          ? SDCAIntegrity.formatObservationTimestamp(latestReading, formatTimestamp)
-          : "No indicator timestamp available";
-        const visibleFailures = (failures || []).map((failure) =>
-          `<div><strong>${escapeHTML(failure.feed)}</strong> (${escapeHTML(failure.type)}): ${escapeHTML(failure.message)}</div>`
-        );
-        if (visibleFailures.length === 0) {
-          merged.filter((item) => item.status === "feed_error" && item.error && typeof item.error === "object")
-            .forEach((item) => visibleFailures.push(`<div><strong>${escapeHTML(item.name)}</strong> (${escapeHTML(String(item.error.type || "Error"))}): ${escapeHTML(String(item.error.message || "No details provided"))}</div>`));
-        }
-        $("feed-errors").hidden = visibleFailures.length === 0;
-        $("feed-errors").innerHTML = visibleFailures.length
-          ? `<strong>Individual feed errors</strong>${visibleFailures.join("")}`
-          : "";
-        $("system-status").textContent = failures && failures.length ? "Partial data · feed failures" : (data.status === "complete" ? "Pipeline complete" : "Partial data");
-        $("chart-notice").textContent = data.note || "SDCA scoring and composite are unavailable pending approved rules.";
-        setComposite(data.compositeScore === null || data.compositeScore === undefined ? NaN : data.compositeScore, data.compositeLabel);
-
-        const historyState = SDCAIntegrity.validateHistoryState(data);
-        const historyError = historyState.error;
-        lastValidatedHistory = historyState.history;
-        const displayedHistory = lastValidatedHistory.slice(-180);
-        $("history-count").textContent = `${lastValidatedHistory.length} valid observation${lastValidatedHistory.length === 1 ? "" : "s"}${lastValidatedHistory.length > 180 ? " · showing last 180" : ""}`;
-        if (historyError) $("chart-notice").textContent += ` Historical scores hidden because history validation failed: ${historyError}.`;
-        drawChart(displayedHistory);
-      } catch (error) {
-        lastValidatedHistory = [];
-        showDataError("Dashboard rendering error", `Validated data could not be rendered: ${error.message}`);
-      }
-    }
-
-    // Green cursor-following light.
-    const glow = $("cursor-glow");
+    const cursorGlow = document.getElementById("cursor-glow");
     window.addEventListener("pointermove", (event) => {
-      glow.style.left = `${event.clientX}px`;
-      glow.style.top = `${event.clientY}px`;
+      cursorGlow.style.left = `${event.clientX}px`;
+      cursorGlow.style.top = `${event.clientY}px`;
     }, { passive: true });
 
     const liveBTCUSDController = LiveBTCUSD.createController({ onState: renderLiveBTCUSD });
     void liveBTCUSDController.start();
-
-    loadSDCAData();
-    window.addEventListener("resize", () => {
-      // Redraw already validated data; resizing never triggers another request.
-      try {
-        drawChart(lastValidatedHistory.slice(-180));
-      } catch (error) {
-        showDataError("Dashboard rendering error", `Chart could not be resized: ${error.message}`);
-      }
-    });
   </script>
 </body>
 </html>

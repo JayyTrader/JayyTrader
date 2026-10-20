@@ -28,8 +28,10 @@
       z-index: 0;
       background-image:
         linear-gradient(color-mix(in srgb, var(--cyan) 2.5%, transparent) 1px, transparent 1px),
-        linear-gradient(90deg, color-mix(in srgb, var(--cyan) 2.5%, transparent) 1px, transparent 1px);
-      background-size: 48px 48px;
+        linear-gradient(90deg, color-mix(in srgb, var(--cyan) 2.5%, transparent) 1px, transparent 1px),
+        linear-gradient(color-mix(in srgb, var(--amber) .8%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--amber) .8%, transparent) 1px, transparent 1px);
+      background-size: 48px 48px, 48px 48px, 192px 192px, 192px 192px;
       content: "";
       pointer-events: none;
       mask-image: linear-gradient(to bottom, #000, transparent 90%);
@@ -103,9 +105,9 @@
       margin: 38px auto 0;
       padding: 16px 18px;
       border: var(--border-hairline);
-      border-top: 1px solid color-mix(in srgb, var(--cyan) 42%, transparent);
+      border-top: 1px solid color-mix(in srgb, var(--amber) 58%, transparent);
+      box-shadow: inset 0 1px 0 color-mix(in srgb, var(--amber) 8%, transparent), 0 14px 42px rgba(0, 0, 0, .22);
       background: linear-gradient(145deg, var(--panel2), var(--panel));
-      box-shadow: 0 14px 42px rgba(0, 0, 0, .22);
       text-align: left;
     }
     .quote-primary {

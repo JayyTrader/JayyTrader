@@ -7,7 +7,10 @@
   --cyan-soft: #A6F3FF;
   --muted: #A6B6BF;
   --line: rgba(0, 220, 255, .18);
-  --amber: #FFAA23;
+  --amber: #FFB000;
+  --amber-soft: #FFD078;
+  --line-amber: rgba(255, 176, 0, .18);
+  --glow-amber-soft: 0 0 10px rgba(255, 176, 0, .16);
   --text: #E7F0F4;
   --font-ui: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --space-1: 4px;

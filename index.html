@@ -81,15 +81,6 @@
       min-height: 0;
       text-align: left;
     }
-    .research-intro {
-      position: absolute;
-      top: -76px;
-      left: 0;
-      right: 0;
-      padding: 0;
-    }
-    .research-column .tagline { margin: 0; }
-    .research-column .motto { margin: 8px 0 0; }
     .oscillator-panel {
       display: flex;
       flex: 1 1 auto;
@@ -390,11 +381,20 @@
       line-height: 1.6;
     }
     .motto-banner {
-      margin: 0 0 22px;
+      margin: 0 0 6px;
       color: var(--cyan-soft);
       font-size: 11px;
       letter-spacing: .045em;
       line-height: 1.7;
+      text-align: center;
+      text-wrap: balance;
+    }
+    .tagline-banner {
+      margin: 0 0 22px;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: .015em;
+      line-height: 1.6;
       text-align: center;
       text-wrap: balance;
     }
@@ -487,7 +487,6 @@
       .trend-instruments { gap: 16px; }
       .dashboard-grid { grid-template-columns: minmax(0, 1fr); gap: 24px; }
       .research-column { display: block; }
-      .research-intro { position: static; }
       .oscillator-panel { margin-top: 22px; min-height: 0; }
       .quote-rail { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; }
       .quote-rail .quote { padding: 12px; }
@@ -521,6 +520,7 @@
   <h1>J<span class="brand-hazard">x</span><span>Probability</span><span class="cursor" aria-hidden="true"></span></h1>
   <main class="landing">
     <p class="motto motto-banner">Probabilities are the currency of the markets. No noise. Just signal.</p>
+    <p class="tagline tagline-banner">Transparent valuation research. Systematic accumulation intelligence.</p>
     <section class="trend-instruments" aria-label="Trend probability instruments">
       <article class="trend-instrument" data-horizon="long" aria-labelledby="ltpi-title">
         <header class="trend-instrument-heading"><div><h2 class="trend-instrument-title" id="ltpi-title">Long-Term Trend</h2><div class="trend-instrument-code">INSTRUMENT / 01 · LTPI</div></div><span class="trend-instrument-state">AWAITING INPUTS</span></header>
@@ -549,10 +549,6 @@
     </section>
     <div class="dashboard-grid">
       <section class="research-column" aria-label="Valuation oscillator">
-        <div class="research-intro">
-          <p class="tagline">Transparent valuation research. Systematic accumulation intelligence.</p>
-
-        </div>
         <section class="oscillator-panel" aria-labelledby="oscillator-title">
           <div class="panel-heading">
             <div>

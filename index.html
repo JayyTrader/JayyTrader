@@ -64,10 +64,109 @@
     .landing {
       position: relative;
       z-index: 1;
-      width: min(100% - 40px, 720px);
-      padding: 48px 0;
-      text-align: center;
+      width: min(100% - 64px, 1480px);
+      margin: 0 auto;
+      padding: 118px 0 48px;
     }
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+      align-items: start;
+      gap: 32px;
+    }
+    .research-column { min-width: 0; text-align: left; }
+    .research-column .tagline { margin: 0; }
+    .research-column .motto { margin: 8px 0 0; }
+    .oscillator-panel {
+      margin-top: 30px;
+      padding: 22px 24px 18px;
+      border: var(--border-hairline);
+      border-top: 1px solid color-mix(in srgb, var(--cyan) 55%, transparent);
+      background: linear-gradient(145deg, var(--panel2), var(--panel));
+      box-shadow: 0 14px 42px rgba(0, 0, 0, .22);
+    }
+    .panel-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .panel-title {
+      margin: 0;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .panel-subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.6;
+    }
+    .empty-state {
+      flex: 0 0 auto;
+      padding: 5px 8px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: .1em;
+      white-space: nowrap;
+    }
+    .oscillator-plot {
+      display: block;
+      width: 100%;
+      height: auto;
+      min-height: 320px;
+      overflow: visible;
+    }
+    .oscillator-grid { stroke: var(--line); stroke-width: 1; }
+    .oscillator-grid.zero { stroke: color-mix(in srgb, var(--cyan) 48%, transparent); stroke-width: 1.4; }
+    .oscillator-label {
+      fill: var(--muted);
+      font-family: var(--font-ui);
+      font-size: 12px;
+    }
+    .oscillator-label.extreme { fill: var(--amber); }
+    .oscillator-caption {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.6;
+    }
+    .quote-rail {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-width: 0;
+    }
+    .quote-rail .quote {
+      width: 100%;
+      margin: 0;
+      padding: 16px;
+    }
+    .quote-rail .quote-primary {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 9px;
+    }
+    .quote-rail .live-quote-status { max-width: none; text-align: left; }
+    .quote-rail .price { font-size: clamp(21px, 2.1vw, 27px); }
+    .quote-rail .quote-details { align-items: flex-start; flex-wrap: wrap; }
+    .asset-symbol {
+      display: inline-block;
+      margin-right: 8px;
+      color: var(--cyan);
+      font-size: 9px;
+      letter-spacing: .12em;
+    }
+    .quote[data-asset="ETH"] .asset-symbol { color: var(--amber-soft); }
+    .quote[data-asset="SOL"] .asset-symbol { color: var(--cyan-soft); }
     h1 {
       position: fixed;
       top: 24px;
@@ -171,12 +270,25 @@
     .quote-details a:hover,
     .quote-details a:focus-visible { color: var(--cyan); text-decoration: underline; }
     .quote-details a:focus-visible { outline: 1px solid var(--cyan); outline-offset: 3px; }
-    @media (max-width: 480px) {
+    @media (max-width: 900px) {
+      .landing { width: min(100% - 40px, 720px); padding-top: 108px; }
+      .dashboard-grid { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+      .quote-rail { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; }
+      .quote-rail .quote { padding: 12px; }
+      .quote-rail .price { font-size: clamp(16px, 2.8vw, 23px); }
+      .quote-rail .quote-details { font-size: 7px; }
+      .oscillator-plot { min-height: 280px; }
+    }
+    @media (max-width: 600px) {
       h1 { top: 16px; left: 16px; font-size: clamp(21px, 6vw, 28px); }
-      .landing { width: min(100% - 32px, 720px); }
-      .quote { margin-top: 30px; padding: 14px; }
-      .quote-primary { align-items: flex-start; flex-direction: column; gap: 9px; }
-      .live-quote-status { max-width: none; text-align: left; }
+      .landing { width: min(100% - 32px, 720px); padding-top: 92px; }
+      .quote-rail { grid-template-columns: minmax(0, 1fr); }
+      .quote-rail .quote { padding: 14px; }
+      .quote-rail .price { font-size: 24px; }
+      .oscillator-panel { padding: 16px 12px 14px; margin-top: 22px; }
+      .panel-heading { flex-direction: column; gap: 10px; }
+      .oscillator-plot { min-height: 240px; }
+      .oscillator-caption { flex-direction: column; gap: 3px; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
@@ -186,26 +298,95 @@
 </head>
 <body>
   <div id="cursor-glow" aria-hidden="true"></div>
+  <h1>J<span class="brand-hazard">x</span><span>Probability</span><span class="cursor" aria-hidden="true"></span></h1>
   <main class="landing">
-    <h1>J<span class="brand-hazard">x</span><span>Probability</span><span class="cursor" aria-hidden="true"></span></h1>
-    <p class="tagline">Transparent valuation research. Systematic accumulation intelligence.</p>
-    <p class="motto">Probabilities are the currency of the markets. No noise. Just signal.</p>
-
-    <section class="quote" aria-label="Live Bitcoin to US dollar quote">
-      <div class="quote-primary">
-        <div>
-          <span class="quote-label">BTC / USD</span>
-          <strong class="price" id="live-btc-usd-price">Loading…</strong>
-        </div>
-        <p class="live-quote-status" id="live-btc-usd-status" role="status" aria-live="polite">Connecting to Coinbase Exchange…</p>
-      </div>
-      <div class="quote-details">
-        <span>Updated <time id="live-btc-usd-updated">Unavailable</time></span>
-        <a id="live-btc-usd-source" href="https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker" target="_blank" rel="noopener noreferrer">Coinbase Exchange ↗</a>
-      </div>
-    </section>
+    <div class="dashboard-grid">
+      <section class="research-column" aria-label="Valuation oscillator">
+        <p class="tagline">Transparent valuation research. Systematic accumulation intelligence.</p>
+        <p class="motto">Probabilities are the currency of the markets. No noise. Just signal.</p>
+        <section class="oscillator-panel" aria-labelledby="oscillator-title">
+          <div class="panel-heading">
+            <div>
+              <h2 class="panel-title" id="oscillator-title">Valuation Oscillator</h2>
+              <p class="panel-subtitle">Standardized valuation scale · −2 to +2</p>
+            </div>
+            <span class="empty-state">AWAITING INDICATORS</span>
+          </div>
+          <svg class="oscillator-plot" viewBox="0 0 900 390" role="img" aria-labelledby="oscillator-chart-title oscillator-chart-desc" preserveAspectRatio="none">
+            <title id="oscillator-chart-title">Empty valuation oscillator</title>
+            <desc id="oscillator-chart-desc">A blank chart with plus two labeled undervalued, zero labeled neutral, and minus two labeled overvalued. No indicator data is plotted yet.</desc>
+            <g aria-hidden="true">
+              <line class="oscillator-grid" x1="82" y1="28" x2="890" y2="28" />
+              <line class="oscillator-grid" x1="82" y1="111" x2="890" y2="111" />
+              <line class="oscillator-grid zero" x1="82" y1="194" x2="890" y2="194" />
+              <line class="oscillator-grid" x1="82" y1="277" x2="890" y2="277" />
+              <line class="oscillator-grid" x1="82" y1="360" x2="890" y2="360" />
+              <line class="oscillator-grid" x1="82" y1="28" x2="82" y2="360" />
+              <line class="oscillator-grid" x1="284" y1="28" x2="284" y2="360" opacity=".45" />
+              <line class="oscillator-grid" x1="486" y1="28" x2="486" y2="360" opacity=".45" />
+              <line class="oscillator-grid" x1="688" y1="28" x2="688" y2="360" opacity=".45" />
+              <line class="oscillator-grid" x1="890" y1="28" x2="890" y2="360" />
+              <text class="oscillator-label extreme" x="64" y="32" text-anchor="end">+2</text>
+              <text class="oscillator-label" x="64" y="115" text-anchor="end">+1</text>
+              <text class="oscillator-label" x="64" y="198" text-anchor="end">0</text>
+              <text class="oscillator-label" x="64" y="281" text-anchor="end">−1</text>
+              <text class="oscillator-label extreme" x="64" y="364" text-anchor="end">−2</text>
+              <text class="oscillator-label extreme" x="890" y="17" text-anchor="end">UNDERVALUED</text>
+              <text class="oscillator-label" x="890" y="383" text-anchor="end">OVERVALUED</text>
+            </g>
+          </svg>
+          <div class="oscillator-caption">
+            <span>+2 = Undervalued</span>
+            <span>0 = Neutral</span>
+            <span>−2 = Overvalued</span>
+          </div>
+        </section>
+      </section>
+      <aside class="quote-rail" aria-label="Live cryptocurrency prices">
+        <section class="quote" data-asset="BTC" aria-label="Live Bitcoin to US dollar quote">
+          <div class="quote-primary">
+            <div>
+              <span class="quote-label"><span class="asset-symbol">BTC</span>BTC / USD</span>
+              <strong class="price" id="live-btc-usd-price">Loading…</strong>
+            </div>
+            <p class="live-quote-status" id="live-btc-usd-status" role="status" aria-live="polite">Connecting to Coinbase Exchange…</p>
+          </div>
+          <div class="quote-details">
+            <span>Updated <time id="live-btc-usd-updated">Unavailable</time></span>
+            <a id="live-btc-usd-source" href="https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker" target="_blank" rel="noopener noreferrer">Coinbase Exchange ↗</a>
+          </div>
+        </section>
+        <section class="quote" data-asset="ETH" aria-label="Live Ethereum to US dollar quote">
+          <div class="quote-primary">
+            <div>
+              <span class="quote-label"><span class="asset-symbol">ETH</span>ETH / USD</span>
+              <strong class="price" id="live-eth-usd-price">Loading…</strong>
+            </div>
+            <p class="live-quote-status" id="live-eth-usd-status" role="status" aria-live="polite">Connecting to Coinbase Exchange…</p>
+          </div>
+          <div class="quote-details">
+            <span>Updated <time id="live-eth-usd-updated">Unavailable</time></span>
+            <a href="https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker" target="_blank" rel="noopener noreferrer">Coinbase Exchange ↗</a>
+          </div>
+        </section>
+        <section class="quote" data-asset="SOL" aria-label="Live Solana to US dollar quote">
+          <div class="quote-primary">
+            <div>
+              <span class="quote-label"><span class="asset-symbol">SOL</span>SOL / USD</span>
+              <strong class="price" id="live-sol-usd-price">Loading…</strong>
+            </div>
+            <p class="live-quote-status" id="live-sol-usd-status" role="status" aria-live="polite">Connecting to Coinbase Exchange…</p>
+          </div>
+          <div class="quote-details">
+            <span>Updated <time id="live-sol-usd-updated">Unavailable</time></span>
+            <a href="https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker" target="_blank" rel="noopener noreferrer">Coinbase Exchange ↗</a>
+          </div>
+        </section>
+      </aside>
+    </div>
   </main>
   <script src="scripts/live-btc-usd.js"></script>
+  <script src="scripts/live-crypto-usd.js"></script>
   <script>
     function formatTimestamp(value) {
       if (!value) return "Not available";
@@ -254,6 +435,36 @@
 
     const liveBTCUSDController = LiveBTCUSD.createController({ onState: renderLiveBTCUSD });
     void liveBTCUSDController.start();
+    const liveCryptoUSDController = LiveCryptoUSD.createController({
+      onState: (symbol, state) => renderLiveCryptoUSD(symbol, state)
+    });
+    function renderLiveCryptoUSD(symbol, state) {
+      const prefix = symbol.toLowerCase();
+      const price = document.getElementById(`live-${prefix}-usd-price`);
+      const status = document.getElementById(`live-${prefix}-usd-status`);
+      const updated = document.getElementById(`live-${prefix}-usd-updated`);
+      status.dataset.status = state.status;
+      if (Number.isFinite(state.price) && state.price > 0) {
+        price.textContent = LiveCryptoUSD.formatUSDPrice(state.price);
+      } else if (state.status === "loading") {
+        price.textContent = "Loading…";
+      } else {
+        price.textContent = "Unavailable";
+      }
+      updated.textContent = state.receivedAt ? formatTimestamp(state.receivedAt) : "Unavailable";
+      if (state.status === "live") {
+        status.textContent = `LIVE · Coinbase Exchange last trade ${formatTimestamp(state.sourceTime)}`;
+      } else if (state.status === "refreshing") {
+        status.textContent = "Refreshing · showing the last successful quote";
+      } else if (state.status === "stale") {
+        status.textContent = `STALE · refresh failed: ${state.error}. Displayed price is from the last successful update.`;
+      } else if (state.status === "error") {
+        status.textContent = `Connection error: ${state.error}. No current quote is available.`;
+      } else {
+        status.textContent = "Connecting to Coinbase Exchange…";
+      }
+    }
+    void liveCryptoUSDController.start();
   </script>
 </body>
 </html>

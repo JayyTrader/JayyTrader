@@ -106,24 +106,27 @@
     }
     .panel-heading {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
       gap: 16px;
-      margin-bottom: 18px;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
     }
     .panel-title {
       margin: 0;
       color: var(--text);
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: .06em;
+      font-size: 14px;
+      font-weight: 650;
+      letter-spacing: .09em;
       text-transform: uppercase;
     }
     .panel-subtitle {
-      margin: 6px 0 0;
+      margin: 5px 0 0;
       color: var(--muted);
-      font-size: 10px;
-      line-height: 1.6;
+      font-size: 9px;
+      letter-spacing: .035em;
+      line-height: 1.5;
     }
     .empty-state {
       flex: 0 0 auto;
@@ -142,8 +145,8 @@
       height: 100%;
       overflow: visible;
     }
-    .oscillator-grid { stroke: var(--line); stroke-width: 1; }
-    .oscillator-grid.zero { stroke: color-mix(in srgb, var(--cyan) 48%, transparent); stroke-width: 1.4; }
+    .oscillator-grid { stroke: var(--line); stroke-width: 1; opacity: .68; }
+    .oscillator-grid.zero { stroke: color-mix(in srgb, var(--cyan) 64%, transparent); stroke-width: 1.6; opacity: 1; }
     .oscillator-label {
       fill: var(--muted);
       font-family: var(--font-ui);
@@ -154,9 +157,12 @@
       display: flex;
       justify-content: space-between;
       gap: 16px;
-      margin-top: 6px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
       color: var(--muted);
       font-size: 9px;
+      letter-spacing: .025em;
       line-height: 1.6;
     }
     .quote-rail {
@@ -169,7 +175,12 @@
     .quote-rail .quote {
       width: 100%;
       margin: 0;
-      padding: 16px;
+      padding: 17px 16px 15px;
+      border-top-color: color-mix(in srgb, var(--amber) 42%, transparent);
+      box-shadow: inset 0 1px 0 color-mix(in srgb, var(--amber) 5%, transparent), 0 12px 32px rgba(0, 0, 0, .18);
+    }
+    .quote-rail .quote:hover {
+      border-top-color: color-mix(in srgb, var(--cyan) 55%, transparent);
     }
     .quote-rail .quote-primary {
       align-items: flex-start;
@@ -224,11 +235,33 @@
       line-height: 1.7;
     }
     .motto {
-      margin: 12px 0 0;
+      margin: 9px 0 0;
       color: var(--cyan-soft);
-      font-size: 11px;
-      letter-spacing: .04em;
-      line-height: 1.7;
+      font-size: 10px;
+      letter-spacing: .035em;
+      line-height: 1.6;
+    }
+    .system-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 18px;
+      padding-top: 10px;
+      border-top: 1px solid color-mix(in srgb, var(--line) 65%, transparent);
+      color: var(--muted);
+      font-size: 8px;
+      letter-spacing: .1em;
+      line-height: 1.6;
+      text-transform: uppercase;
+    }
+    .system-footer span:last-child { text-align: right; }
+    .system-footer .status-dot {
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      margin: 0 7px 1px 0;
+      border-radius: 50%;
+      background: var(--amber);
     }
     .quote {
       width: min(100%, 390px);
@@ -250,8 +283,9 @@
       padding-left: 7px;
       border-left: 1px solid var(--amber);
       color: var(--muted);
-      font-size: 9px;
-      letter-spacing: .16em;
+      font-size: 8px;
+      letter-spacing: .18em;
+      line-height: 1.5;
     }
     .price {
       display: block;
@@ -313,6 +347,8 @@
       .panel-heading { flex-direction: column; gap: 10px; }
       .oscillator-plot { min-height: 240px; }
       .oscillator-caption { flex-direction: column; gap: 3px; }
+      .system-footer { flex-direction: column; gap: 5px; }
+      .system-footer span:last-child { text-align: left; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
@@ -410,6 +446,10 @@
         </section>
       </aside>
     </div>
+    <footer class="system-footer" aria-label="Research system status">
+      <span><i class="status-dot" aria-hidden="true"></i>Quote source: Coinbase Exchange · Refresh interval: 60s</span>
+      <span>Oscillator status: Awaiting indicators · No signals plotted</span>
+    </footer>
   </main>
   <script src="scripts/live-btc-usd.js"></script>
   <script src="scripts/live-crypto-usd.js"></script>

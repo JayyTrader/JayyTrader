@@ -12,7 +12,7 @@
   --line-amber: rgba(255, 176, 0, .18);
   --glow-amber-soft: 0 0 10px rgba(255, 176, 0, .16);
   --text: #E7F0F4;
-  --font-ui: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-ui: "Source Code Pro", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;

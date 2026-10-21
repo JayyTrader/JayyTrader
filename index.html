@@ -224,7 +224,8 @@
       height: .82em;
       margin-left: 8px;
       background: var(--cyan);
-      vertical-align: -.02em;
+      vertical-align: middle;
+      transform: translateY(-.04em);
       animation: blink 1.06s step-end infinite;
     }
     @keyframes blink { 0%, 49.9% { opacity: 1; } 50%, 100% { opacity: 0; } }
@@ -552,7 +553,7 @@
         <section class="quote" data-asset="BTC" aria-label="Live Bitcoin to US dollar quote">
           <div class="quote-primary">
             <div>
-              <span class="quote-label"><span class="asset-symbol">BTC</span>BTC / USD</span>
+              <span class="quote-label"><span class="asset-symbol">BTC</span>/ USD</span>
               <strong class="price" id="live-btc-usd-price">Loading…</strong>
             </div>
             <p class="live-quote-status" id="live-btc-usd-status" role="status" aria-live="polite">Connecting to Coinbase Exchange…</p>
@@ -565,7 +566,7 @@
         <section class="quote" data-asset="ETH" aria-label="Live Ethereum to US dollar quote">
           <div class="quote-primary">
             <div>
-              <span class="quote-label"><span class="asset-symbol">ETH</span>ETH / USD</span>
+              <span class="quote-label"><span class="asset-symbol">ETH</span>/ USD</span>
               <strong class="price" id="live-eth-usd-price">Loading…</strong>
             </div>
             <p class="live-quote-status" id="live-eth-usd-status" role="status" aria-live="polite">Connecting to Coinbase Exchange…</p>
@@ -578,7 +579,7 @@
         <section class="quote" data-asset="SOL" aria-label="Live Solana to US dollar quote">
           <div class="quote-primary">
             <div>
-              <span class="quote-label"><span class="asset-symbol">SOL</span>SOL / USD</span>
+              <span class="quote-label"><span class="asset-symbol">SOL</span>/ USD</span>
               <strong class="price" id="live-sol-usd-price">Loading…</strong>
             </div>
             <p class="live-quote-status" id="live-sol-usd-status" role="status" aria-live="polite">Connecting to Coinbase Exchange…</p>

@@ -15,14 +15,8 @@
 - Never store credentials or tokens in this repository. Documentation preserves workflow, not authentication state.
 
 ## Latest verified work
-- Font change PR: https://github.com/JayyTrader/JayyTrader/pull/12
-- Branch: `feat/source-code-pro-font`
-- Branch head: `3b6c1eb2909cf56a9813af6287a3694d3dd5458e`
-- Changes: load Source Code Pro via Google Fonts in `index.html`; set the shared `--font-ui` token to Source Code Pro in `styles/tokens.css`.
-- PR #12 was verified open and unmerged when this handoff was written. GitHub reported `mergeable: false`; the reason has not been diagnosed.
-- Live deployment has not been verified as changed. Do not claim the font is live until the PR is merged and the deployed site is checked.
-
-## Current documentation change
-- A separate documentation-only branch `docs/github-session-continuity` was created from `main`.
-- `AGENTS.md` was added in commit `72bef28a3f8126d127fd2dc2c54df7a5dd1ce3ec`.
-- Next: add this handoff file, verify both files directly from GitHub, and open a documentation-only PR. Do not merge automatically.
+- Font change PR #12: https://github.com/JayyTrader/JayyTrader/pull/12 — merged on 2026-10-21. The Source Code Pro font import and shared `--font-ui` token are on `main`; live rendering has not been independently verified.
+- GitHub-first continuity PR #13: https://github.com/JayyTrader/JayyTrader/pull/13 — merged on 2026-10-21. `AGENTS.md` and `PROJECT_HANDOFF.md` are present on `main`.
+- Text caret visibility PR #14: https://github.com/JayyTrader/JayyTrader/pull/14 — open, unmerged, and not deployed. Branch: `ui/cyan-text-caret`; head commit: `edfe02e44fb81ee4a5835451c2d7621f337f972b`. Adds a cyan `caret-color` rule for `input`, `textarea`, and `[contenteditable="true"]` in `index.html`; browser-native blinking remains intact.
+- Current landing page does not contain text-entry fields, so the caret style is ready for those controls when present. No browser visual test was performed.
+- Next: review PR #14, resolve any mergeability issue if needed, and wait for operator authorization before merging or deploying.

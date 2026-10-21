@@ -69,8 +69,12 @@
       text-align: center;
     }
     h1 {
+      position: fixed;
+      top: 24px;
+      left: 32px;
+      z-index: 2;
       margin: 0;
-      font-size: clamp(42px, 9vw, 76px);
+      font-size: clamp(21px, 4.5vw, 38px);
       font-weight: 750;
       letter-spacing: -.065em;
       line-height: 1;
@@ -78,6 +82,10 @@
     h1 span {
       color: var(--cyan);
       text-shadow: var(--glow-cyan-soft);
+    }
+    h1 .brand-hazard {
+      color: var(--amber);
+      text-shadow: var(--glow-amber-soft);
     }
     .cursor {
       display: inline-block;
@@ -164,6 +172,7 @@
     .quote-details a:focus-visible { color: var(--cyan); text-decoration: underline; }
     .quote-details a:focus-visible { outline: 1px solid var(--cyan); outline-offset: 3px; }
     @media (max-width: 480px) {
+      h1 { top: 16px; left: 16px; font-size: clamp(21px, 6vw, 28px); }
       .landing { width: min(100% - 32px, 720px); }
       .quote { margin-top: 30px; padding: 14px; }
       .quote-primary { align-items: flex-start; flex-direction: column; gap: 9px; }
@@ -178,7 +187,7 @@
 <body>
   <div id="cursor-glow" aria-hidden="true"></div>
   <main class="landing">
-    <h1>Jx<span>Probability</span><span class="cursor" aria-hidden="true"></span></h1>
+    <h1>J<span class="brand-hazard">x</span><span>Probability</span><span class="cursor" aria-hidden="true"></span></h1>
     <p class="tagline">Transparent valuation research. Systematic accumulation intelligence.</p>
     <p class="motto">Probabilities are the currency of the markets. No noise. Just signal.</p>
 

@@ -15,14 +15,8 @@
 - Never store credentials or tokens in this repository. Documentation preserves workflow, not authentication state.
 
 ## Latest verified work
-- Font change PR: https://github.com/JayyTrader/JayyTrader/pull/12
-- Branch: `feat/source-code-pro-font`
-- Branch head: `3b6c1eb2909cf56a9813af6287a3694d3dd5458e`
-- Changes: load Source Code Pro via Google Fonts in `index.html`; set the shared `--font-ui` token to Source Code Pro in `styles/tokens.css`.
-- PR #12 was verified open and unmerged when this handoff was written. GitHub reported `mergeable: false`; the reason has not been diagnosed.
-- Live deployment has not been verified as changed. Do not claim the font is live until the PR is merged and the deployed site is checked.
-
-## Current documentation change
-- A separate documentation-only branch `docs/github-session-continuity` was created from `main`.
-- `AGENTS.md` was added in commit `72bef28a3f8126d127fd2dc2c54df7a5dd1ce3ec`.
-- Next: add this handoff file, verify both files directly from GitHub, and open a documentation-only PR. Do not merge automatically.
+- Font change PR #12: https://github.com/JayyTrader/JayyTrader/pull/12 — merged on 2026-10-21. Source Code Pro import and shared `--font-ui` token are on `main`; live rendering has not been independently verified.
+- GitHub-first continuity PR #13: https://github.com/JayyTrader/JayyTrader/pull/13 — merged on 2026-10-21. `AGENTS.md` and `PROJECT_HANDOFF.md` are present on `main`.
+- Text-input caret color PR #14: https://github.com/JayyTrader/JayyTrader/pull/14 — open and unmerged. Branch `ui/cyan-text-caret`; adds cyan native caret styling for inputs, textareas, and contenteditable elements. It is separate from the heading cursor below.
+- Heading cursor realism PR in progress: branch `ui/realistic-heading-caret`, based on main SHA `5971e5781faf1b070a58fb1cda286e24a4d4265d`. In `index.html`, removes the glow and opacity-pulse effect and changes the heading cursor to a hard on/off blink at about 1.06 seconds per cycle. Not merged or deployed; browser visual testing has not been performed.
+- Next: verify the heading cursor diff, open its PR, and wait for operator authorization before merging or deploying.

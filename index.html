@@ -75,10 +75,21 @@
       gap: 32px;
     }
     .research-column { min-width: 0; text-align: left; }
+    .research-intro {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      transform: translateY(-100%);
+      padding-bottom: 12px;
+    }
     .research-column .tagline { margin: 0; }
     .research-column .motto { margin: 8px 0 0; }
     .oscillator-panel {
-      margin-top: 30px;
+      margin-top: 0;
+      min-height: 578px;
+      display: flex;
+      flex-direction: column;
       padding: 22px 24px 18px;
       border: var(--border-hairline);
       border-top: 1px solid color-mix(in srgb, var(--cyan) 55%, transparent);
@@ -118,8 +129,9 @@
     .oscillator-plot {
       display: block;
       width: 100%;
-      height: auto;
+      flex: 1 1 auto;
       min-height: 320px;
+      height: 100%;
       overflow: visible;
     }
     .oscillator-grid { stroke: var(--line); stroke-width: 1; }
@@ -273,6 +285,8 @@
     @media (max-width: 900px) {
       .landing { width: min(100% - 40px, 720px); padding-top: 108px; }
       .dashboard-grid { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+      .research-intro { position: static; transform: none; padding-bottom: 0; }
+      .oscillator-panel { margin-top: 22px; min-height: 0; }
       .quote-rail { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; }
       .quote-rail .quote { padding: 12px; }
       .quote-rail .price { font-size: clamp(16px, 2.8vw, 23px); }
@@ -285,7 +299,7 @@
       .quote-rail { grid-template-columns: minmax(0, 1fr); }
       .quote-rail .quote { padding: 14px; }
       .quote-rail .price { font-size: 24px; }
-      .oscillator-panel { padding: 16px 12px 14px; margin-top: 22px; }
+      .oscillator-panel { padding: 16px 12px 14px; margin-top: 22px; min-height: 0; }
       .panel-heading { flex-direction: column; gap: 10px; }
       .oscillator-plot { min-height: 240px; }
       .oscillator-caption { flex-direction: column; gap: 3px; }
@@ -302,8 +316,10 @@
   <main class="landing">
     <div class="dashboard-grid">
       <section class="research-column" aria-label="Valuation oscillator">
-        <p class="tagline">Transparent valuation research. Systematic accumulation intelligence.</p>
-        <p class="motto">Probabilities are the currency of the markets. No noise. Just signal.</p>
+        <div class="research-intro">
+          <p class="tagline">Transparent valuation research. Systematic accumulation intelligence.</p>
+          <p class="motto">Probabilities are the currency of the markets. No noise. Just signal.</p>
+        </div>
         <section class="oscillator-panel" aria-labelledby="oscillator-title">
           <div class="panel-heading">
             <div>

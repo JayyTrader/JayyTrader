@@ -71,10 +71,16 @@
     .dashboard-grid {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
-      align-items: start;
+      align-items: stretch;
       gap: 32px;
     }
-    .research-column { position: relative; min-width: 0; text-align: left; }
+    .research-column {
+      position: relative;
+      display: flex;
+      min-width: 0;
+      min-height: 0;
+      text-align: left;
+    }
     .research-intro {
       position: absolute;
       top: -84px;
@@ -85,10 +91,13 @@
     .research-column .tagline { margin: 0; }
     .research-column .motto { margin: 8px 0 0; }
     .oscillator-panel {
-      margin-top: 0;
-      min-height: 578px;
       display: flex;
+      flex: 1 1 auto;
       flex-direction: column;
+      width: 100%;
+      min-width: 0;
+      min-height: 0;
+      margin: 0;
       padding: 22px 24px 18px;
       border: var(--border-hairline);
       border-top: 1px solid color-mix(in srgb, var(--cyan) 55%, transparent);
@@ -155,6 +164,7 @@
       flex-direction: column;
       gap: 16px;
       min-width: 0;
+      align-self: stretch;
     }
     .quote-rail .quote {
       width: 100%;
@@ -284,7 +294,8 @@
     @media (max-width: 900px) {
       .landing { width: min(100% - 40px, 720px); padding-top: 108px; }
       .dashboard-grid { grid-template-columns: minmax(0, 1fr); gap: 24px; }
-      .research-intro { position: static; transform: none; padding-bottom: 0; }
+      .research-column { display: block; }
+      .research-intro { position: static; padding-bottom: 0; }
       .oscillator-panel { margin-top: 22px; min-height: 0; }
       .quote-rail { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; }
       .quote-rail .quote { padding: 12px; }

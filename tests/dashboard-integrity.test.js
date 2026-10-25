@@ -531,3 +531,14 @@ test('MVRV is a compact single-value input plotted into the valuation oscillator
   assert.match(html, /position: absolute;[\s\S]*?top: 24px;[\s\S]*?left: 32px;/);
   assert.doesNotMatch(html, /h1\s*\{\s*position:\s*fixed/);
 });
+
+
+test('valuation oscillator places negative overvalued scores at the top and positive undervalued scores at the bottom', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  assert.match(html, /id="oscillator-score-line"/);
+  assert.match(html, /const y = 194 \+ \(value \* 83\)/);
+  assert.match(html, /x="64" y="32" text-anchor="end">−2<\/text>/);
+  assert.match(html, /x="64" y="364" text-anchor="end">\+2<\/text>/);
+  assert.match(html, /x="890" y="17" text-anchor="end">OVERVALUED<\/text>/);
+  assert.match(html, /x="890" y="383" text-anchor="end">UNDERVALUED<\/text>/);
+});

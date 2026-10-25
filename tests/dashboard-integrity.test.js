@@ -186,7 +186,7 @@ test('landing page keeps only JxProbability branding, mottos, and the compact Co
   assert.match(tokens, /--bg:\s*#080D12/i);
   assert.match(tokens, /--panel:\s*rgba\(23,\s*35,\s*44/);
   assert.match(tokens, /--cyan:\s*#00DCFF/i);
-  assert.match(tokens, /--amber:\s*#FFAA23/i);
+  assert.match(tokens, /--amber:\s*#FFB000/i);
   assert.match(html, /pointermove/);
   assert.match(html, /cursor-glow/);
 });

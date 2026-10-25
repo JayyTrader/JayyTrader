@@ -262,7 +262,10 @@ test('Coinbase BTC-USD ticker parser accepts documented price and time fields on
 test('landing page exposes MVRV research while leaving the SDCA composite unimplemented', () => {
   const root = path.join(__dirname, '..');
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-  assert.match(html, /id="mvrv-score"/);\n  assert.match(html, /id="oscillator-title"/);\n  assert.match(html, /sources\.html/);\n  assert.doesNotMatch(html, /SDCA Composite Oscillator|indicator-grid|data\/sdca-latest\.json|loadSDCAData|verifiedCompositeObservation/);
+  assert.match(html, /id="mvrv-score"/);
+  assert.match(html, /id="oscillator-title"/);
+  assert.match(html, /sources\.html/);
+  assert.doesNotMatch(html, /SDCA Composite Oscillator|indicator-grid|data\/sdca-latest\.json|loadSDCAData|verifiedCompositeObservation/);
   assert.doesNotMatch(html, /dashboard-integrity\.js|data\/sdca-latest\.json|loadSDCAData|verifiedCompositeObservation/);
 });
 

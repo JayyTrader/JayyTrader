@@ -606,7 +606,7 @@
             </g>
             <g id="oscillator-live-score" aria-label="Current valuation score" visibility="hidden">
               <line id="oscillator-score-line" x1="82" y1="194" x2="890" y2="194" stroke="var(--cyan)" stroke-width="2.5" stroke-dasharray="7 5" />
-              <text id="oscillator-score-label" x="884" y="184" text-anchor="end" fill="var(--cyan)" font-family="var(--font-ui)" font-size="12" font-weight="700">MVRV +0.52</text>
+              <text id="oscillator-score-label" x="884" y="184" text-anchor="end" fill="var(--cyan)" font-family="var(--font-ui)" font-size="12" font-weight="700">+0.52</text>
             </g>
             </svg>
           <div class="oscillator-caption">
@@ -782,11 +782,11 @@
         line.setAttribute("y1", String(y));
         line.setAttribute("y2", String(y));
         label.setAttribute("y", String(Math.max(42, y - 9)));
-        label.textContent = `MVRV ${MVRVScore.formatScore(value)}`;
+        label.textContent = MVRVScore.formatScore(value);
         marker.setAttribute("visibility", "visible");
         status.textContent = "1 / 15 INDICATORS";
-        chartTitle.textContent = `Valuation oscillator: MVRV score ${MVRVScore.formatScore(value)}`;
-        chartDesc.textContent = `MVRV Z-Score is the only connected valuation input so far, at ${MVRVScore.formatScore(value)} on the minus two to plus two scale. The composite will update as additional indicators are connected.`;
+        chartTitle.textContent = `Valuation oscillator: aggregated valuation score ${MVRVScore.formatScore(value)}`;
+        chartDesc.textContent = `Current aggregated valuation score is ${MVRVScore.formatScore(value)} on the minus two to plus two scale. Only one of fifteen planned indicators is currently connected; the composite will update as additional indicators are integrated.`;
       }
       MVRVScore.createController({ onState: render }).start();
     })();

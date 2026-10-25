@@ -42,11 +42,11 @@ jobs:
         run: python scripts/update_sdca.py
 
       - name: Update and validate Explore21 MVRV Z-Score
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/feature/explore21-mvrv-zscore')
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: python scripts/update_mvrv_zscore.py
 
       - name: Commit updated research data
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/feature/explore21-mvrv-zscore')
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: |
           if [[ -n "$(git status --porcelain data/)" ]]; then
             git config user.name "github-actions[bot]"

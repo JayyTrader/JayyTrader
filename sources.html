@@ -9,58 +9,15 @@
 :root{color-scheme:dark;--bg:#080b0e;--panel:#11171b;--line:#27343b;--text:#e5edf0;--muted:#91a2ab;--cyan:#27d9e8;--amber:#d99a36}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% 0%,#122027 0%,var(--bg) 55%);color:var(--text);font:14px/1.65 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
 main{width:min(900px,calc(100% - 36px));margin:0 auto;padding:48px 0 80px}a{color:var(--cyan);text-underline-offset:3px}a:hover{color:#fff}h1{font-size:clamp(24px,5vw,38px);letter-spacing:-.05em;margin:0 0 8px}h2{font-size:16px;color:var(--cyan);margin:0 0 12px;letter-spacing:.05em;text-transform:uppercase}p,li{color:var(--muted)}.eyebrow{color:var(--amber);font-size:10px;letter-spacing:.2em;text-transform:uppercase}.panel{border:1px solid var(--line);border-top:2px solid var(--cyan);background:linear-gradient(145deg,#121a1f,#0c1115);padding:22px;margin:22px 0}.label{color:var(--text);font-weight:700}.fine{font-size:12px}.status{border-left:2px solid var(--amber);padding-left:12px}
+
+#cursor-glow{position:fixed;z-index:0;top:0;left:0;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--cyan) 6.5%,transparent) 0%,color-mix(in srgb,var(--cyan) 3.5%,transparent) 32%,color-mix(in srgb,var(--cyan) 1.2%,transparent) 55%,transparent 72%);opacity:0;pointer-events:none;transform:translate(-50%,-50%);transition:opacity .35s ease;will-change:left,top} @media(hover:hover) and (pointer:fine){body:hover #cursor-glow{opacity:1}} main{position:relative;z-index:1}
 </style>
 </head>
-<body><main>
+<body><div id="cursor-glow" aria-hidden="true"></div><main>
 <a href="index.html">← Return to dashboard</a>
 <p class="eyebrow">JXPROBABILITY / RESEARCH RECORD</p>
 <h1>Sources &amp; Methodology</h1>
 <p>Source transparency, calculation rules, licenses and limitations for data shown on this dashboard.</p>
-<section class="panel">
-<h2>01 / Bitcoin MVRV Z-Score</h2>
-<p><span class="label">Primary data source:</span> <a href="https://charts.explore21.com/bitcoin-mvrv-z-score" rel="noopener noreferrer">Explore21 Charts — Bitcoin MVRV Z-Score</a></p>
-<p><span class="label">Historical CSV:</span> <a href="https://charts.explore21.com/data/bitcoin-mvrv-z-score.csv" rel="noopener noreferrer">Download daily observations</a> · <a href="https://charts.explore21.com/data" rel="noopener noreferrer">Full data catalog</a></p>
-<p><span class="label">License:</span> CC BY 4.0. Explore21 permits reuse with attribution and a link back to the source.</p>
-<p><span class="label">Attribution:</span> Explore21 Charts, “Bitcoin MVRV Z-Score”, accessed 25 October 2026.</p>
-<p>Explore21 defines its raw indicator as (market cap − realized cap) divided by the expanding standard deviation of market cap. Its method uses only data available up to each date, so previously published raw readings do not change as new days are added.</p>
-</section>
-
-<section class="panel">
-<h2>02 / JXProbability Normalized Score</h2>
-<p>The raw MVRV Z-Score is transformed into a consistent valuation scale from +2 to −2 using its expanding historical percentile.</p>
-<p><code>Score = 2 − 4 × (historical percentile / 100)</code></p>
-<ul><li><strong>+2:</strong> historically low valuation relative to the series.</li><li><strong>0:</strong> approximately the middle of the historical distribution.</li><li><strong>−2:</strong> historically high valuation relative to the series.</li></ul>
-<p>Each date's percentile is calculated only from observations available on or before that date. The score remains unavailable until at least 30 observations exist. Percentile is the share of those observations with a strictly lower raw reading.</p>
-<p class="status">This normalization is a JXProbability research convention, not an Explore21 signal or a validated standalone buy/sell rule. It describes historical position; it does not predict future returns.</p>
-</section>
-<section class="panel">
-<h2>03 / Validation &amp; Update Policy</h2>
-<p>The update pipeline checks the CSV schema, numeric validity, chronological dates, duplicates, future dates, minimum history, freshness, and eight published cycle reference values. A failed validation prevents replacement of the last committed data file.</p>
-<p>The published comparison points cover the 2013 and 2017 cycle tops, 2015 and 2018 lows, 2021 and 2025 tops, and the 2022 and June 2026 lows. These are source-consistency checks, not an independent profitability backtest.</p>
-<p>Daily data refresh runs through GitHub Actions. If the source is unavailable or validation fails, the dashboard should not present an invented or neutral substitute value.</p>
-</section>
-<section class="panel">
-<h2>02 / Realized Cap HODL Waves — 1W–1M</h2>
-<p><span class="label">Chart source:</span> <a href="https://www.lookintobitcoin.com/charts/realized-cap-hodl-waves/" rel="noopener noreferrer">Look Into Bitcoin — Realized Cap HODL Waves</a></p>
-<p><span class="label">Selected series:</span> 1W–1M age band, identified by the operator as the deeper-orange band (third from the bottom).</p>
-<p><span class="label">Input method:</span> Manual chart reading. No API, API key, paid data feed, or automatic source extraction is used for this indicator.</p>
-<p><span class="label">Operator-defined score mapping:</span> 10% → +2; 20% → +1; 30% → 0; 40% → −1; 50% → −2. The score is linear between anchors and clamped to the −2 to +2 range.</p>
-<p class="status">The current manual input defaults to 10% based on the operator's annotated screenshot. Update the band percentage on the dashboard when reading a newer chart. This is a custom research convention, not a statistically validated Z-score or a validated trading signal.</p>
-</section>
-<section class="panel">
-<h2>03 / Realized Cap HODL Waves — 1W–1M</h2>
-<p><span class="label">Public source:</span> <a href="https://studio.glassnode.com/charts/supply.RcapHodlWaves?a=BTC" rel="noopener noreferrer">Glassnode — Realized Cap HODL Waves</a></p>
-<p><span class="label">Selected series:</span> 1W–1M share of USD-denominated realized capitalization.</p>
-<p><span class="label">Retrieval:</span> Daily GitHub Actions job parses the publicly displayed latest-value text from the chart page. No API key or paid API endpoint is used.</p>
-<p><span class="label">Score:</span> 10% → +2; 20% → +1; 30% → 0; 40% → −1; 50% → −2, linear between anchors and clamped to −2 through +2.</p>
-<p class="status">The pipeline rejects missing values and observations older than four days. If the public page changes its markup or stops displaying the values, the refresh fails and the dashboard excludes this indicator rather than treating missing data as neutral. Browser rendering and a live workflow run remain unverified.</p>
-</section>
-<section class="panel">
-<h2>04 / Live Market Price Feeds</h2>
-<p><span class="label">Exchange:</span> <a href="https://www.coinbase.com/" rel="noopener noreferrer">Coinbase Exchange</a></p>
-<p><span class="label">API documentation:</span> <a href="https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker" rel="noopener noreferrer">Product Ticker — Exchange REST API</a></p>
-<p>The dashboard's live BTC/USD, ETH/USD and SOL/USD quote cards use Coinbase Exchange's product ticker endpoint for the latest trade price and source timestamp. Quotes refresh approximately every 60 seconds while the dashboard is open.</p>
-<p class="status">These are exchange-specific spot quotes, not a consolidated market price. Prices may differ from other exchanges, and a quote may be unavailable or delayed if the endpoint or network is unavailable. The dashboard reports connection status rather than substituting an invented price.</p>
-</section>
+<section class="panel"><h2>Research record</h2><p>Source listings and attribution details have been removed from this page.</p></section>
 <p class="fine">Research only. Historical observations are not guarantees of future performance. Inspect the linked source and the displayed observation date.</p>
-</main></body></html>
+</main><script>const cursorGlow=document.getElementById("cursor-glow");window.addEventListener("pointermove",event=>{cursorGlow.style.left=`${event.clientX}px`;cursorGlow.style.top=`${event.clientY}px`;},{passive:true});</script></body></html>

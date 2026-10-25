@@ -181,7 +181,7 @@ test('landing page keeps only JxProbability branding, mottos, and the compact Co
   assert.match(html, /id="live-btc-usd-price"/);
   assert.match(html, /scripts\/live-btc-usd\.js/);
   assert.equal(liveBTCUSD.ENDPOINT, 'https://api.exchange.coinbase.com/products/BTC-USD/ticker');
-  assert.doesNotMatch(html, /JayyTrader|methodology\.html|indicator-grid|INDICATORS|oscillator|data\/sdca-latest|dashboard-integrity/);
+   assert.doesNotMatch(html, /JayyTrader|methodology\.html|indicator-grid|data\/sdca-latest|dashboard-integrity/);
   assert.doesNotMatch(html, /<canvas|<svg|Bitcoin \/ USD Market Chart|TradingView Lightweight Charts|btc-usd-chart/);
   assert.match(tokens, /--bg:\s*#080D12/i);
   assert.match(tokens, /--panel:\s*rgba\(23,\s*35,\s*44/);
@@ -198,7 +198,7 @@ test('landing page quote and layout remain compact, responsive, and accessible',
   assert.equal((html.match(/id="live-btc-usd-price"/g) || []).length, 1);
   assert.match(html, /role="status" aria-live="polite"/);
   assert.match(style[1], /\.quote\s*\{[^}]*width:\s*min\(100%,\s*390px\)/);
-  assert.match(style[1], /@media\s*\(max-width:\s*480px\)[\s\S]*?\.quote-primary\s*\{[^}]*flex-direction:\s*column/);
+  assert.match(style[1], /@media\s*\(max-width:\s*600px\)[\s\S]*?\.quote-rail\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/);
   assert.match(style[1], /\.live-quote-status\[data-status="stale"\][\s\S]*?var\(--amber\)/);
   assert.match(style[1], /\.live-quote-status\[data-status="live"\]\s*\{[^}]*var\(--cyan\)/);
   assert.match(html, /id="live-btc-usd-source" href="https:\/\/docs\.cdp\.coinbase\.com\//);
@@ -259,10 +259,10 @@ test('Coinbase BTC-USD ticker parser accepts documented price and time fields on
   }
 });
 
-test('landing page omits all oscillator and indicator interface elements', () => {
+test('landing page exposes MVRV research while leaving the SDCA composite unimplemented', () => {
   const root = path.join(__dirname, '..');
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-  assert.doesNotMatch(html, /SDCA Composite Oscillator|indicator-grid|INDICATORS|oscillator|MVRV-Z Score|methodology\.html/);
+  assert.match(html, /id="mvrv-score"/);\n  assert.match(html, /id="oscillator-title"/);\n  assert.match(html, /sources\.html/);\n  assert.doesNotMatch(html, /SDCA Composite Oscillator|indicator-grid|data\/sdca-latest\.json|loadSDCAData|verifiedCompositeObservation/);
   assert.doesNotMatch(html, /dashboard-integrity\.js|data\/sdca-latest\.json|loadSDCAData|verifiedCompositeObservation/);
 });
 
@@ -270,7 +270,7 @@ test('live Coinbase USD quote remains separate from retained Binance USDT daily-
   const root = path.join(__dirname, '..');
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   const data = JSON.parse(fs.readFileSync(path.join(root, 'data/sdca-latest.json'), 'utf8'));
-  assert.match(html, /BTC \/ USD/);
+  assert.match(html, /class="quote-label"><span class="asset-symbol">BTC<\/span>\/ USD/);
   assert.match(html, /Coinbase Exchange/);
   assert.match(html, /Coinbase Exchange last trade/);
   assert.doesNotMatch(html, /Bitcoin \/ USD Market Chart/);

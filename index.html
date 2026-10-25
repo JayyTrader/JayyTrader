@@ -484,6 +484,7 @@
     .quote-details a:focus-visible { color: var(--cyan); text-decoration: underline; }
     .quote-details a:focus-visible { outline: 1px solid var(--cyan); outline-offset: 3px; }
 
+    .mvrv-score-row { display:flex; justify-content:flex-start; margin-top:18px; }
     .mvrv-score-panel {
       display: inline-flex;
       align-items: center;
@@ -509,6 +510,7 @@
       .dashboard-grid { grid-template-columns: minmax(0, 1fr); gap: 24px; }
       .research-column { display: block; }
       .oscillator-panel { margin-top: 22px; min-height: 0; }
+      .mvrv-score-row { margin-top:14px; }
       .quote-rail { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; }
       .quote-rail .quote { padding: 12px; }
       .quote-rail .price { font-size: clamp(16px, 2.8vw, 23px); }
@@ -613,10 +615,7 @@
             <span>−2 = Overvalued</span>
           </div>
         </section>
-        <section class="mvrv-score-panel" id="mvrv-score" aria-labelledby="mvrv-score-title">
-          <h2 class="mvrv-score-title" id="mvrv-score-title">MVRV Z-Score</h2>
-          <strong class="mvrv-score-number" id="mvrv-score-value" data-sign="positive" aria-label="MVRV valuation score">—</strong>
-        </section>
+
       </section>
       <aside class="quote-rail" aria-label="Live cryptocurrency prices">
         <section class="quote" data-asset="BTC" aria-label="Live Bitcoin to US dollar quote">
@@ -660,9 +659,14 @@
         </section>
       </aside>
     </div>
+    <div class="mvrv-score-row">
+        <section class="mvrv-score-panel" id="mvrv-score" aria-labelledby="mvrv-score-title">
+          <h2 class="mvrv-score-title" id="mvrv-score-title">MVRV Z-Score</h2>
+          <strong class="mvrv-score-number" id="mvrv-score-value" data-sign="positive" aria-label="MVRV valuation score">—</strong>
+        </section>
+    </div>
     <footer class="system-footer" aria-label="Research system status">
       <span><i class="status-dot" aria-hidden="true"></i>Quote source: Coinbase Exchange · Refresh interval: 60s</span>
-      <span>Oscillator status: Awaiting indicators · No signals plotted</span>
       <span><a class="source-page-link" href="sources.html">Sources &amp; Methodology ↗</a></span>
     </footer>
   </main>

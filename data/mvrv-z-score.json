@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "status": "snapshot_only",
+  "updatedAt": "2026-10-25T00:00:00+00:00",
+  "sourceUpdatedAt": "2026-10-24",
+  "source": "https://charts.explore21.com/data/bitcoin-mvrv-z-score.csv",
+  "referenceSource": "https://charts.explore21.com/bitcoin-mvrv-z-score",
+  "dataCatalog": "https://charts.explore21.com/data",
+  "license": "CC BY 4.0",
+  "attribution": "Explore21 Charts, “Bitcoin MVRV Z-Score”, accessed 25 October 2026.",
+  "methodology": {
+    "rawIndicator": "Explore21's expanding-window MVRV Z-Score: (market cap - realized cap) / expanding standard deviation of market cap.",
+    "score": "2 - 4 × (expanding historical percentile / 100), clipped to [-2, +2].",
+    "percentile": "Percentage of observations available on or before that date with a strictly lower raw MVRV Z-Score.",
+    "minimumObservations": 30,
+    "lookaheadBias": false,
+    "interpretation": {
+      "0": "Middle of the historical distribution",
+      "+2": "Historically low valuation",
+      "-2": "Historically high valuation"
+    },
+    "warning": "This is a research normalization, not an Explore21 signal, forecast, or investment recommendation."
+  },
+  "validation": {
+    "rowCount": null,
+    "firstDate": "2011-09-16",
+    "lastDate": "2026-10-24",
+    "referenceAnchors": {
+      "valid": null,
+      "checkedCount": 0,
+      "checkedDates": []
+    }
+  },
+  "latest": {
+    "date": "2026-10-24",
+    "rawValue": 0.85,
+    "historicalPercentile": 37,
+    "score": 0.52,
+    "btcCloseUsd": null
+  },
+  "history": [],
+  "note": "Initial snapshot from Explore21's published chart summary. Full history will replace this snapshot after the scheduled GitHub Actions update validates the CSV and cycle anchors."
+}

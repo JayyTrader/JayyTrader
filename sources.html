@@ -24,13 +24,7 @@ main{width:min(900px,calc(100% - 36px));margin:0 auto;padding:48px 0 80px}a{colo
 <p><span class="label">Attribution:</span> Explore21 Charts, “Bitcoin MVRV Z-Score”, accessed 25 October 2026.</p>
 <p>Explore21 defines its raw indicator as (market cap − realized cap) divided by the expanding standard deviation of market cap. Its method uses only data available up to each date, so previously published raw readings do not change as new days are added.</p>
 </section>
-<section class="panel">
-<h2>04 / Live Market Price Feeds</h2>
-<p><span class="label">Exchange:</span> <a href="https://www.coinbase.com/" rel="noopener noreferrer">Coinbase Exchange</a></p>
-<p><span class="label">API documentation:</span> <a href="https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker" rel="noopener noreferrer">Product Ticker — Exchange REST API</a></p>
-<p>The dashboard's live BTC/USD, ETH/USD and SOL/USD quote cards use Coinbase Exchange's product ticker endpoint for the latest trade price and source timestamp. Quotes refresh approximately every 60 seconds while the dashboard is open.</p>
-<p class="status">These are exchange-specific spot quotes, not a consolidated market price. Prices may differ from other exchanges, and a quote may be unavailable or delayed if the endpoint or network is unavailable. The dashboard reports connection status rather than substituting an invented price.</p>
-</section>
+
 <section class="panel">
 <h2>02 / JXProbability Normalized Score</h2>
 <p>The raw MVRV Z-Score is transformed into a consistent valuation scale from +2 to −2 using its expanding historical percentile.</p>
@@ -44,6 +38,13 @@ main{width:min(900px,calc(100% - 36px));margin:0 auto;padding:48px 0 80px}a{colo
 <p>The update pipeline checks the CSV schema, numeric validity, chronological dates, duplicates, future dates, minimum history, freshness, and eight published cycle reference values. A failed validation prevents replacement of the last committed data file.</p>
 <p>The published comparison points cover the 2013 and 2017 cycle tops, 2015 and 2018 lows, 2021 and 2025 tops, and the 2022 and June 2026 lows. These are source-consistency checks, not an independent profitability backtest.</p>
 <p>Daily data refresh runs through GitHub Actions. If the source is unavailable or validation fails, the dashboard should not present an invented or neutral substitute value.</p>
+</section>
+<section class="panel">
+<h2>04 / Live Market Price Feeds</h2>
+<p><span class="label">Exchange:</span> <a href="https://www.coinbase.com/" rel="noopener noreferrer">Coinbase Exchange</a></p>
+<p><span class="label">API documentation:</span> <a href="https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker" rel="noopener noreferrer">Product Ticker — Exchange REST API</a></p>
+<p>The dashboard's live BTC/USD, ETH/USD and SOL/USD quote cards use Coinbase Exchange's product ticker endpoint for the latest trade price and source timestamp. Quotes refresh approximately every 60 seconds while the dashboard is open.</p>
+<p class="status">These are exchange-specific spot quotes, not a consolidated market price. Prices may differ from other exchanges, and a quote may be unavailable or delayed if the endpoint or network is unavailable. The dashboard reports connection status rather than substituting an invented price.</p>
 </section>
 <p class="fine">Research only. Historical observations are not guarantees of future performance. Inspect the linked source and the displayed observation date.</p>
 </main></body></html>

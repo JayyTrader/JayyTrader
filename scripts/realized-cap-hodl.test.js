@@ -1,0 +1,11 @@
+const assert = require("node:assert/strict");
+const HODL = require("./realized-cap-hodl.js");
+assert.equal(HODL.scoreFromPercent(10), 2);
+assert.equal(HODL.scoreFromPercent(20), 1);
+assert.equal(HODL.scoreFromPercent(30), 0);
+assert.equal(HODL.scoreFromPercent(40), -1);
+assert.equal(HODL.scoreFromPercent(50), -2);
+assert.equal(HODL.scoreFromPercent(0), 2);
+assert.equal(HODL.scoreFromPercent(100), -2);
+assert.equal(HODL.scoreFromPercent(25), 0.5);
+console.log("Realized Cap HODL scoring tests passed.");

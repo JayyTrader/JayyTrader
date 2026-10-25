@@ -666,10 +666,12 @@
         </section>
       <section class="mvrv-score-panel" id="hodl-score-panel" aria-labelledby="hodl-score-title" style="margin-top:12px">
         <h2 class="mvrv-score-title" id="hodl-score-title">Realized Cap HODL Waves · 1W–1M</h2>
-        <label for="hodl-band-percent" class="mvrv-score-title">Band %</label>
-        <input id="hodl-band-percent" type="number" min="0" max="100" step="0.1" value="10" inputmode="decimal" aria-describedby="hodl-score-method" style="width:76px;background:var(--panel);color:var(--text);border:1px solid var(--line);padding:6px;font:inherit">
-        <strong class="mvrv-score-number" id="hodl-score-value" data-sign="positive" aria-label="Realized Cap HODL Waves valuation score">+2.00</strong>
-        <span id="hodl-score-method" class="panel-subtitle">Manual chart reading · 10% = +2; 30% = 0; 50% = −2</span>
+        <span class="mvrv-score-title">Latest 1W–1M band share</span>
+        <strong class="mvrv-score-number" id="hodl-band-percent">—</strong>
+        <span class="mvrv-score-title">Valuation score</span>
+        <strong class="mvrv-score-number" id="hodl-score-value" data-sign="neutral" aria-label="Realized Cap HODL Waves valuation score">—</strong>
+        <span id="hodl-score-method" class="panel-subtitle">Awaiting validated public source data…</span>
+        <span id="hodl-source-date" class="panel-subtitle">Source date: unavailable</span>
       </section>
     </div>
     <footer class="system-footer" aria-label="Research system status">
@@ -761,6 +763,7 @@
 
   <script src="scripts/mvrv-score.js"></script>
   <script src="scripts/realized-cap-hodl.js"></script>
+  <script src="scripts/realized-cap-hodl-live.js"></script>
   <script>
     (function () {
       const score = document.getElementById("mvrv-score-value");
@@ -784,25 +787,28 @@
         }
         const latest = state.payload.latest;
         const mvrvValue = Math.max(-2, Math.min(2, latest.score));
-        const hodlValue = window.RealizedCapHODL.scoreFromPercent(Number(document.getElementById("hodl-band-percent").value));
-        const value = (mvrvValue + hodlValue) / 2;
+        const hodlPayload = window.__hodlPayload;
+        const hodlValue = hodlPayload && hodlPayload.status === "available" ? hodlPayload.score : null;
+        const value = hodlValue === null ? mvrvValue : (mvrvValue + hodlValue) / 2;
         const y = 194 + (value * 83);
         score.textContent = MVRVScore.formatScore(mvrvValue);
         score.dataset.sign = mvrvValue < 0 ? "negative" : mvrvValue > 0 ? "positive" : "neutral";
-        document.getElementById("hodl-score-value").textContent = MVRVScore.formatScore(hodlValue);
-        document.getElementById("hodl-score-value").dataset.sign = hodlValue < 0 ? "negative" : hodlValue > 0 ? "positive" : "neutral";
+        document.getElementById("hodl-band-percent").textContent = hodlPayload ? hodlPayload.bandPercent.toFixed(3) + "%" : "—";
+        document.getElementById("hodl-score-value").textContent = hodlValue === null ? "—" : MVRVScore.formatScore(hodlValue);
+        document.getElementById("hodl-score-value").dataset.sign = hodlValue === null ? "neutral" : hodlValue < 0 ? "negative" : hodlValue > 0 ? "positive" : "neutral";
+        document.getElementById("hodl-score-method").textContent = hodlPayload ? "Automated public-page reading · 10%=+2 · 30%=0 · 50%=−2 · " + hodlPayload.validation.ageDays + " day(s) old" : "No validated automated HODL reading; composite uses available MVRV score only.";
+        document.getElementById("hodl-source-date").textContent = "Source date: " + (hodlPayload ? hodlPayload.sourceDate : "unavailable");
         line.setAttribute("y1", String(y));
         line.setAttribute("y2", String(y));
         label.setAttribute("y", String(Math.max(42, y - 9)));
         label.textContent = MVRVScore.formatScore(value);
         marker.setAttribute("visibility", "visible");
-        status.textContent = "2 / 15 INDICATORS";
+        status.textContent = hodlValue === null ? "1 / 15 INDICATORS" : "2 / 15 INDICATORS";
         chartTitle.textContent = `Valuation oscillator: two-indicator average ${MVRVScore.formatScore(value)}`;
-        chartDesc.textContent = `Composite is the equal-weight average of MVRV score ${MVRVScore.formatScore(mvrvValue)} and manually entered 1W–1M HODL band score ${MVRVScore.formatScore(hodlValue)}. The HODL score maps 10% to +2, 30% to 0, and 50% to −2, clamped to −2 through +2.`;
+        chartDesc.textContent = hodlValue === null ? "Only MVRV score " + MVRVScore.formatScore(mvrvValue) + " is currently available. HODL Waves data is missing or unvalidated, so it is excluded from the composite." : "Composite is the equal-weight average of MVRV score " + MVRVScore.formatScore(mvrvValue) + " and automatically retrieved 1W–1M HODL band score " + MVRVScore.formatScore(hodlValue) + ". The HODL score maps 10% to +2, 30% to 0, and 50% to −2, clamped to −2 through +2.";
       }
-      const bandInput = document.getElementById("hodl-band-percent");
-      bandInput.addEventListener("input", () => { if (window.__lastMvrvState) render(window.__lastMvrvState); });
       const wrappedRender = (state) => { window.__lastMvrvState = state; render(state); };
+      window.addEventListener("hodl-data-updated", () => { if (window.__lastMvrvState) render(window.__lastMvrvState); });
       MVRVScore.createController({ onState: wrappedRender }).start();
     })();
   </script>

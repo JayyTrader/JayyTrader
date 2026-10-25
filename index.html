@@ -482,6 +482,32 @@
     .quote-details a:hover,
     .quote-details a:focus-visible { color: var(--cyan); text-decoration: underline; }
     .quote-details a:focus-visible { outline: 1px solid var(--cyan); outline-offset: 3px; }
+
+    .mvrv-score-panel {
+      margin: 0 0 22px;
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      border-top: 2px solid var(--cyan);
+      background: linear-gradient(145deg, var(--panel2), var(--panel));
+      box-shadow: inset 0 1px 0 color-mix(in srgb, var(--cyan) 8%, transparent), 0 14px 42px rgba(0, 0, 0, .18);
+    }
+    .mvrv-score-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; }
+    .mvrv-score-title { margin:0; color:var(--text); font-size:12px; font-weight:650; letter-spacing:.12em; text-transform:uppercase; }
+    .mvrv-score-subtitle { margin:6px 0 0; color:var(--muted); font-size:9px; line-height:1.6; }
+    .mvrv-score-state { color:var(--amber); font-size:8px; letter-spacing:.12em; text-align:right; }
+    .mvrv-score-state[data-status="available"] { color:var(--cyan); }
+    .mvrv-score-values { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-top:18px; }
+    .mvrv-score-metric { min-width:0; padding-left:10px; border-left:1px solid var(--line); }
+    .mvrv-score-metric:first-child { border-left-color:var(--cyan); }
+    .mvrv-score-label { display:block; color:var(--muted); font-size:8px; letter-spacing:.12em; text-transform:uppercase; }
+    .mvrv-score-number { display:block; margin-top:5px; color:var(--text); font-size:clamp(20px,3vw,28px); font-variant-numeric:tabular-nums; font-weight:650; letter-spacing:-.04em; }
+    #mvrv-score-value { color:var(--cyan); }
+    .mvrv-score-date { margin-top:14px; padding-top:10px; border-top:1px solid var(--line); display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px 14px; color:var(--muted); font-size:8px; }
+    .mvrv-score-source { color:var(--muted); text-decoration:none; text-underline-offset:3px; }
+    .mvrv-score-source:hover,.mvrv-score-source:focus-visible { color:var(--cyan); text-decoration:underline; }
+    .source-page-link { color:var(--cyan); text-decoration:none; }
+    .source-page-link:hover,.source-page-link:focus-visible { text-decoration:underline; }
+
     @media (max-width: 900px) {
       .landing { width: min(100% - 40px, 720px); padding-top: 108px; }
       .trend-instruments { gap: 16px; }
@@ -549,6 +575,26 @@
     </section>
     <div class="dashboard-grid">
       <section class="research-column" aria-label="Valuation oscillator">
+
+        <section class="mvrv-score-panel" id="mvrv-score" aria-labelledby="mvrv-score-title">
+          <div class="mvrv-score-heading">
+            <div>
+              <h2 class="mvrv-score-title" id="mvrv-score-title">MVRV Z-Score</h2>
+              <p class="mvrv-score-subtitle">EXPANDING HISTORICAL PERCENTILE · NORMALIZED −2 TO +2</p>
+            </div>
+            <span class="mvrv-score-state" id="mvrv-score-status" data-status="loading">LOADING DATA</span>
+          </div>
+          <div class="mvrv-score-values">
+            <div class="mvrv-score-metric"><span class="mvrv-score-label">Valuation score</span><strong class="mvrv-score-number" id="mvrv-score-value">—</strong></div>
+            <div class="mvrv-score-metric"><span class="mvrv-score-label">Raw Z-Score</span><strong class="mvrv-score-number" id="mvrv-raw-value">—</strong></div>
+            <div class="mvrv-score-metric"><span class="mvrv-score-label">Historical percentile</span><strong class="mvrv-score-number" id="mvrv-percentile">—</strong></div>
+          </div>
+          <div class="mvrv-score-date">
+            <span>Observation date: <time id="mvrv-observation-date">Unavailable</time></span>
+            <a class="mvrv-score-source" href="https://charts.explore21.com/bitcoin-mvrv-z-score" target="_blank" rel="noopener noreferrer">Explore21 source ↗</a>
+          </div>
+          <p class="mvrv-score-subtitle" id="mvrv-score-note">Positive scores indicate a lower historical valuation percentile; negative scores indicate a higher percentile.</p>
+        </section>
         <section class="oscillator-panel" aria-labelledby="oscillator-title">
           <div class="panel-heading">
             <div>
@@ -632,6 +678,7 @@
     <footer class="system-footer" aria-label="Research system status">
       <span><i class="status-dot" aria-hidden="true"></i>Quote source: Coinbase Exchange · Refresh interval: 60s</span>
       <span>Oscillator status: Awaiting indicators · No signals plotted</span>
+      <span><a class="source-page-link" href="sources.html">Sources &amp; Methodology ↗</a></span>
     </footer>
   </main>
   <script src="scripts/live-btc-usd.js"></script>
@@ -715,5 +762,51 @@
     }
     void liveCryptoUSDController.start();
   </script>
+
+  <script src="scripts/mvrv-score.js"></script>
+  <script>
+    (function () {
+      const status = document.getElementById("mvrv-score-status");
+      const score = document.getElementById("mvrv-score-value");
+      const raw = document.getElementById("mvrv-raw-value");
+      const percentile = document.getElementById("mvrv-percentile");
+      const observed = document.getElementById("mvrv-observation-date");
+      const note = document.getElementById("mvrv-score-note");
+      if (!status || !window.MVRVScore) return;
+
+      function render(state) {
+        status.dataset.status = state.status;
+        if (!state.payload) {
+          status.textContent = "DATA UNAVAILABLE";
+          score.textContent = raw.textContent = percentile.textContent = "—";
+          observed.textContent = "Unavailable";
+          note.textContent = "No current reading is available. Check the source page; missing data is not neutral.";
+          return;
+        }
+        const payload = state.payload;
+        const latest = payload.latest;
+        score.textContent = MVRVScore.formatScore(latest.score);
+        raw.textContent = MVRVScore.formatRaw(latest.rawValue);
+        percentile.textContent = `${latest.historicalPercentile.toFixed(1)}%`;
+        observed.textContent = latest.date;
+        if (state.status === "stale") {
+          status.textContent = "STALE SOURCE DATA";
+          note.textContent = "The last available reading is displayed for reference only; the source date is older than the freshness threshold.";
+        } else if (state.status === "snapshot") {
+          status.textContent = "SOURCE SNAPSHOT";
+          note.textContent = "Snapshot from Explore21's published chart summary. Full historical data and cycle-anchor validation are pending the automated refresh.";
+        } else {
+          const checked = payload.validation && payload.validation.referenceAnchors ? payload.validation.referenceAnchors.checkedCount : 0;
+          const rows = payload.validation ? payload.validation.rowCount : 0;
+          status.textContent = `DAILY DATA · ${checked}/8 ANCHORS`;
+          note.textContent = `${rows.toLocaleString("en-US")} daily observations validated. Positive scores indicate lower historical valuation percentiles; negative scores indicate higher percentiles. Research normalization, not a trading signal.`;
+        }
+      }
+
+      const controller = MVRVScore.createController({ onState: render });
+      controller.start();
+    })();
+  </script>
+
 </body>
 </html>

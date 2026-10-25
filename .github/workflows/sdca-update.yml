@@ -48,6 +48,7 @@ jobs:
       - name: Update Realized Cap HODL Waves 1W–1M score
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: python scripts/update_realized_cap_hodl.py
+        continue-on-error: true
 
       - name: Commit updated research data
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'

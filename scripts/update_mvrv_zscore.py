@@ -179,7 +179,7 @@ def build_payload(text: str, now: datetime | None = None) -> dict:
         "referenceSource": CHART_URL,
         "dataCatalog": DATA_CATALOG_URL,
         "license": LICENSE,
-        "attribution": "Explore21 Charts, “Bitcoin MVRV Z-Score”, accessed 25 October 2026.",
+        "attribution": f"Explore21 Charts, “Bitcoin MVRV Z-Score”, accessed {now.date().strftime('%d %B %Y')}.",
         "methodology": {
             "rawIndicator": "Explore21's expanding-window MVRV Z-Score: (market cap - realized cap) / expanding standard deviation of market cap.",
             "score": "2 - 4 × (expanding historical percentile / 100), clipped to [-2, +2].",

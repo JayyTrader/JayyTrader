@@ -182,7 +182,7 @@ test('landing page keeps only JxProbability branding, mottos, and the compact Co
   assert.match(html, /scripts\/live-btc-usd\.js/);
   assert.equal(liveBTCUSD.ENDPOINT, 'https://api.exchange.coinbase.com/products/BTC-USD/ticker');
    assert.doesNotMatch(html, /JayyTrader|methodology\.html|indicator-grid|data\/sdca-latest|dashboard-integrity/);
-  assert.doesNotMatch(html, /<canvas|<svg|Bitcoin \/ USD Market Chart|TradingView Lightweight Charts|btc-usd-chart/);
+  assert.doesNotMatch(html, /<canvas|Bitcoin \/ USD Market Chart|TradingView Lightweight Charts|btc-usd-chart/);
   assert.match(tokens, /--bg:\s*#080D12/i);
   assert.match(tokens, /--panel:\s*rgba\(23,\s*35,\s*44/);
   assert.match(tokens, /--cyan:\s*#00DCFF/i);

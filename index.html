@@ -484,14 +484,14 @@
     .quote-details a:focus-visible { color: var(--cyan); text-decoration: underline; }
     .quote-details a:focus-visible { outline: 1px solid var(--cyan); outline-offset: 3px; }
 
-    .mvrv-score-row { display:flex; justify-content:flex-start; margin-top:18px; }
+    .mvrv-score-row { display:flex; justify-content:flex-start; align-items:stretch; gap:10px; margin-top:18px; }
     .mvrv-score-panel {
       display: inline-flex;
       align-items: center;
       gap: 14px;
       width: fit-content;
       max-width: 100%;
-      margin: 18px 0 0;
+      margin: 0;
       padding: 9px 13px;
       border: 1px solid var(--line);
       border-left: 2px solid var(--cyan);
@@ -796,7 +796,8 @@
         document.getElementById("hodl-band-meta").textContent = hodlPayload ? "Band share: " + hodlPayload.bandPercent.toFixed(3) + "% · Source date: " + hodlPayload.sourceDate : "Band share: unavailable · Source date: unavailable";
         document.getElementById("hodl-score-value").textContent = hodlValue === null ? "—" : MVRVScore.formatScore(hodlValue);
         document.getElementById("hodl-score-value").dataset.sign = hodlValue === null ? "neutral" : hodlValue < 0 ? "negative" : hodlValue > 0 ? "positive" : "neutral";
-        document.getElementById("hodl-score-method").textContent = hodlPayload ? "Automated public-page reading · 10%=+2 · 30%=0 · 50%=−2 · " + hodlPayload.validation.ageDays + " day(s) old" : "No validated automated HODL reading; composite uses available MVRV score only.";
+        const method = document.getElementById("hodl-score-method");
+        if (method) method.textContent = hodlPayload ? "Automated public-page reading · 10%=+2 · 30%=0 · 50%=−2 · " + hodlPayload.validation.ageDays + " day(s) old" : "No validated automated HODL reading; composite uses available MVRV score only.";
         line.setAttribute("y1", String(y));
         line.setAttribute("y2", String(y));
         label.setAttribute("y", String(Math.max(42, y - 9)));

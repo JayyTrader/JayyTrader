@@ -25,6 +25,13 @@ main{width:min(900px,calc(100% - 36px));margin:0 auto;padding:48px 0 80px}a{colo
 <p>Explore21 defines its raw indicator as (market cap − realized cap) divided by the expanding standard deviation of market cap. Its method uses only data available up to each date, so previously published raw readings do not change as new days are added.</p>
 </section>
 <section class="panel">
+<h2>04 / Live Market Price Feeds</h2>
+<p><span class="label">Exchange:</span> <a href="https://www.coinbase.com/" rel="noopener noreferrer">Coinbase Exchange</a></p>
+<p><span class="label">API documentation:</span> <a href="https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker" rel="noopener noreferrer">Product Ticker — Exchange REST API</a></p>
+<p>The dashboard's live BTC/USD, ETH/USD and SOL/USD quote cards use Coinbase Exchange's product ticker endpoint for the latest trade price and source timestamp. Quotes refresh approximately every 60 seconds while the dashboard is open.</p>
+<p class="status">These are exchange-specific spot quotes, not a consolidated market price. Prices may differ from other exchanges, and a quote may be unavailable or delayed if the endpoint or network is unavailable. The dashboard reports connection status rather than substituting an invented price.</p>
+</section>
+<section class="panel">
 <h2>02 / JXProbability Normalized Score</h2>
 <p>The raw MVRV Z-Score is transformed into a consistent valuation scale from +2 to −2 using its expanding historical percentile.</p>
 <p><code>Score = 2 − 4 × (historical percentile / 100)</code></p>

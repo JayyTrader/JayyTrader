@@ -191,7 +191,7 @@ test('landing page keeps only JxProbability branding, mottos, and the compact Co
   assert.match(html, /cursor-glow/);
 });
 
-test('landing page quote and layout remain compact, responsive, and accessible', () => {
+test('landing page quote and layout remain compact, responsive, and accessible without per-feed source links', () => {
   const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
   const style = html.match(/<style>([\s\S]*?)<\/style>/);
   assert.ok(style, 'landing page styles exist');
@@ -201,16 +201,16 @@ test('landing page quote and layout remain compact, responsive, and accessible',
   assert.match(style[1], /@media\s*\(max-width:\s*600px\)[\s\S]*?\.quote-rail\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/);
   assert.match(style[1], /\.live-quote-status\[data-status="stale"\][\s\S]*?var\(--amber\)/);
   assert.match(style[1], /\.live-quote-status\[data-status="live"\]\s*\{[^}]*var\(--cyan\)/);
-  assert.match(html, /id="live-btc-usd-source" href="https:\/\/docs\.cdp\.coinbase\.com\//);
+  assert.doesNotMatch(html, /href="https:\/\/docs\.cdp\.coinbase\.com\/api-reference\/exchange-api\/rest-api\/products\/get-product-ticker"/);
 });
 
-test('Coinbase Exchange link styling keeps visible keyboard focus', () => {
+test('live quote cards leave source attribution to the dedicated sources page', () => {
   const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
   const style = html.match(/<style>([\s\S]*?)<\/style>/);
   assert.ok(style, 'landing page stylesheet exists');
-  assert.match(html, /id="live-btc-usd-source" href="https:\/\/docs\.cdp\.coinbase\.com\//);
-  assert.match(style[1], /\.quote-details a:hover,[\s\S]*?\.quote-details a:focus-visible\s*\{[^}]*color:\s*var\(--cyan\)/);
-  assert.match(style[1], /\.quote-details a:focus-visible\s*\{[^}]*outline:\s*1px solid var\(--cyan\)/);
+  assert.doesNotMatch(html, /href="https:\/\/docs\.cdp\.coinbase\.com\/api-reference\/exchange-api\/rest-api\/products\/get-product-ticker"/);
+  assert.match(html, /class="source-page-link" href="sources\.html"/);
+  assert.match(fs.readFileSync(path.join(__dirname, "..", "sources.html"), "utf8"), /04 \/ Live Market Price Feeds[\s\S]*?Product Ticker — Exchange REST API[\s\S]*?BTC\/USD, ETH\/USD and SOL\/USD/);
   assert.doesNotMatch(style[1], /(?:^|,)\s*a:(?:link|visited|hover|focus-visible)/);
 });
 

@@ -87,12 +87,12 @@ def parse_csv(text: str, today: date | None = None) -> list[dict]:
             raise ValueError(f"Invalid date at CSV line {line_number}") from exc
         if day in seen_dates:
             raise ValueError(f"Duplicate date in Explore21 CSV: {day.isoformat()}")
+        if day > today:
+            raise ValueError(f"Explore21 CSV contains a future date: {day.isoformat()}")
         if previous_date is not None and day <= previous_date:
             raise ValueError("Explore21 CSV dates must be strictly chronological")
         if previous_date is not None and (day - previous_date).days != 1:
             raise ValueError(f"Gap in Explore21 daily series between {previous_date} and {day}")
-        if day > today:
-            raise ValueError(f"Explore21 CSV contains a future date: {day.isoformat()}")
 
         raw_z = row["mvrv_z_score"].strip()
         raw_close = row["btc_close_usd"].strip()

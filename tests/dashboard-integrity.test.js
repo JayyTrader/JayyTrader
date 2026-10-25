@@ -542,3 +542,11 @@ test('valuation oscillator places negative overvalued scores at the top and posi
   assert.match(html, /x="890" y="17" text-anchor="end">OVERVALUED<\/text>/);
   assert.match(html, /x="890" y="383" text-anchor="end">UNDERVALUED<\/text>/);
 });
+
+
+test('oscillator aligns with the live quote rail and obsolete footer status is removed', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  assert.match(html, /<div class="dashboard-grid">[\s\S]*?<section class="oscillator-panel"/);
+  assert.match(html, /<\/aside>\s*<\/div>\s*<div class="mvrv-score-row">[\s\S]*?id="mvrv-score"/);
+  assert.doesNotMatch(html, /Oscillator status: Awaiting indicators · No signals plotted/);
+});

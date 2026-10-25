@@ -550,3 +550,11 @@ test('oscillator aligns with the live quote rail and obsolete footer status is r
   assert.match(html, /<\/aside>\s*<\/div>\s*<div class="mvrv-score-row">[\s\S]*?id="mvrv-score"/);
   assert.doesNotMatch(html, /Oscillator status: Awaiting indicators · No signals plotted/);
 });
+
+
+test('oscillator marker displays the valuation score without an individual indicator name', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  assert.match(html, /label\.textContent = MVRVScore\.formatScore\(value\)/);
+  assert.match(html, /aggregated valuation score/);
+  assert.doesNotMatch(html, /label\.textContent = `MVRV /);
+});

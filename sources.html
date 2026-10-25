@@ -70,7 +70,8 @@ p{color:var(--muted);margin:10px 0}
     y = event.clientY;
     if (frame) return;
     frame = window.requestAnimationFrame(() => {
-      glow.style.transform = `translate3d(${x}px,${y}px,0) translate3d(-50%,-50%,0)`;
+      glow.style.left = `${x}px`;
+      glow.style.top = `${y}px`;
       frame = 0;
     });
   }, {passive:true});

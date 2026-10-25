@@ -48,6 +48,14 @@ main{width:min(900px,calc(100% - 36px));margin:0 auto;padding:48px 0 80px}a{colo
 <p class="status">The current manual input defaults to 10% based on the operator's annotated screenshot. Update the band percentage on the dashboard when reading a newer chart. This is a custom research convention, not a statistically validated Z-score or a validated trading signal.</p>
 </section>
 <section class="panel">
+<h2>03 / Realized Cap HODL Waves — 1W–1M</h2>
+<p><span class="label">Public source:</span> <a href="https://studio.glassnode.com/charts/supply.RcapHodlWaves?a=BTC" rel="noopener noreferrer">Glassnode — Realized Cap HODL Waves</a></p>
+<p><span class="label">Selected series:</span> 1W–1M share of USD-denominated realized capitalization.</p>
+<p><span class="label">Retrieval:</span> Daily GitHub Actions job parses the publicly displayed latest-value text from the chart page. No API key or paid API endpoint is used.</p>
+<p><span class="label">Score:</span> 10% → +2; 20% → +1; 30% → 0; 40% → −1; 50% → −2, linear between anchors and clamped to −2 through +2.</p>
+<p class="status">The pipeline rejects missing values and observations older than four days. If the public page changes its markup or stops displaying the values, the refresh fails and the dashboard excludes this indicator rather than treating missing data as neutral. Browser rendering and a live workflow run remain unverified.</p>
+</section>
+<section class="panel">
 <h2>04 / Live Market Price Feeds</h2>
 <p><span class="label">Exchange:</span> <a href="https://www.coinbase.com/" rel="noopener noreferrer">Coinbase Exchange</a></p>
 <p><span class="label">API documentation:</span> <a href="https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker" rel="noopener noreferrer">Product Ticker — Exchange REST API</a></p>

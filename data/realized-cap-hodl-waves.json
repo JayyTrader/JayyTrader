@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "status": "unavailable",
+  "updatedAt": null,
+  "sourceDate": null,
+  "source": "https://studio.glassnode.com/charts/supply.RcapHodlWaves?a=BTC",
+  "metric": "Realized Cap HODL Waves 1W–1M share of USD-denominated realized capitalization",
+  "inputMethod": "Awaiting first successful automated extraction of the publicly displayed latest value; no API key or paid API used",
+  "bandPercent": null,
+  "score": null,
+  "scoring": {
+    "10%": 2,
+    "20%": 1,
+    "30%": 0,
+    "40%": -1,
+    "50%": -2,
+    "formula": "clamp(3 - percentage / 10, -2, +2)"
+  },
+  "validation": {
+    "reason": "No successful automated refresh has run yet."
+  }
+}

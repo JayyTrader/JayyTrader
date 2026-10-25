@@ -40,13 +40,13 @@ def fetch_page() -> str:
 def parse_latest(html: str, today: date | None = None) -> dict:
     # Read the public rendered/embedded page text only; never infer values from pixels.
     text = unescape(re.sub(r"<[^>]+>", " ", html))
-    text = re.sub(r"\\s+", " ", text).strip()
+    text = re.sub(r"\s+", " ", text).strip()
     date_match = re.search(
-        r"Latest Values\\s+as of\\s+(\\d{1,2}\\s+[A-Za-z]{3}\\s+\\d{4})",
+        r"Latest Values\s+as of\s+(\d{1,2}\s+[A-Za-z]{3}\s+\d{4})",
         text,
         flags=re.IGNORECASE,
     )
-    band_match = re.search(r"1w\\s*[-–]\\s*1m\\s+([0-9]+(?:\\.[0-9]+)?)\\s*%", text, flags=re.IGNORECASE)
+    band_match = re.search(r"1w\s*[-–]\s*1m\s+([0-9]+(?:\.[0-9]+)?)\s*%", text, flags=re.IGNORECASE)
     if not date_match or not band_match:
         raise ValueError("Expected Glassnode 'Latest Values' date and 1w-1m percentage were not found in public page text.")
 
@@ -86,7 +86,7 @@ def parse_latest(html: str, today: date | None = None) -> dict:
 def main() -> None:
     payload = parse_latest(fetch_page())
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT.write_text(json.dumps(payload, indent=2) + "\\n", encoding="utf-8")
+    OUTPUT.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     print(f"Saved 1W–1M={payload['bandPercent']}%, score={payload['score']}, source date={payload['sourceDate']}")
 
 

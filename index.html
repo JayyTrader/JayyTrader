@@ -1048,8 +1048,8 @@
         for (let i = 1; i < Math.min(maxLabels - 1, points.length - 1); i++) labelIndexes.add(Math.round(i * (points.length - 1) / (maxLabels - 1)));
         Array.from(labelIndexes).sort((a,b)=>a-b).forEach((index) => {
           const point = points[index];
-          const anchor = index === 0 ? "start" : index === points.length - 1 ? "end" : "middle";
-          const x = index === 0 ? left : index === points.length - 1 ? right : point.x;
+          const anchor = points.length === 1 ? "middle" : index === 0 ? "start" : index === points.length - 1 ? "end" : "middle";
+          const x = points.length === 1 ? point.x : index === 0 ? left : index === points.length - 1 ? right : point.x;
           const text = makeSvg("text", { x, y:395, "text-anchor":anchor, class:"oscillator-date-label" });
           text.textContent = displayDate(point.date);
           dateLabels.appendChild(text);

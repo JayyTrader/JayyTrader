@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="JXProbability data sources, methodology, licensing and attribution.">
+<title>Sources | JXProbability</title>
+<style>
+:root{color-scheme:dark;--bg:#080b0e;--panel:#11171b;--line:#27343b;--text:#e5edf0;--muted:#91a2ab;--cyan:#27d9e8;--amber:#d99a36}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% 0%,#122027 0%,var(--bg) 55%);color:var(--text);font:14px/1.65 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+main{width:min(900px,calc(100% - 36px));margin:0 auto;padding:48px 0 80px}a{color:var(--cyan);text-underline-offset:3px}a:hover{color:#fff}h1{font-size:clamp(24px,5vw,38px);letter-spacing:-.05em;margin:0 0 8px}h2{font-size:16px;color:var(--cyan);margin:0 0 12px;letter-spacing:.05em;text-transform:uppercase}p,li{color:var(--muted)}.eyebrow{color:var(--amber);font-size:10px;letter-spacing:.2em;text-transform:uppercase}.panel{border:1px solid var(--line);border-top:2px solid var(--cyan);background:linear-gradient(145deg,#121a1f,#0c1115);padding:22px;margin:22px 0}.label{color:var(--text);font-weight:700}.fine{font-size:12px}.status{border-left:2px solid var(--amber);padding-left:12px}
+</style>
+</head>
+<body><main>
+<a href="index.html">← Return to dashboard</a>
+<p class="eyebrow">JXPROBABILITY / RESEARCH RECORD</p>
+<h1>Sources &amp; Methodology</h1>
+<p>Source transparency, calculation rules, licenses and limitations for data shown on this dashboard.</p>
+<section class="panel">
+<h2>01 / Bitcoin MVRV Z-Score</h2>
+<p><span class="label">Primary data source:</span> <a href="https://charts.explore21.com/bitcoin-mvrv-z-score" rel="noopener noreferrer">Explore21 Charts — Bitcoin MVRV Z-Score</a></p>
+<p><span class="label">Historical CSV:</span> <a href="https://charts.explore21.com/data/bitcoin-mvrv-z-score.csv" rel="noopener noreferrer">Download daily observations</a> · <a href="https://charts.explore21.com/data" rel="noopener noreferrer">Full data catalog</a></p>
+<p><span class="label">License:</span> CC BY 4.0. Explore21 permits reuse with attribution and a link back to the source.</p>
+<p><span class="label">Attribution:</span> Explore21 Charts, “Bitcoin MVRV Z-Score”, accessed 25 October 2026.</p>
+<p>Explore21 defines its raw indicator as (market cap − realized cap) divided by the expanding standard deviation of market cap. Its method uses only data available up to each date, so previously published raw readings do not change as new days are added.</p>
+</section>
+<section class="panel">
+<h2>02 / JXProbability Normalized Score</h2>
+<p>The raw MVRV Z-Score is transformed into a consistent valuation scale from +2 to −2 using its expanding historical percentile.</p>
+<p><code>Score = 2 − 4 × (historical percentile / 100)</code></p>
+<ul><li><strong>+2:</strong> historically low valuation relative to the series.</li><li><strong>0:</strong> approximately the middle of the historical distribution.</li><li><strong>−2:</strong> historically high valuation relative to the series.</li></ul>
+<p>Each date's percentile is calculated only from observations available on or before that date. The score remains unavailable until at least 30 observations exist. Percentile is the share of those observations with a strictly lower raw reading.</p>
+<p class="status">This normalization is a JXProbability research convention, not an Explore21 signal or a validated standalone buy/sell rule. It describes historical position; it does not predict future returns.</p>
+</section>
+<section class="panel">
+<h2>03 / Validation &amp; Update Policy</h2>
+<p>The update pipeline checks the CSV schema, numeric validity, chronological dates, duplicates, future dates, minimum history, freshness, and eight published cycle reference values. A failed validation prevents replacement of the last committed data file.</p>
+<p>The published comparison points cover the 2013 and 2017 cycle tops, 2015 and 2018 lows, 2021 and 2025 tops, and the 2022 and June 2026 lows. These are source-consistency checks, not an independent profitability backtest.</p>
+<p>Daily data refresh runs through GitHub Actions. If the source is unavailable or validation fails, the dashboard should not present an invented or neutral substitute value.</p>
+</section>
+<p class="fine">Research only. Historical observations are not guarantees of future performance. Inspect the linked source and the displayed observation date.</p>
+</main></body></html>

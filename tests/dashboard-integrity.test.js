@@ -512,3 +512,22 @@ test('homepage shows one compact USD BTC quote and retains Binance daily-close d
   const pipeline = fs.readFileSync(path.join(root, 'scripts/update_sdca.py'), 'utf8');
   assert.match(pipeline, /"bitcoinPriceUSDT": btc_price/);
 });
+
+
+test('MVRV is a compact single-value input plotted into the valuation oscillator below the chart', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+  const cardStart = html.indexOf('<section class="mvrv-score-panel"');
+  const oscillatorStart = html.indexOf('<section class="oscillator-panel"');
+  assert.ok(oscillatorStart >= 0 && cardStart > oscillatorStart, 'MVRV score card sits below the oscillator');
+  const cardEnd = html.indexOf('</section>', cardStart);
+  const card = html.slice(cardStart, cardEnd);
+  assert.match(card, /id="mvrv-score-title">MVRV Z-Score/);
+  assert.match(card, /id="mvrv-score-value"/);
+  assert.doesNotMatch(card, /raw-value|percentile|observation-date|mvrv-score-note|mvrv-score-status|Explore21 source/);
+  assert.match(html, /id="oscillator-live-score"/);
+  assert.match(html, /id="oscillator-score-line"/);
+  assert.match(html, /line\.setAttribute\("y1", String\(y\)\)/);
+  assert.match(html, /status\.textContent = "1 \/ 15 INDICATORS"/);
+  assert.match(html, /position: absolute;[\s\S]*?top: 24px;[\s\S]*?left: 32px;/);
+  assert.doesNotMatch(html, /h1\s*\{\s*position:\s*fixed/);
+});

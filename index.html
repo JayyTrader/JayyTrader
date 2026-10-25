@@ -192,7 +192,7 @@
     .quote[data-asset="ETH"] .asset-symbol { color: var(--amber-soft); }
     .quote[data-asset="SOL"] .asset-symbol { color: var(--cyan-soft); }
     h1 {
-      position: fixed;
+      position: absolute;
       top: 24px;
       left: 32px;
       z-index: 2;
@@ -485,27 +485,21 @@
     .quote-details a:focus-visible { outline: 1px solid var(--cyan); outline-offset: 3px; }
 
     .mvrv-score-panel {
-      margin: 0 0 22px;
-      padding: 18px 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      width: fit-content;
+      max-width: 100%;
+      margin: 18px 0 0;
+      padding: 9px 13px;
       border: 1px solid var(--line);
-      border-top: 2px solid var(--cyan);
+      border-left: 2px solid var(--cyan);
       background: linear-gradient(145deg, var(--panel2), var(--panel));
-      box-shadow: inset 0 1px 0 color-mix(in srgb, var(--cyan) 8%, transparent), 0 14px 42px rgba(0, 0, 0, .18);
+      box-shadow: inset 0 1px 0 color-mix(in srgb, var(--cyan) 8%, transparent);
     }
-    .mvrv-score-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; }
-    .mvrv-score-title { margin:0; color:var(--text); font-size:12px; font-weight:650; letter-spacing:.12em; text-transform:uppercase; }
-    .mvrv-score-subtitle { margin:6px 0 0; color:var(--muted); font-size:9px; line-height:1.6; }
-    .mvrv-score-state { color:var(--amber); font-size:8px; letter-spacing:.12em; text-align:right; }
-    .mvrv-score-state[data-status="available"] { color:var(--cyan); }
-    .mvrv-score-values { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-top:18px; }
-    .mvrv-score-metric { min-width:0; padding-left:10px; border-left:1px solid var(--line); }
-    .mvrv-score-metric:first-child { border-left-color:var(--cyan); }
-    .mvrv-score-label { display:block; color:var(--muted); font-size:8px; letter-spacing:.12em; text-transform:uppercase; }
-    .mvrv-score-number { display:block; margin-top:5px; color:var(--text); font-size:clamp(20px,3vw,28px); font-variant-numeric:tabular-nums; font-weight:650; letter-spacing:-.04em; }
-    #mvrv-score-value { color:var(--cyan); }
-    .mvrv-score-date { margin-top:14px; padding-top:10px; border-top:1px solid var(--line); display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px 14px; color:var(--muted); font-size:8px; }
-    .mvrv-score-source { color:var(--muted); text-decoration:none; text-underline-offset:3px; }
-    .mvrv-score-source:hover,.mvrv-score-source:focus-visible { color:var(--cyan); text-decoration:underline; }
+    .mvrv-score-title { margin:0; color:var(--muted); font-size:9px; font-weight:650; letter-spacing:.1em; text-transform:uppercase; white-space:nowrap; }
+    .mvrv-score-number { display:block; color:var(--cyan); font-size:19px; font-variant-numeric:tabular-nums; font-weight:700; letter-spacing:-.04em; }
+    .mvrv-score-number[data-sign="negative"] { color:var(--amber); }
     .source-page-link { color:var(--cyan); text-decoration:none; }
     .source-page-link:hover,.source-page-link:focus-visible { text-decoration:underline; }
 
@@ -577,36 +571,18 @@
     <div class="dashboard-grid">
       <section class="research-column" aria-label="Valuation oscillator">
 
-        <section class="mvrv-score-panel" id="mvrv-score" aria-labelledby="mvrv-score-title">
-          <div class="mvrv-score-heading">
-            <div>
-              <h2 class="mvrv-score-title" id="mvrv-score-title">MVRV Z-Score</h2>
-              <p class="mvrv-score-subtitle">EXPANDING HISTORICAL PERCENTILE · NORMALIZED −2 TO +2</p>
-            </div>
-            <span class="mvrv-score-state" id="mvrv-score-status" data-status="loading">LOADING DATA</span>
-          </div>
-          <div class="mvrv-score-values">
-            <div class="mvrv-score-metric"><span class="mvrv-score-label">Valuation score</span><strong class="mvrv-score-number" id="mvrv-score-value">—</strong></div>
-            <div class="mvrv-score-metric"><span class="mvrv-score-label">Raw Z-Score</span><strong class="mvrv-score-number" id="mvrv-raw-value">—</strong></div>
-            <div class="mvrv-score-metric"><span class="mvrv-score-label">Historical percentile</span><strong class="mvrv-score-number" id="mvrv-percentile">—</strong></div>
-          </div>
-          <div class="mvrv-score-date">
-            <span>Observation date: <time id="mvrv-observation-date">Unavailable</time></span>
-            <a class="mvrv-score-source" href="https://charts.explore21.com/bitcoin-mvrv-z-score" target="_blank" rel="noopener noreferrer">Explore21 source ↗</a>
-          </div>
-          <p class="mvrv-score-subtitle" id="mvrv-score-note">Positive scores indicate a lower historical valuation percentile; negative scores indicate a higher percentile.</p>
-        </section>
+
         <section class="oscillator-panel" aria-labelledby="oscillator-title">
           <div class="panel-heading">
             <div>
               <h2 class="panel-title" id="oscillator-title">Valuation Oscillator</h2>
               <p class="panel-subtitle">Standardized valuation scale · −2 to +2</p>
             </div>
-            <span class="empty-state">AWAITING INDICATORS</span>
+            <span class="empty-state" id="oscillator-status">1 / 15 INDICATORS</span>
           </div>
           <svg class="oscillator-plot" viewBox="0 0 900 390" role="img" aria-labelledby="oscillator-chart-title oscillator-chart-desc" preserveAspectRatio="none">
-            <title id="oscillator-chart-title">Empty valuation oscillator</title>
-            <desc id="oscillator-chart-desc">A blank chart with plus two labeled undervalued, zero labeled neutral, and minus two labeled overvalued. No indicator data is plotted yet.</desc>
+            <title id="oscillator-chart-title">Valuation oscillator with current MVRV score</title>
+            <desc id="oscillator-chart-desc">Valuation scale from plus two undervalued to minus two overvalued. The current MVRV valuation score is plotted when source data is available.</desc>
             <g aria-hidden="true">
               <line class="oscillator-grid" x1="82" y1="28" x2="890" y2="28" />
               <line class="oscillator-grid" x1="82" y1="111" x2="890" y2="111" />
@@ -626,12 +602,20 @@
               <text class="oscillator-label extreme" x="890" y="17" text-anchor="end">UNDERVALUED</text>
               <text class="oscillator-label" x="890" y="383" text-anchor="end">OVERVALUED</text>
             </g>
-          </svg>
+            <g id="oscillator-live-score" aria-label="Current valuation score" visibility="hidden">
+              <line id="oscillator-score-line" x1="82" y1="194" x2="890" y2="194" stroke="var(--cyan)" stroke-width="2.5" stroke-dasharray="7 5" />
+              <text id="oscillator-score-label" x="884" y="184" text-anchor="end" fill="var(--cyan)" font-family="var(--font-ui)" font-size="12" font-weight="700">MVRV +0.52</text>
+            </g>
+            </svg>
           <div class="oscillator-caption">
             <span>+2 = Undervalued</span>
             <span>0 = Neutral</span>
             <span>−2 = Overvalued</span>
           </div>
+        </section>
+        <section class="mvrv-score-panel" id="mvrv-score" aria-labelledby="mvrv-score-title">
+          <h2 class="mvrv-score-title" id="mvrv-score-title">MVRV Z-Score</h2>
+          <strong class="mvrv-score-number" id="mvrv-score-value" data-sign="positive" aria-label="MVRV valuation score">—</strong>
         </section>
       </section>
       <aside class="quote-rail" aria-label="Live cryptocurrency prices">
@@ -767,45 +751,40 @@
   <script src="scripts/mvrv-score.js"></script>
   <script>
     (function () {
-      const status = document.getElementById("mvrv-score-status");
       const score = document.getElementById("mvrv-score-value");
-      const raw = document.getElementById("mvrv-raw-value");
-      const percentile = document.getElementById("mvrv-percentile");
-      const observed = document.getElementById("mvrv-observation-date");
-      const note = document.getElementById("mvrv-score-note");
-      if (!status || !window.MVRVScore) return;
+      const status = document.getElementById("oscillator-status");
+      const marker = document.getElementById("oscillator-live-score");
+      const line = document.getElementById("oscillator-score-line");
+      const label = document.getElementById("oscillator-score-label");
+      const chartTitle = document.getElementById("oscillator-chart-title");
+      const chartDesc = document.getElementById("oscillator-chart-desc");
+      if (!score || !window.MVRVScore) return;
 
       function render(state) {
-        status.dataset.status = state.status;
         if (!state.payload) {
-          status.textContent = "DATA UNAVAILABLE";
-          score.textContent = raw.textContent = percentile.textContent = "—";
-          observed.textContent = "Unavailable";
-          note.textContent = "No current reading is available. Check the source page; missing data is not neutral.";
+          score.textContent = "—";
+          score.dataset.sign = "neutral";
+          marker.setAttribute("visibility", "hidden");
+          status.textContent = "0 / 15 INDICATORS";
+          chartTitle.textContent = "Valuation oscillator awaiting data";
+          chartDesc.textContent = "No valid MVRV valuation score is available. Missing data is not treated as neutral.";
           return;
         }
-        const payload = state.payload;
-        const latest = payload.latest;
-        score.textContent = MVRVScore.formatScore(latest.score);
-        raw.textContent = MVRVScore.formatRaw(latest.rawValue);
-        percentile.textContent = `${latest.historicalPercentile.toFixed(1)}%`;
-        observed.textContent = latest.date;
-        if (state.status === "stale") {
-          status.textContent = "STALE SOURCE DATA";
-          note.textContent = "The last available reading is displayed for reference only; the source date is older than the freshness threshold.";
-        } else if (state.status === "snapshot") {
-          status.textContent = "SOURCE SNAPSHOT";
-          note.textContent = "Snapshot from Explore21's published chart summary. Full historical data and cycle-anchor validation are pending the automated refresh.";
-        } else {
-          const checked = payload.validation && payload.validation.referenceAnchors ? payload.validation.referenceAnchors.checkedCount : 0;
-          const rows = payload.validation ? payload.validation.rowCount : 0;
-          status.textContent = `DAILY DATA · ${checked}/8 ANCHORS`;
-          note.textContent = `${rows.toLocaleString("en-US")} daily observations validated. Positive scores indicate lower historical valuation percentiles; negative scores indicate higher percentiles. Research normalization, not a trading signal.`;
-        }
+        const latest = state.payload.latest;
+        const value = Math.max(-2, Math.min(2, latest.score));
+        const y = 194 - (value * 83);
+        score.textContent = MVRVScore.formatScore(value);
+        score.dataset.sign = value < 0 ? "negative" : value > 0 ? "positive" : "neutral";
+        line.setAttribute("y1", String(y));
+        line.setAttribute("y2", String(y));
+        label.setAttribute("y", String(Math.max(42, y - 9)));
+        label.textContent = `MVRV ${MVRVScore.formatScore(value)}`;
+        marker.setAttribute("visibility", "visible");
+        status.textContent = "1 / 15 INDICATORS";
+        chartTitle.textContent = `Valuation oscillator: MVRV score ${MVRVScore.formatScore(value)}`;
+        chartDesc.textContent = `MVRV Z-Score is the only connected valuation input so far, at ${MVRVScore.formatScore(value)} on the minus two to plus two scale. The composite will update as additional indicators are connected.`;
       }
-
-      const controller = MVRVScore.createController({ onState: render });
-      controller.start();
+      MVRVScore.createController({ onState: render }).start();
     })();
   </script>
 

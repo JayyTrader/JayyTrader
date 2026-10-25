@@ -54,7 +54,7 @@ class MVRVParsingTests(unittest.TestCase):
             (good.replace("2011-09-17", "2011-09-15", 1), "chronological"),
             (good.replace("2011-09-16,-2.5000,100.00", "2011-09-16,nan,100.00", 1), "Invalid numeric"),
             (good.replace("2011-09-16,-2.5000,100.00", "2011-09-16,,100.00", 1), "Missing"),
-            (good.replace("2026-10-24,1.0000,5600.00", "2026-10-26,1.0000,5600.00", 1), "future date"),
+            (good.replace("2026-10-24,0.6500,5617.00", "2026-10-26,0.6500,5617.00", 1), "future date"),
         ]
         for text, error in cases:
             with self.subTest(error=error), self.assertRaisesRegex(ValueError, error):

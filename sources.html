@@ -40,6 +40,14 @@ main{width:min(900px,calc(100% - 36px));margin:0 auto;padding:48px 0 80px}a{colo
 <p>Daily data refresh runs through GitHub Actions. If the source is unavailable or validation fails, the dashboard should not present an invented or neutral substitute value.</p>
 </section>
 <section class="panel">
+<h2>02 / Realized Cap HODL Waves — 1W–1M</h2>
+<p><span class="label">Chart source:</span> <a href="https://www.lookintobitcoin.com/charts/realized-cap-hodl-waves/" rel="noopener noreferrer">Look Into Bitcoin — Realized Cap HODL Waves</a></p>
+<p><span class="label">Selected series:</span> 1W–1M age band, identified by the operator as the deeper-orange band (third from the bottom).</p>
+<p><span class="label">Input method:</span> Manual chart reading. No API, API key, paid data feed, or automatic source extraction is used for this indicator.</p>
+<p><span class="label">Operator-defined score mapping:</span> 10% → +2; 20% → +1; 30% → 0; 40% → −1; 50% → −2. The score is linear between anchors and clamped to the −2 to +2 range.</p>
+<p class="status">The current manual input defaults to 10% based on the operator's annotated screenshot. Update the band percentage on the dashboard when reading a newer chart. This is a custom research convention, not a statistically validated Z-score or a validated trading signal.</p>
+</section>
+<section class="panel">
 <h2>04 / Live Market Price Feeds</h2>
 <p><span class="label">Exchange:</span> <a href="https://www.coinbase.com/" rel="noopener noreferrer">Coinbase Exchange</a></p>
 <p><span class="label">API documentation:</span> <a href="https://docs.cdp.coinbase.com/api-reference/exchange-api/rest-api/products/get-product-ticker" rel="noopener noreferrer">Product Ticker — Exchange REST API</a></p>

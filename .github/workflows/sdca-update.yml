@@ -35,20 +35,24 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_*.py' -v
 
       - name: Test dashboard integrity
-        run: node --test tests/dashboard-integrity.test.js
+        run: node --test tests/*.test.js
 
       - name: Run SDCA data pipeline
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: python scripts/update_sdca.py
 
-      - name: Commit updated SDCA data
+      - name: Update and validate Explore21 MVRV Z-Score
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: python scripts/update_mvrv_zscore.py
+
+      - name: Commit updated research data
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: |
           if [[ -n "$(git status --porcelain data/)" ]]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add data/
-            git commit -m "Daily SDCA data update"
+            git commit -m "Daily SDCA and MVRV data update"
             git push
           else
             echo "No data changes to commit."

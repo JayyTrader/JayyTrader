@@ -484,27 +484,55 @@
     .quote-details a:focus-visible { color: var(--cyan); text-decoration: underline; }
     .quote-details a:focus-visible { outline: 1px solid var(--cyan); outline-offset: 3px; }
 
-    .mvrv-score-row { display:flex; justify-content:flex-start; align-items:stretch; gap:10px; margin-top:18px; }
-    .mvrv-score-panel {
-      display: inline-flex;
-      align-items: center;
-      gap: 14px;
-      width: fit-content;
-      max-width: 100%;
-      margin: 0;
-      padding: 9px 13px;
+
+    .sdca-panel {
+      margin-top: 24px;
+      padding: 20px;
       border: 1px solid var(--line);
-      border-left: 2px solid var(--cyan);
+      border-top: 1px solid color-mix(in srgb, var(--cyan) 55%, transparent);
       background: linear-gradient(145deg, var(--panel2), var(--panel));
-      box-shadow: inset 0 1px 0 color-mix(in srgb, var(--cyan) 8%, transparent);
+      box-shadow: 0 14px 42px rgba(0, 0, 0, .18);
     }
-    .mvrv-score-title { margin:0; color:var(--muted); font-size:9px; font-weight:650; letter-spacing:.1em; text-transform:uppercase; white-space:nowrap; }
-    .hodl-score-copy { display:flex; flex-direction:column; gap:4px; min-width:0; }
-    .hodl-score-meta { color:var(--muted); font-size:9px; line-height:1.4; letter-spacing:.02em; white-space:normal; }
-    .mvrv-score-number { display:block; color:var(--cyan); font-size:19px; font-variant-numeric:tabular-nums; font-weight:700; letter-spacing:-.04em; }
-    .mvrv-score-number[data-sign="negative"] { color:var(--amber); }
-    .source-page-link { color:var(--cyan); text-decoration:none; }
-    .source-page-link:hover,.source-page-link:focus-visible { text-decoration:underline; }
+    .sdca-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:16px; }
+    .sdca-title { margin:0; color:var(--text); font-size:14px; font-weight:650; letter-spacing:.09em; text-transform:uppercase; }
+    .sdca-subtitle { margin:6px 0 0; color:var(--muted); font-size:9px; line-height:1.6; }
+    .sdca-grid { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:10px; }
+    .sdca-card {
+      display:flex; min-width:0; min-height:86px; flex-direction:column; justify-content:space-between; gap:12px;
+      padding:11px 10px 10px; border:1px solid #29343c; border-radius:2px;
+      background:linear-gradient(145deg, rgba(29,43,53,.72), rgba(8,13,18,.92));
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.018);
+      transition:border-color .15s ease, box-shadow .15s ease;
+    }
+    .sdca-card[data-sign="positive"] { border-color:color-mix(in srgb, var(--cyan) 85%, transparent); box-shadow:inset 0 0 14px color-mix(in srgb, var(--cyan) 8%, transparent), 0 0 10px color-mix(in srgb, var(--cyan) 16%, transparent); }
+    .sdca-card[data-sign="negative"] { border-color:color-mix(in srgb, var(--amber) 88%, transparent); box-shadow:inset 0 0 14px color-mix(in srgb, var(--amber) 7%, transparent), 0 0 10px color-mix(in srgb, var(--amber) 15%, transparent); }
+    .sdca-card[data-sign="zero"] { border-color:#35414a; box-shadow:inset 0 0 10px rgba(150,165,175,.035); }
+    .sdca-indicator-name { color:var(--muted); font-size:9px; font-weight:600; line-height:1.45; overflow-wrap:anywhere; }
+    .sdca-score-input {
+      display:block; width:100%; min-width:0; padding:5px 4px 3px; border:0; border-bottom:1px solid var(--line);
+      border-radius:0; outline:none; background:transparent; color:var(--text); font:600 18px/1.2 var(--font-ui);
+      font-variant-numeric:tabular-nums; caret-color:var(--cyan);
+    }
+    .sdca-score-input::placeholder { color:#52616b; opacity:1; }
+    .sdca-score-input:focus-visible { border-bottom-color:var(--cyan); box-shadow:0 2px 0 color-mix(in srgb, var(--cyan) 25%, transparent); }
+    .sdca-summary { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:16px; margin-top:16px; padding:14px 15px; border:1px solid var(--line); background:rgba(8,13,18,.58); }
+    .sdca-summary-label { color:var(--muted); font-size:9px; letter-spacing:.1em; text-transform:uppercase; }
+    .sdca-composite { display:block; margin-top:5px; color:var(--cyan); font-size:clamp(24px,3vw,34px); font-weight:700; letter-spacing:-.04em; font-variant-numeric:tabular-nums; }
+    .sdca-classification { padding:7px 9px; border:1px solid #35414a; color:var(--muted); font-size:9px; letter-spacing:.08em; text-align:center; white-space:nowrap; }
+    .sdca-classification[data-class="positive"] { border-color:var(--cyan); color:var(--cyan); box-shadow:0 0 10px color-mix(in srgb, var(--cyan) 13%, transparent); }
+    .sdca-classification[data-class="negative"] { border-color:var(--amber); color:var(--amber); box-shadow:0 0 10px color-mix(in srgb, var(--amber) 13%, transparent); }
+    .sdca-note { margin:10px 0 0; color:var(--muted); font-size:9px; line-height:1.6; }
+    @media (max-width: 900px) { .sdca-grid { grid-template-columns:repeat(3, minmax(0,1fr)); } }
+    @media (max-width: 600px) {
+      .sdca-panel { padding:14px 12px; }
+      .sdca-grid { grid-template-columns:repeat(2, minmax(0,1fr)); gap:8px; }
+      .sdca-card { min-height:82px; padding:9px 8px; }
+      .sdca-indicator-name { font-size:8px; }
+      .sdca-score-input { font-size:17px; }
+      .sdca-summary { grid-template-columns:minmax(0,1fr); gap:10px; }
+      .sdca-classification { justify-self:start; }
+      .sdca-heading { flex-direction:column; gap:8px; }
+    }
 
     @media (max-width: 900px) {
       .landing { width: min(100% - 40px, 720px); padding-top: 108px; }
@@ -582,11 +610,11 @@
               <h2 class="panel-title" id="oscillator-title">Valuation Oscillator</h2>
               <p class="panel-subtitle">Standardized valuation scale · −2 to +2</p>
             </div>
-            <span class="empty-state" id="oscillator-status">1 / 15 INDICATORS</span>
+            <span class="empty-state" id="oscillator-status">0 / 15 INDICATORS</span>
           </div>
           <svg class="oscillator-plot" viewBox="0 0 900 390" role="img" aria-labelledby="oscillator-chart-title oscillator-chart-desc" preserveAspectRatio="none">
-            <title id="oscillator-chart-title">Valuation oscillator with current MVRV score</title>
-            <desc id="oscillator-chart-desc">Valuation scale from plus two undervalued to minus two overvalued. The current MVRV valuation score is plotted when source data is available.</desc>
+            <title id="oscillator-chart-title">Valuation oscillator with the manual SDCA composite score</title>
+            <desc id="oscillator-chart-desc">Valuation scale from plus two undervalued to minus two overvalued. The arithmetic average of entered SDCA scores is plotted when at least one score is available.</desc>
             <g aria-hidden="true">
               <line class="oscillator-grid" x1="82" y1="28" x2="890" y2="28" />
               <line class="oscillator-grid" x1="82" y1="111" x2="890" y2="111" />
@@ -661,19 +689,79 @@
         </section>
       </aside>
     </div>
-    <div class="mvrv-score-row">
-        <section class="mvrv-score-panel" id="mvrv-score" aria-labelledby="mvrv-score-title">
-          <h2 class="mvrv-score-title" id="mvrv-score-title">MVRV Z-Score</h2>
-          <strong class="mvrv-score-number" id="mvrv-score-value" data-sign="positive" aria-label="MVRV valuation score">—</strong>
-        </section>
-      <section class="mvrv-score-panel" id="hodl-score-panel" aria-labelledby="hodl-score-title">
-        <div class="hodl-score-copy">
-          <h2 class="mvrv-score-title" id="hodl-score-title">Realized Cap HODL Waves · 1W–1M</h2>
-          <span class="hodl-score-meta" id="hodl-band-meta">Band share: — · Source date: unavailable</span>
-        </div>
-        <strong class="mvrv-score-number" id="hodl-score-value" data-sign="neutral" aria-label="Realized Cap HODL Waves valuation score">—</strong>
-      </section>
-    </div>
+    <section class="sdca-panel" aria-labelledby="sdca-title">
+      <header class="sdca-heading">
+        <div><h2 class="sdca-title" id="sdca-title">SDCA Valuation Inputs</h2><p class="sdca-subtitle">15 manual indicator scores · enter the current weekly valuation score for each indicator</p></div>
+        <span class="empty-state" id="sdca-count" aria-live="polite">0 / 15 SCORED</span>
+      </header>
+      <div class="sdca-grid" id="sdca-grid">
+        <label class="sdca-card" data-sign="empty" data-indicator="1">
+          <span class="sdca-indicator-name">MVRV-Z Score</span>
+          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="MVRV-Z Score valuation score" data-key="1">
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="2">
+          <span class="sdca-indicator-name">Realized Cap HODL Waves</span>
+          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="Realized Cap HODL Waves valuation score" data-key="2">
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="3">
+          <span class="sdca-indicator-name">CBBI</span>
+          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="CBBI valuation score" data-key="3">
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="4">
+          <span class="sdca-indicator-name">VDD Multiple</span>
+          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="VDD Multiple valuation score" data-key="4">
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="5">
+          <span class="sdca-indicator-name">NUPL</span>
+          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="NUPL valuation score" data-key="5">
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="6">
+          <span class="sdca-indicator-name">BTC 50 MARP</span>
+          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="BTC 50 MARP valuation score" data-key="6">
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="7">
+          <span class="sdca-indicator-name">LTH/STH SOPR Ratio</span>
+          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="LTH/STH SOPR Ratio valuation score" data-key="7">
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="8">
+          <span class="sdca-indicator-name">BTC Damped Harmonic Oscillator</span>
+          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="BTC Damped Harmonic Oscillator valuation score" data-key="8">
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="9">
+          <span class="sdca-indicator-name">Bitcoin RSI</span>
+          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="Bitcoin RSI valuation score" data-key="9">
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="10">
+          <span class="sdca-indicator-name">Bitcoin Pi Cycle Top</span>
+          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="Bitcoin Pi Cycle Top valuation score" data-key="10">
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="11">
+          <span class="sdca-indicator-name">Market Extreme Zone Index</span>
+          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="Market Extreme Zone Index valuation score" data-key="11">
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="12">
+          <span class="sdca-indicator-name">Relative Valuation Oscillator</span>
+          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="Relative Valuation Oscillator valuation score" data-key="12">
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="13">
+          <span class="sdca-indicator-name">Volume-Weighted Price Z-Score</span>
+          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="Volume-Weighted Price Z-Score valuation score" data-key="13">
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="14">
+          <span class="sdca-indicator-name">Crypto Fear and Greed Index</span>
+          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="Crypto Fear and Greed Index valuation score" data-key="14">
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="15">
+          <span class="sdca-indicator-name">Composite Sentiment Score</span>
+          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="Composite Sentiment Score valuation score" data-key="15">
+        </label>
+      </div>
+      <div class="sdca-summary" aria-live="polite">
+        <div><div class="sdca-summary-label">Composite Valuation Score · Original Average</div><strong class="sdca-composite" id="sdca-composite">—</strong></div>
+        <div class="sdca-classification" id="sdca-classification" data-class="neutral">AWAITING INPUTS</div>
+      </div>
+      <p class="sdca-note">Composite = arithmetic average of all nonblank scores. Blank indicators are skipped. No score inversion is applied. Entries are saved in this browser on this device.</p>
+    </section>
     <footer class="system-footer" aria-label="Research system status">
       <span><i class="status-dot" aria-hidden="true"></i>Quote source: Coinbase Exchange · Refresh interval: 60s</span>
       <span><a class="source-page-link" href="sources.html">Sources &amp; Methodology ↗</a></span>
@@ -761,55 +849,103 @@
     void liveCryptoUSDController.start();
   </script>
 
-  <script src="scripts/mvrv-score.js"></script>
-  <script src="scripts/realized-cap-hodl.js"></script>
-  <script src="scripts/realized-cap-hodl-live.js"></script>
+
   <script>
     (function () {
-      const score = document.getElementById("mvrv-score-value");
-      const status = document.getElementById("oscillator-status");
+      const storageKey = "jxprobability.sdca.manualScores.v1";
+      const inputs = Array.from(document.querySelectorAll(".sdca-score-input"));
+      const count = document.getElementById("sdca-count");
+      const composite = document.getElementById("sdca-composite");
+      const classification = document.getElementById("sdca-classification");
       const marker = document.getElementById("oscillator-live-score");
       const line = document.getElementById("oscillator-score-line");
       const label = document.getElementById("oscillator-score-label");
+      const status = document.getElementById("oscillator-status");
       const chartTitle = document.getElementById("oscillator-chart-title");
       const chartDesc = document.getElementById("oscillator-chart-desc");
-      if (!score || !window.MVRVScore) return;
+      const numberFormat = new Intl.NumberFormat("en-US", { maximumFractionDigits: 4 });
+      let saved = {};
 
-      function render(state) {
-        if (!state.payload) {
-          score.textContent = "—";
-          score.dataset.sign = "neutral";
+      try {
+        const raw = localStorage.getItem(storageKey);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) saved = parsed;
+        }
+      } catch (error) {
+        console.warn("SDCA scores could not be loaded from local storage.", error);
+      }
+
+      inputs.forEach((input) => {
+        const value = saved[input.dataset.key];
+        if (typeof value === "number" && Number.isFinite(value)) input.value = String(value);
+        input.addEventListener("input", updateScores);
+      });
+
+      function classify(value) {
+        if (value <= -1.5) return { label: "NO VALUE", kind: "negative" };
+        if (value < 0) return { label: "LOW VALUE", kind: "negative" };
+        if (value === 0) return { label: "NEUTRAL", kind: "neutral" };
+        if (value < 1.5) return { label: "VALUE", kind: "positive" };
+        return { label: "HIGH VALUE", kind: "positive" };
+      }
+
+      function updateScores() {
+        const values = [];
+        const nextSaved = {};
+        inputs.forEach((input) => {
+          const card = input.closest(".sdca-card");
+          const raw = input.value.trim();
+          if (raw === "") {
+            card.dataset.sign = "empty";
+            return;
+          }
+          const value = Number(raw);
+          if (!Number.isFinite(value)) {
+            card.dataset.sign = "empty";
+            return;
+          }
+          values.push(value);
+          nextSaved[input.dataset.key] = value;
+          card.dataset.sign = value < 0 ? "negative" : value > 0 ? "positive" : "zero";
+        });
+
+        try {
+          localStorage.setItem(storageKey, JSON.stringify(nextSaved));
+        } catch (error) {
+          console.warn("SDCA scores could not be saved in local storage.", error);
+        }
+
+        count.textContent = values.length + " / 15 SCORED";
+        status.textContent = values.length + " / 15 INDICATORS";
+        if (!values.length) {
+          composite.textContent = "—";
+          classification.textContent = "AWAITING INPUTS";
+          classification.dataset.class = "neutral";
           marker.setAttribute("visibility", "hidden");
-          status.textContent = "0 / 15 INDICATORS";
-          chartTitle.textContent = "Valuation oscillator awaiting data";
-          chartDesc.textContent = "No valid MVRV valuation score is available. Missing data is not treated as neutral.";
+          chartTitle.textContent = "Valuation oscillator awaiting manual scores";
+          chartDesc.textContent = "No manual SDCA scores are entered. Blank indicators are excluded from the composite.";
           return;
         }
-        const latest = state.payload.latest;
-        const mvrvValue = Math.max(-2, Math.min(2, latest.score));
-        const hodlPayload = window.__hodlPayload;
-        const hodlValue = hodlPayload && hodlPayload.status === "available" ? hodlPayload.score : null;
-        const value = hodlValue === null ? mvrvValue : (mvrvValue + hodlValue) / 2;
-        const y = 194 + (value * 83);
-        score.textContent = MVRVScore.formatScore(mvrvValue);
-        score.dataset.sign = mvrvValue < 0 ? "negative" : mvrvValue > 0 ? "positive" : "neutral";
-        document.getElementById("hodl-band-meta").textContent = hodlPayload ? "Band share: " + hodlPayload.bandPercent.toFixed(3) + "% · Source date: " + hodlPayload.sourceDate : "Band share: unavailable · Source date: unavailable";
-        document.getElementById("hodl-score-value").textContent = hodlValue === null ? "—" : MVRVScore.formatScore(hodlValue);
-        document.getElementById("hodl-score-value").dataset.sign = hodlValue === null ? "neutral" : hodlValue < 0 ? "negative" : hodlValue > 0 ? "positive" : "neutral";
-        const method = document.getElementById("hodl-score-method");
-        if (method) method.textContent = hodlPayload ? "Automated public-page reading · 10%=+2 · 30%=0 · 50%=−2 · " + hodlPayload.validation.ageDays + " day(s) old" : "No validated automated HODL reading; composite uses available MVRV score only.";
+
+        const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+        const result = classify(average);
+        composite.textContent = (average > 0 ? "+" : "") + numberFormat.format(average);
+        classification.textContent = result.label;
+        classification.dataset.class = result.kind;
+
+        const plottedValue = Math.max(-2, Math.min(2, average));
+        const y = 194 + (plottedValue * 83);
         line.setAttribute("y1", String(y));
         line.setAttribute("y2", String(y));
         label.setAttribute("y", String(Math.max(42, y - 9)));
-        label.textContent = MVRVScore.formatScore(value);
+        label.textContent = (average > 0 ? "+" : "") + numberFormat.format(average);
         marker.setAttribute("visibility", "visible");
-        status.textContent = hodlValue === null ? "1 / 15 INDICATORS" : "2 / 15 INDICATORS";
-        chartTitle.textContent = `Valuation oscillator: two-indicator average ${MVRVScore.formatScore(value)}`;
-        chartDesc.textContent = hodlValue === null ? "Only MVRV score " + MVRVScore.formatScore(mvrvValue) + " is currently available. HODL Waves data is missing or unvalidated, so it is excluded from the composite." : "Composite is the equal-weight average of MVRV score " + MVRVScore.formatScore(mvrvValue) + " and automatically retrieved 1W–1M HODL band score " + MVRVScore.formatScore(hodlValue) + ". The HODL score maps 10% to +2, 30% to 0, and 50% to −2, clamped to −2 through +2.";
+        chartTitle.textContent = "Valuation oscillator: SDCA average " + ((average > 0 ? "+" : "") + numberFormat.format(average));
+        chartDesc.textContent = "The plotted line shows the original arithmetic average of " + values.length + " entered SDCA scores. The displayed composite is not inverted. For visualization only, the marker is clamped to the chart's minus two to plus two range.";
       }
-      const wrappedRender = (state) => { window.__lastMvrvState = state; render(state); };
-      window.addEventListener("hodl-data-updated", () => { if (window.__lastMvrvState) render(window.__lastMvrvState); });
-      MVRVScore.createController({ onState: wrappedRender }).start();
+
+      updateScores();
     })();
   </script>
 

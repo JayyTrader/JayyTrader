@@ -755,10 +755,10 @@
         </label>
       </div>
       <div class="sdca-summary" aria-live="polite">
-        <div><div class="sdca-summary-label">LTPI Total Directional Score · Sum</div><strong class="sdca-composite" id="ltpi-admin-total">—</strong></div>
+        <div><div class="sdca-summary-label">LTPI Aggregated Directional Score · Average</div><strong class="sdca-composite" id="ltpi-admin-total">—</strong></div>
         <div class="sdca-classification" id="ltpi-admin-classification" data-class="neutral">AWAITING INPUTS</div>
       </div>
-      <p class="sdca-note">Scores are stored in this browser on this device and update the LTPI gauge on the dashboard. The total is the sum of entered indicator values (range −12 to +12); unentered indicators are excluded until scored.</p>
+      <p class="sdca-note">Scores are stored in this browser on this device and update the LTPI gauge on the dashboard. The aggregate is the average of entered indicator values (range −1.00 to +1.00); unentered indicators are excluded until scored.</p>
     </section>
     <footer class="system-footer" aria-label="Admin page status"><span><i class="status-dot" aria-hidden="true"></i>SDCA / LTPI manual score administration</span><span><a class="source-page-link" href="index.html">Dashboard ↗</a></span></footer>
   </main>
@@ -775,7 +775,7 @@
       inputs.forEach((i)=>i.addEventListener("input",update));button.addEventListener("click",confirm);
       const ltpiKey="jxprobability.ltpi.manualScores.v1";
       function loadLtpiScores(){let saved={};try{const raw=localStorage.getItem(ltpiKey),p=raw?JSON.parse(raw):{};if(p&&typeof p==="object"&&!Array.isArray(p))saved=p;}catch(e){console.warn(e);}ltpiInputs.forEach(i=>{i.value=[-1,0,1].includes(saved[i.dataset.key])?String(saved[i.dataset.key]):"";});}
-      function updateLtpi(){const next={},vals=[];ltpiInputs.forEach(i=>{const card=i.closest(".sdca-card"),raw=i.value;if(raw===""){card.dataset.sign="empty";return;}const v=Number(raw);if(![-1,0,1].includes(v)){card.dataset.sign="empty";return;}next[i.dataset.key]=v;vals.push(v);card.dataset.sign=v<0?"negative":v>0?"positive":"zero";});try{localStorage.setItem(ltpiKey,JSON.stringify(next));}catch(e){message.textContent="Could not save LTPI scores in this browser.";}const n=vals.length;ltpiCount.textContent=n+" / 12 SCORED";if(!n){ltpiTotal.textContent="—";ltpiClass.textContent="AWAITING INPUTS";ltpiClass.dataset.class="neutral";return;}const sum=vals.reduce((s,v)=>s+v,0);ltpiTotal.textContent=(sum>0?"+":"")+sum;ltpiClass.textContent=n<12?"PARTIAL INPUTS":sum>0?"BULLISH":sum<0?"BEARISH":"NEUTRAL";ltpiClass.dataset.class=sum>0?"positive":sum<0?"negative":"neutral";}
+      function updateLtpi(){const next={},vals=[];ltpiInputs.forEach(i=>{const card=i.closest(".sdca-card"),raw=i.value;if(raw===""){card.dataset.sign="empty";return;}const v=Number(raw);if(![-1,0,1].includes(v)){card.dataset.sign="empty";return;}next[i.dataset.key]=v;vals.push(v);card.dataset.sign=v<0?"negative":v>0?"positive":"zero";});try{localStorage.setItem(ltpiKey,JSON.stringify(next));}catch(e){message.textContent="Could not save LTPI scores in this browser.";}const n=vals.length;ltpiCount.textContent=n+" / 12 SCORED";if(!n){ltpiTotal.textContent="—";ltpiClass.textContent="AWAITING INPUTS";ltpiClass.dataset.class="neutral";return;}const aggregate=vals.reduce((s,v)=>s+v,0)/n;ltpiTotal.textContent=(aggregate>0?"+":"")+aggregate.toFixed(2);ltpiClass.textContent=n<12?"PARTIAL INPUTS":aggregate>0?"BULLISH":aggregate<0?"BEARISH":"NEUTRAL";ltpiClass.dataset.class=aggregate>0?"positive":aggregate<0?"negative":"neutral";}
       ltpiInputs.forEach(i=>i.addEventListener("change",updateLtpi));message.textContent=configured?"Passphrase required.":"Password not configured yet. See scripts/sdca-admin-config.js.";
     })();
   </script></body></html>

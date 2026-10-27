@@ -485,6 +485,8 @@
     .quote-details a:focus-visible { outline: 1px solid var(--cyan); outline-offset: 3px; }
 
 
+    /* Keep the score editor completely hidden until the passphrase is accepted. */
+    .admin-hidden { display: none !important; }
     .sdca-panel {
       margin-top:24px; padding:20px; border:1px solid var(--line);
       border-top:1px solid color-mix(in srgb,var(--cyan) 55%,transparent);
@@ -660,7 +662,7 @@
       <p class="sdca-note">Confirm once per weekly review to add a dated composite to the oscillator. Confirming again on the same date replaces that date's point. Scores and history are stored in this browser on this device.</p></section>
     <footer class="system-footer" aria-label="Admin page status"><span><i class="status-dot" aria-hidden="true"></i>SDCA manual score administration</span><span><a class="source-page-link" href="index.html">Dashboard ↗</a></span></footer>
   </main>
-  <script src="scripts/sdca-admin-config.js"></script><script>
+  <script src="scripts/sdca-admin-config.js?v=20261027-1"></script><script>
     (()=>{const sk="jxprobability.sdca.manualScores.v1",hk="jxprobability.sdca.compositeHistory.v1",form=document.getElementById("admin-login-form"),password=document.getElementById("admin-password"),message=document.getElementById("admin-message"),gate=document.getElementById("admin-gate"),controls=document.getElementById("admin-controls"),inputs=Array.from(document.querySelectorAll(".sdca-score-input")),count=document.getElementById("sdca-count"),composite=document.getElementById("sdca-composite"),classification=document.getElementById("sdca-classification"),button=document.getElementById("sdca-confirm-button"),confirmStatus=document.getElementById("sdca-confirm-status"),fmt=new Intl.NumberFormat("en-US",{maximumFractionDigits:4});let history=[],avg=null,n=0;const configured=typeof window.SDCA_ADMIN_PASSWORD_HASH==="string"&&/^[a-f0-9]{64}$/i.test(window.SDCA_ADMIN_PASSWORD_HASH);
       function classify(v){if(v<=-1.5)return["NO VALUE","negative"];if(v<0)return["LOW VALUE","negative"];if(v===0)return["NEUTRAL","neutral"];if(v<1.5)return["VALUE","positive"];return["HIGH VALUE","positive"];}
       function dateKey(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}function displayDate(k){const p=k.split("-").map(Number);return new Date(p[0],p[1]-1,p[2]).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"2-digit"});}

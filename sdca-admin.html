@@ -675,10 +675,95 @@
         <span class="sdca-confirm-status" id="sdca-confirm-status" role="status" aria-live="polite">Enter at least one score to enable confirmation.</span>
       </div>
       <p class="sdca-note">Confirm once per weekly review to add a dated composite to the oscillator. Confirming again on the same date replaces that date's point. Scores and history are stored in this browser on this device.</p></section>
-    <footer class="system-footer" aria-label="Admin page status"><span><i class="status-dot" aria-hidden="true"></i>SDCA manual score administration</span><span><a class="source-page-link" href="index.html">Dashboard ↗</a></span></footer>
+    <section class="sdca-panel admin-hidden" id="ltpi-admin-controls" aria-labelledby="ltpi-admin-title">
+      <header class="sdca-heading">
+        <div><h2 class="sdca-title" id="ltpi-admin-title">LTPI Trend Inputs</h2><p class="sdca-subtitle">12 manual trend-indicator scores · −1 bearish, 0 neutral, +1 bullish · BTC/USD, 3D timeframe</p></div>
+        <span class="empty-state" id="ltpi-admin-count" aria-live="polite">0 / 12 SCORED</span>
+      </header>
+      <div class="sdca-grid ltpi-admin-grid" id="ltpi-admin-grid">
+        <label class="sdca-card" data-sign="empty" data-indicator="ltpi-1">
+          <span class="sdca-indicator-name">Median Gaussian SuperTrend Standard</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="1" aria-label="Median Gaussian SuperTrend Standard LTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="ltpi-2">
+          <span class="sdca-indicator-name">EMA Trend Regime</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="2" aria-label="EMA Trend Regime LTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="ltpi-3">
+          <span class="sdca-indicator-name">Adaptive Ehlers Filtered Percentile</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="3" aria-label="Adaptive Ehlers Filtered Percentile LTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="ltpi-4">
+          <span class="sdca-indicator-name">Adaptive Entropy Trend</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="4" aria-label="Adaptive Entropy Trend LTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="ltpi-5">
+          <span class="sdca-indicator-name">Adaptive Causal Wavelet Trend Filter (ACWTF)</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="5" aria-label="Adaptive Causal Wavelet Trend Filter (ACWTF) LTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="ltpi-6">
+          <span class="sdca-indicator-name">Trend Filter (2-pole)</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="6" aria-label="Trend Filter (2-pole) LTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="ltpi-7">
+          <span class="sdca-indicator-name">Fractal Retracement</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="7" aria-label="Fractal Retracement LTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="ltpi-8">
+          <span class="sdca-indicator-name">G-Channel Trend Detection + Alerts</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="8" aria-label="G-Channel Trend Detection + Alerts LTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="ltpi-9">
+          <span class="sdca-indicator-name">Adaptive Kalman Trend Filter</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="9" aria-label="Adaptive Kalman Trend Filter LTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="ltpi-10">
+          <span class="sdca-indicator-name">Sattam | Trend Filter</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="10" aria-label="Sattam | Trend Filter LTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="ltpi-11">
+          <span class="sdca-indicator-name">Pullback Master</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="11" aria-label="Pullback Master LTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="ltpi-12">
+          <span class="sdca-indicator-name">NLMS Adaptive Trend Filter</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="12" aria-label="NLMS Adaptive Trend Filter LTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+      </div>
+      <div class="sdca-summary" aria-live="polite">
+        <div><div class="sdca-summary-label">LTPI Total Directional Score · Sum</div><strong class="sdca-composite" id="ltpi-admin-total">—</strong></div>
+        <div class="sdca-classification" id="ltpi-admin-classification" data-class="neutral">AWAITING INPUTS</div>
+      </div>
+      <p class="sdca-note">Scores are stored in this browser on this device and update the LTPI gauge on the dashboard. The total is the sum of entered indicator values (range −12 to +12); unentered indicators are excluded until scored.</p>
+    </section>
+    <footer class="system-footer" aria-label="Admin page status"><span><i class="status-dot" aria-hidden="true"></i>SDCA / LTPI manual score administration</span><span><a class="source-page-link" href="index.html">Dashboard ↗</a></span></footer>
   </main>
   <script src="scripts/sdca-admin-config.js?v=20261027-1"></script><script>
-    (()=>{const sk="jxprobability.sdca.manualScores.v1",hk="jxprobability.sdca.compositeHistory.v1",form=document.getElementById("admin-login-form"),password=document.getElementById("admin-password"),message=document.getElementById("admin-message"),gate=document.getElementById("admin-gate"),controls=document.getElementById("admin-controls"),inputs=Array.from(document.querySelectorAll(".sdca-score-input")),count=document.getElementById("sdca-count"),composite=document.getElementById("sdca-composite"),classification=document.getElementById("sdca-classification"),button=document.getElementById("sdca-confirm-button"),confirmStatus=document.getElementById("sdca-confirm-status"),fmt=new Intl.NumberFormat("en-US",{maximumFractionDigits:4});let history=[],avg=null,n=0;const configured=typeof window.SDCA_ADMIN_PASSWORD_HASH==="string"&&/^[a-f0-9]{64}$/i.test(window.SDCA_ADMIN_PASSWORD_HASH);
+    (()=>{const sk="jxprobability.sdca.manualScores.v1",hk="jxprobability.sdca.compositeHistory.v1",form=document.getElementById("admin-login-form"),password=document.getElementById("admin-password"),message=document.getElementById("admin-message"),gate=document.getElementById("admin-gate"),controls=document.getElementById("admin-controls"),ltpiControls=document.getElementById("ltpi-admin-controls"),inputs=Array.from(document.querySelectorAll("#sdca-grid .sdca-score-input")),ltpiInputs=Array.from(document.querySelectorAll(".ltpi-score-input")),ltpiCount=document.getElementById("ltpi-admin-count"),ltpiTotal=document.getElementById("ltpi-admin-total"),ltpiClass=document.getElementById("ltpi-admin-classification"),count=document.getElementById("sdca-count"),composite=document.getElementById("sdca-composite"),classification=document.getElementById("sdca-classification"),button=document.getElementById("sdca-confirm-button"),confirmStatus=document.getElementById("sdca-confirm-status"),fmt=new Intl.NumberFormat("en-US",{maximumFractionDigits:4});let history=[],avg=null,n=0;const configured=typeof window.SDCA_ADMIN_PASSWORD_HASH==="string"&&/^[a-f0-9]{64}$/i.test(window.SDCA_ADMIN_PASSWORD_HASH);
       function classify(v){if(v<=-1.5)return["NO VALUE","negative"];if(v<0)return["LOW VALUE","negative"];if(v===0)return["NEUTRAL","neutral"];if(v<1.5)return["VALUE","positive"];return["HIGH VALUE","positive"];}
       function dateKey(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}function displayDate(k){const p=k.split("-").map(Number);return new Date(p[0],p[1]-1,p[2]).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"2-digit"});}
       function loadScores(){let saved={};try{const raw=localStorage.getItem(sk),p=raw?JSON.parse(raw):{};if(p&&typeof p==="object"&&!Array.isArray(p))saved=p;}catch(e){console.warn(e);}inputs.forEach((i)=>{const v=saved[i.dataset.key];i.value=typeof v==="number"&&Number.isFinite(v)?String(v):"";});}
@@ -686,7 +771,11 @@
       function update(){const next={},vals=[];inputs.forEach((i)=>{const card=i.closest(".sdca-card"),raw=i.value.trim();if(raw===""){card.dataset.sign="empty";return;}const v=Number(raw);if(!Number.isFinite(v)){card.dataset.sign="empty";return;}vals.push(v);next[i.dataset.key]=v;card.dataset.sign=v<0?"negative":v>0?"positive":"zero";});try{localStorage.setItem(sk,JSON.stringify(next));}catch(e){message.textContent="Could not save scores in this browser.";}n=vals.length;count.textContent=n+" / 15 SCORED";button.disabled=!n;if(!n){avg=null;composite.textContent="—";classification.textContent="AWAITING INPUTS";classification.dataset.class="neutral";confirmStatus.textContent=history.length?history.length+" confirmed weekly point(s) saved.":"Enter at least one score to enable confirmation.";return;}avg=vals.reduce((a,v)=>a+v,0)/n;const [text,kind]=classify(avg);composite.textContent=(avg>0?"+":"")+fmt.format(avg);classification.textContent=text;classification.dataset.class=kind;confirmStatus.textContent=history.length?history.length+" confirmed weekly point(s) saved.":"Ready to confirm this week's composite.";}
       function confirm(){if(avg===null||!n)return;const d=dateKey(new Date()),entry={date:d,score:avg,count:n},i=history.findIndex((x)=>x.date===d);if(i>=0)history[i]=entry;else history.push(entry);history.sort((a,b)=>a.date.localeCompare(b.date));try{localStorage.setItem(hk,JSON.stringify(history));confirmStatus.textContent="Confirmed "+displayDate(d)+" · composite "+((avg>0?"+":"")+fmt.format(avg))+".";}catch(e){confirmStatus.textContent="Could not save history in this browser.";}}
       async function hash(v){const d=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v));return Array.from(new Uint8Array(d)).map((b)=>b.toString(16).padStart(2,"0")).join("");}
-      form.addEventListener("submit",async(e)=>{e.preventDefault();if(!configured){message.textContent="Password not configured. Set a SHA-256 hash in scripts/sdca-admin-config.js.";return;}const b=form.querySelector("button");b.disabled=true;try{if(await hash(password.value)===window.SDCA_ADMIN_PASSWORD_HASH.toLowerCase()){gate.classList.add("admin-hidden");controls.classList.remove("admin-hidden");loadScores();loadHistory();update();}else{message.textContent="Access denied. Check the passphrase and try again.";password.value="";password.focus();}}catch(error){message.textContent="Password check failed in this browser.";}finally{b.disabled=false;}});
-      inputs.forEach((i)=>i.addEventListener("input",update));button.addEventListener("click",confirm);message.textContent=configured?"Passphrase required.":"Password not configured yet. See scripts/sdca-admin-config.js.";
+      form.addEventListener("submit",async(e)=>{e.preventDefault();if(!configured){message.textContent="Password not configured. Set a SHA-256 hash in scripts/sdca-admin-config.js.";return;}const b=form.querySelector("button");b.disabled=true;try{if(await hash(password.value)===window.SDCA_ADMIN_PASSWORD_HASH.toLowerCase()){gate.classList.add("admin-hidden");controls.classList.remove("admin-hidden");ltpiControls.classList.remove("admin-hidden");loadScores();loadHistory();update();loadLtpiScores();updateLtpi();}else{message.textContent="Access denied. Check the passphrase and try again.";password.value="";password.focus();}}catch(error){message.textContent="Password check failed in this browser.";}finally{b.disabled=false;}});
+      inputs.forEach((i)=>i.addEventListener("input",update));button.addEventListener("click",confirm);
+      const ltpiKey="jxprobability.ltpi.manualScores.v1";
+      function loadLtpiScores(){let saved={};try{const raw=localStorage.getItem(ltpiKey),p=raw?JSON.parse(raw):{};if(p&&typeof p==="object"&&!Array.isArray(p))saved=p;}catch(e){console.warn(e);}ltpiInputs.forEach(i=>{i.value=[-1,0,1].includes(saved[i.dataset.key])?String(saved[i.dataset.key]):"";});}
+      function updateLtpi(){const next={},vals=[];ltpiInputs.forEach(i=>{const card=i.closest(".sdca-card"),raw=i.value;if(raw===""){card.dataset.sign="empty";return;}const v=Number(raw);if(![-1,0,1].includes(v)){card.dataset.sign="empty";return;}next[i.dataset.key]=v;vals.push(v);card.dataset.sign=v<0?"negative":v>0?"positive":"zero";});try{localStorage.setItem(ltpiKey,JSON.stringify(next));}catch(e){message.textContent="Could not save LTPI scores in this browser.";}const n=vals.length;ltpiCount.textContent=n+" / 12 SCORED";if(!n){ltpiTotal.textContent="—";ltpiClass.textContent="AWAITING INPUTS";ltpiClass.dataset.class="neutral";return;}const sum=vals.reduce((s,v)=>s+v,0);ltpiTotal.textContent=(sum>0?"+":"")+sum;ltpiClass.textContent=n<12?"PARTIAL INPUTS":sum>0?"BULLISH":sum<0?"BEARISH":"NEUTRAL";ltpiClass.dataset.class=sum>0?"positive":sum<0?"negative":"neutral";}
+      ltpiInputs.forEach(i=>i.addEventListener("change",updateLtpi));message.textContent=configured?"Passphrase required.":"Password not configured yet. See scripts/sdca-admin-config.js.";
     })();
   </script></body></html>

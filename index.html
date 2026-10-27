@@ -595,16 +595,16 @@
     <p class="tagline tagline-banner">Transparent valuation research. Systematic accumulation intelligence.</p>
     <section class="trend-instruments" aria-label="Trend probability instruments">
       <article class="trend-instrument" data-horizon="long" aria-labelledby="ltpi-title">
-        <header class="trend-instrument-heading"><div><h2 class="trend-instrument-title" id="ltpi-title">Long-Term Trend</h2><div class="trend-instrument-code">LTPI</div></div><span class="trend-instrument-state">AWAITING INPUTS</span></header>
+        <header class="trend-instrument-heading"><div><h2 class="trend-instrument-title" id="ltpi-title">Long-Term Trend</h2><div class="trend-instrument-code">LTPI</div></div><span class="trend-instrument-state" id="ltpi-state">AWAITING INPUTS</span></header>
         <svg class="trend-gauge" viewBox="0 0 320 170" role="img" aria-labelledby="ltpi-gauge-title ltpi-gauge-desc">
           <title id="ltpi-gauge-title">Long-term trend probability gauge</title><desc id="ltpi-gauge-desc">An empty semicircular gauge from bearish minus one through neutral zero to bullish plus one. No score is calculated because indicator inputs are not connected.</desc>
           <path class="trend-gauge-track" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-edge" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-accent" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-inner" d="M 49 137 A 111 111 0 0 1 271 137"/>
           <g aria-hidden="true">
             <line class="trend-gauge-tick major" x1="36" y1="137" x2="49" y2="137"/><line class="trend-gauge-tick" x1="40" y1="108" x2="50" y2="111"/><line class="trend-gauge-tick" x1="48" y1="76" x2="59" y2="82"/><line class="trend-gauge-tick" x1="69" y1="50" x2="78" y2="59"/><line class="trend-gauge-tick major" x1="99" y1="31" x2="105" y2="43"/><line class="trend-gauge-tick" x1="128" y1="17" x2="131" y2="29"/><line class="trend-gauge-tick major" x1="160" y1="13" x2="160" y2="27"/><line class="trend-gauge-tick" x1="192" y1="17" x2="189" y2="29"/><line class="trend-gauge-tick major" x1="221" y1="31" x2="215" y2="43"/><line class="trend-gauge-tick" x1="251" y1="50" x2="242" y2="59"/><line class="trend-gauge-tick" x1="272" y1="76" x2="261" y2="82"/><line class="trend-gauge-tick" x1="280" y1="108" x2="270" y2="111"/><line class="trend-gauge-tick major" x1="284" y1="137" x2="271" y2="137"/>
-            <text class="trend-gauge-scale" x="31" y="155" text-anchor="start">−1 BEAR</text><text class="trend-gauge-scale" x="160" y="49" text-anchor="middle">0 / NEUTRAL</text><text class="trend-gauge-scale" x="289" y="155" text-anchor="end">+1 BULL</text><text class="trend-gauge-center" x="160" y="104" text-anchor="middle">—</text><text class="trend-gauge-placeholder" x="160" y="121" text-anchor="middle">NO SCORE</text><circle cx="160" cy="137" r="4" fill="#27D9E8"/>
+            <text class="trend-gauge-scale" x="31" y="155" text-anchor="start">−1 BEAR</text><text class="trend-gauge-scale" x="160" y="49" text-anchor="middle">0 / NEUTRAL</text><text class="trend-gauge-scale" x="289" y="155" text-anchor="end">+1 BULL</text><text class="trend-gauge-center" id="ltpi-total" x="160" y="104" text-anchor="middle">—</text><text class="trend-gauge-placeholder" id="ltpi-count" x="160" y="121" text-anchor="middle">NO SCORE</text><line id="ltpi-needle" x1="160" y1="137" x2="160" y2="31" stroke="#27D9E8" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/><circle cx="160" cy="137" r="4" fill="#27D9E8"/>
           </g>
         </svg>
-        <div class="trend-gauge-caption"><span>Cycle direction</span><span>Inputs not connected</span></div>
+        <div class="trend-gauge-caption"><span>3D trend direction</span><span id="ltpi-caption">12 indicators · awaiting scores</span></div>
       </article>
       <article class="trend-instrument" data-horizon="medium" aria-labelledby="mtpi-title">
         <header class="trend-instrument-heading"><div><h2 class="trend-instrument-title" id="mtpi-title">Medium-Term Trend</h2><div class="trend-instrument-code">MTPI</div></div><span class="trend-instrument-state">AWAITING INPUTS</span></header>
@@ -723,6 +723,44 @@
   </main>
   <script src="scripts/live-btc-usd.js"></script>
   <script src="scripts/live-crypto-usd.js"></script>
+  <script>
+    (() => {
+      const key = "jxprobability.ltpi.manualScores.v1";
+      const card = document.querySelector('.trend-instrument[data-horizon="long"]');
+      const total = document.getElementById("ltpi-total");
+      const count = document.getElementById("ltpi-count");
+      const state = document.getElementById("ltpi-state");
+      const needle = document.getElementById("ltpi-needle");
+      const caption = document.getElementById("ltpi-caption");
+      const fmt = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0, signDisplay: "always" });
+      function render() {
+        let scores = {};
+        try {
+          const raw = localStorage.getItem(key);
+          const parsed = raw ? JSON.parse(raw) : {};
+          if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) scores = parsed;
+        } catch (error) { console.warn("LTPI scores could not be loaded.", error); }
+        const vals = Object.values(scores).filter(v => v === -1 || v === 0 || v === 1);
+        if (!vals.length) {
+          total.textContent = "—"; count.textContent = "NO SCORE"; state.textContent = "AWAITING INPUTS";
+          caption.textContent = "12 indicators · awaiting scores";
+          needle.setAttribute("transform", "rotate(0 160 137)");
+          card.dataset.scoreState = "empty";
+          return;
+        }
+        const sum = vals.reduce((a, v) => a + v, 0);
+        const angle = (sum / 12) * 90;
+        total.textContent = sum > 0 ? "+" + sum : String(sum);
+        count.textContent = vals.length + " / 12 SCORED";
+        state.textContent = vals.length === 12 ? "SCORE COMPLETE" : "PARTIAL INPUTS";
+        caption.textContent = "Total directional score · " + vals.length + " of 12";
+        needle.setAttribute("transform", "rotate(" + angle + " 160 137)");
+        card.dataset.scoreState = sum > 0 ? "bullish" : sum < 0 ? "bearish" : "neutral";
+      }
+      render();
+      window.addEventListener("storage", e => { if (e.key === key || e.key === null) render(); });
+    })();
+  </script>
   <script>
     function formatTimestamp(value) {
       if (!value) return "Not available";

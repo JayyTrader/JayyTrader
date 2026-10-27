@@ -105,6 +105,12 @@
       padding-bottom: 12px;
       border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
     }
+    .oscillator-heading-copy { min-width:0; }
+    .oscillator-title-row { display:flex; align-items:baseline; flex-wrap:wrap; gap:10px; }
+    #oscillator-heading-score { color:var(--muted); font-size:12px; font-weight:600; font-variant-numeric:tabular-nums; letter-spacing:.015em; white-space:nowrap; }
+    #oscillator-heading-score[data-state="undervalued"] { color:var(--cyan); }
+    #oscillator-heading-score[data-state="overvalued"] { color:var(--amber); }
+    .oscillator-heading-score-empty { display:none; }
     .panel-title {
       margin: 0;
       color: var(--text);
@@ -619,11 +625,14 @@
 
         <section class="oscillator-panel" aria-labelledby="oscillator-title">
           <div class="panel-heading">
-            <div>
-              <h2 class="panel-title" id="oscillator-title">Valuation Oscillator</h2>
+            <div class="oscillator-heading-copy">
+              <div class="oscillator-title-row">
+                <h2 class="panel-title" id="oscillator-title">Valuation Oscillator</h2>
+                <span id="oscillator-heading-score" aria-live="polite"></span>
+              </div>
               <p class="panel-subtitle">Standardized valuation scale · −2 to +2</p>
             </div>
-            <span class="empty-state" id="oscillator-status">0 / 15 INDICATORS</span>
+            <a class="source-page-link" href="sdca-admin.html">SDCA Admin</a>
           </div>
           <svg class="oscillator-plot" viewBox="0 0 900 420" role="img" aria-labelledby="oscillator-chart-title oscillator-chart-desc" preserveAspectRatio="none">
             <title id="oscillator-chart-title">Valuation oscillator with the manual SDCA composite score</title>
@@ -655,7 +664,7 @@
             <text class="oscillator-label" x="486" y="414" text-anchor="middle">CONFIRMED DATE</text>
             <g id="oscillator-live-score" aria-label="Current valuation score" visibility="hidden">
               <line id="oscillator-score-line" x1="82" y1="194" x2="890" y2="194" stroke="var(--cyan)" stroke-width="2.5" stroke-dasharray="7 5" />
-              <text id="oscillator-score-label" x="884" y="184" text-anchor="end" fill="var(--cyan)" font-family="var(--font-ui)" font-size="9" font-weight="650">+0.52</text>
+              <text id="oscillator-score-label" x="884" y="184" text-anchor="end" fill="var(--cyan)" font-family="var(--font-ui)" font-size="9" font-weight="650"></text>
             </g>
             </svg>
           <div class="oscillator-caption">
@@ -800,7 +809,7 @@
     (function () {
       const storageKey="jxprobability.sdca.manualScores.v1",historyKey="jxprobability.sdca.compositeHistory.v1";
       const count=document.getElementById("sdca-count"),composite=document.getElementById("sdca-composite"),classification=document.getElementById("sdca-classification");
-      const marker=document.getElementById("oscillator-live-score"),line=document.getElementById("oscillator-score-line"),label=document.getElementById("oscillator-score-label"),status=document.getElementById("oscillator-status");
+      const marker=document.getElementById("oscillator-live-score"),line=document.getElementById("oscillator-score-line"),label=document.getElementById("oscillator-score-label"),headingScore=document.getElementById("oscillator-heading-score");
       const chartTitle=document.getElementById("oscillator-chart-title"),chartDesc=document.getElementById("oscillator-chart-desc"),historyPath=document.getElementById("oscillator-history-path"),historyPoints=document.getElementById("oscillator-history-points"),dateLabels=document.getElementById("oscillator-date-labels");
       const numberFormat=new Intl.NumberFormat("en-US",{maximumFractionDigits:4}),svgNS="http://www.w3.org/2000/svg";let saved={},history=[];
       function loadState(){try{const raw=localStorage.getItem(storageKey),parsed=raw?JSON.parse(raw):{};saved=parsed&&typeof parsed==="object"&&!Array.isArray(parsed)?parsed:{};}catch(error){saved={};console.warn("SDCA scores could not be loaded from local storage.",error);}
@@ -814,11 +823,12 @@
         points.forEach((p)=>{const circle=makeSvg("circle",{cx:p.x,cy:p.y,r:4,class:"oscillator-history-point",tabindex:0,role:"img","aria-label":displayDate(p.date)+", composite "+p.score.toFixed(4)});const title=makeSvg("title",{});title.textContent=displayDate(p.date)+" · "+((p.score>0?"+":"")+numberFormat.format(p.score))+" · "+p.count+" indicators";circle.appendChild(title);historyPoints.appendChild(circle);});
         const indexes=new Set([0,points.length-1]),max=6;for(let i=1;i<Math.min(max-1,points.length-1);i++)indexes.add(Math.round(i*(points.length-1)/(max-1)));
         Array.from(indexes).sort((a,b)=>a-b).forEach((i)=>{const p=points[i],anchor=points.length===1?"middle":i===0?"start":i===points.length-1?"end":"middle",x=points.length===1?p.x:i===0?left:i===points.length-1?right:p.x,node=makeSvg("text",{x,y:395,"text-anchor":anchor,class:"oscillator-date-label"});node.textContent=displayDate(p.date);dateLabels.appendChild(node);});}
-      function render(){const values=Object.values(saved).filter((v)=>typeof v==="number"&&Number.isFinite(v));count.textContent=values.length+" / 15 SCORED";status.textContent=values.length+" / 15 INDICATORS";
-        if(!values.length){composite.textContent="—";classification.textContent="AWAITING INPUTS";classification.dataset.class="neutral";marker.setAttribute("visibility","hidden");chartTitle.textContent="Valuation oscillator awaiting manual scores";chartDesc.textContent="No manual SDCA scores are entered. Confirmed weekly history, if present, remains displayed.";return;}
-        const avg=values.reduce((s,v)=>s+v,0)/values.length,result=classify(avg);composite.textContent=(avg>0?"+":"")+numberFormat.format(avg);classification.textContent=result.label;classification.dataset.class=result.kind;
-        const y=194+Math.max(-2,Math.min(2,avg))*83;line.setAttribute("y1",String(y));line.setAttribute("y2",String(y));label.setAttribute("y",String(Math.max(42,y-9)));label.textContent=(avg>0?"+":"")+numberFormat.format(avg);marker.setAttribute("visibility","visible");
-        chartTitle.textContent="Valuation oscillator: current SDCA average "+((avg>0?"+":"")+numberFormat.format(avg));chartDesc.textContent="The dashed line is the current unconfirmed average. The solid line shows confirmed weekly averages by date. The displayed composite is not inverted; chart positions are clamped to the minus two to plus two range.";}
+      function render(){const values=Object.values(saved).filter((v)=>typeof v==="number"&&Number.isFinite(v));count.textContent=values.length+" / 15 SCORED";
+        if(!values.length){composite.textContent="—";classification.textContent="AWAITING INPUTS";classification.dataset.class="neutral";marker.setAttribute("visibility","hidden");headingScore.textContent="";headingScore.removeAttribute("data-state");chartTitle.textContent="Valuation oscillator awaiting manual scores";chartDesc.textContent="No manual SDCA scores are entered. Confirmed weekly history, if present, remains displayed.";return;}
+        const avg=values.reduce((s,v)=>s+v,0)/values.length,result=classify(avg),formatted=(avg>0?"+":"")+numberFormat.format(avg);composite.textContent=formatted;classification.textContent=result.label;classification.dataset.class=result.kind;
+        const y=194+Math.max(-2,Math.min(2,avg))*83;line.setAttribute("y1",String(y));line.setAttribute("y2",String(y));label.setAttribute("y",String(Math.max(42,y-9)));label.textContent="";marker.setAttribute("visibility","visible");
+        headingScore.textContent=formatted;headingScore.dataset.state=avg>0?"undervalued":avg<0?"overvalued":"neutral";
+        chartTitle.textContent="Valuation oscillator: current SDCA average "+formatted;chartDesc.textContent="The dashed line is the current unconfirmed average. The solid line shows confirmed weekly averages by date. The displayed composite is not inverted; chart positions are clamped to the minus two to plus two range.";}
       loadState();drawHistory();render();window.addEventListener("storage",(e)=>{if(e.key===storageKey||e.key===historyKey||e.key===null){loadState();drawHistory();render();}});})();
   </script>
 

@@ -266,7 +266,8 @@ test('landing page exposes MVRV research while leaving the SDCA composite unimpl
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   assert.match(html, /id="mvrv-score"/);
   assert.match(html, /id="oscillator-title"/);
-  assert.match(html, /href="sdca-admin\\.html">SDCA Admin/);\n  assert.doesNotMatch(html, /sources\\.html/);
+  assert.match(html, /href="sdca-admin\.html">SDCA Admin/);
+  assert.doesNotMatch(html, /sources\.html/);
   assert.doesNotMatch(html, /SDCA Composite Oscillator|indicator-grid|data\/sdca-latest\.json|loadSDCAData|verifiedCompositeObservation/);
   assert.doesNotMatch(html, /dashboard-integrity\.js|data\/sdca-latest\.json|loadSDCAData|verifiedCompositeObservation/);
 });

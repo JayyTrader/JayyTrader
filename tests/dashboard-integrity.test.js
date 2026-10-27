@@ -204,15 +204,17 @@ test('landing page quote and layout remain compact, responsive, and accessible w
   assert.doesNotMatch(html, /href="https:\/\/docs\.cdp\.coinbase\.com\/api-reference\/exchange-api\/rest-api\/products\/get-product-ticker"/);
 });
 
-test('live quote cards leave source attribution to the dedicated sources page', () => {
-  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
-  const style = html.match(/<style>([\s\S]*?)<\/style>/);
+test('admin access replaces the former resources link and the resources page is removed', () => {
+  const root = path.join(__dirname, '..');
+  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  const style = html.match(/<style>([\\s\\S]*?)<\\/style>/);
   assert.ok(style, 'landing page stylesheet exists');
-  assert.doesNotMatch(html, /href="https:\/\/docs\.cdp\.coinbase\.com\/api-reference\/exchange-api\/rest-api\/products\/get-product-ticker"/);
-  assert.match(html, /class="source-page-link" href="sources\.html"/);
-  assert.match(fs.readFileSync(path.join(__dirname, "..", "sources.html"), "utf8"), /04 \/ Live Market Price Feeds[\s\S]*?Product Ticker — Exchange REST API[\s\S]*?BTC\/USD, ETH\/USD and SOL\/USD/);
-  assert.doesNotMatch(style[1], /(?:^|,)\s*a:(?:link|visited|hover|focus-visible)/);
-});
+  assert.doesNotMatch(html, /href="https:\\/\\/docs\\.cdp\\.coinbase\\.com\\/api-reference\\/exchange-api\\/rest-api\\/products\\/get-product-ticker"/);
+  assert.match(html, /<footer class="system-footer"[\\s\\S]*?href="sdca-admin\\.html">SDCA Admin/);
+  assert.doesNotMatch(html, /sources\\.html|Sources &amp; Methodology/);
+  assert.equal(fs.existsSync(path.join(root, 'sources.html')), false);
+  assert.doesNotMatch(style[1], /(?:^|,)\\s*a:(?:link|visited|hover|focus-visible)/);
+});;
 
 test('retained SDCA data remains schema-valid but is not loaded by the landing page', () => {
   const root = path.join(__dirname, '..');
@@ -264,7 +266,7 @@ test('landing page exposes MVRV research while leaving the SDCA composite unimpl
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   assert.match(html, /id="mvrv-score"/);
   assert.match(html, /id="oscillator-title"/);
-  assert.match(html, /sources\.html/);
+  assert.match(html, /href="sdca-admin\\.html">SDCA Admin/);\n  assert.doesNotMatch(html, /sources\\.html/);
   assert.doesNotMatch(html, /SDCA Composite Oscillator|indicator-grid|data\/sdca-latest\.json|loadSDCAData|verifiedCompositeObservation/);
   assert.doesNotMatch(html, /dashboard-integrity\.js|data\/sdca-latest\.json|loadSDCAData|verifiedCompositeObservation/);
 });

@@ -575,6 +575,21 @@
       *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
       .cursor { animation: none; }
     }
+  
+    .sdca-note a { margin-left:8px; color:var(--cyan); text-decoration:none; }
+    .sdca-note a:hover,.sdca-note a:focus-visible { text-decoration:underline; }
+    .admin-shell { width:min(100% - 40px, 900px); margin:0 auto; padding-top:120px; }
+    .admin-gate { max-width:420px; margin:0 auto 20px; padding:22px; border:1px solid var(--line); border-top:1px solid color-mix(in srgb,var(--cyan) 55%,transparent); background:linear-gradient(145deg,var(--panel2),var(--panel)); }
+    .admin-gate h2 { margin:0; font-size:13px; letter-spacing:.1em; text-transform:uppercase; }
+    .admin-gate p { color:var(--muted); font-size:10px; line-height:1.7; }
+    .admin-gate form { display:flex; gap:8px; }
+    .admin-password { flex:1; min-width:0; padding:10px; border:1px solid var(--line); background:var(--bg); color:var(--text); font:12px var(--font-ui); caret-color:var(--cyan); }
+    .admin-action { padding:10px 12px; border:1px solid var(--cyan); background:color-mix(in srgb,var(--cyan) 8%,var(--bg)); color:var(--cyan); font:600 9px var(--font-ui); letter-spacing:.08em; text-transform:uppercase; cursor:pointer; }
+    .admin-message { min-height:1.5em; color:var(--amber); font-size:9px; line-height:1.6; }
+    .admin-back { display:inline-block; margin:0 0 12px; color:var(--cyan); font-size:9px; text-decoration:none; }
+    .admin-back:hover,.admin-back:focus-visible { text-decoration:underline; }
+    .admin-hidden { display:none !important; }
+    @media(max-width:600px) { .admin-shell { width:min(100% - 32px, 900px); padding-top:92px; } .admin-gate { padding:16px; } .admin-gate form { flex-direction:column; } }
   </style>
 </head>
 <body>
@@ -705,81 +720,9 @@
       </aside>
     </div>
     <section class="sdca-panel" aria-labelledby="sdca-title">
-      <header class="sdca-heading">
-        <div><h2 class="sdca-title" id="sdca-title">SDCA Valuation Inputs</h2><p class="sdca-subtitle">15 manual indicator scores · enter the current weekly valuation score for each indicator</p></div>
-        <span class="empty-state" id="sdca-count" aria-live="polite">0 / 15 SCORED</span>
-      </header>
-      <div class="sdca-grid" id="sdca-grid">
-        <label class="sdca-card" data-sign="empty" data-indicator="1">
-          <span class="sdca-indicator-name">MVRV-Z Score</span>
-          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="MVRV-Z Score valuation score" data-key="1">
-        </label>
-        <label class="sdca-card" data-sign="empty" data-indicator="2">
-          <span class="sdca-indicator-name">Realized Cap HODL Waves</span>
-          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="Realized Cap HODL Waves valuation score" data-key="2">
-        </label>
-        <label class="sdca-card" data-sign="empty" data-indicator="3">
-          <span class="sdca-indicator-name">CBBI</span>
-          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="CBBI valuation score" data-key="3">
-        </label>
-        <label class="sdca-card" data-sign="empty" data-indicator="4">
-          <span class="sdca-indicator-name">VDD Multiple</span>
-          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="VDD Multiple valuation score" data-key="4">
-        </label>
-        <label class="sdca-card" data-sign="empty" data-indicator="5">
-          <span class="sdca-indicator-name">NUPL</span>
-          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="NUPL valuation score" data-key="5">
-        </label>
-        <label class="sdca-card" data-sign="empty" data-indicator="6">
-          <span class="sdca-indicator-name">BTC 50 MARP</span>
-          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="BTC 50 MARP valuation score" data-key="6">
-        </label>
-        <label class="sdca-card" data-sign="empty" data-indicator="7">
-          <span class="sdca-indicator-name">LTH/STH SOPR Ratio</span>
-          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="LTH/STH SOPR Ratio valuation score" data-key="7">
-        </label>
-        <label class="sdca-card" data-sign="empty" data-indicator="8">
-          <span class="sdca-indicator-name">BTC Damped Harmonic Oscillator</span>
-          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="BTC Damped Harmonic Oscillator valuation score" data-key="8">
-        </label>
-        <label class="sdca-card" data-sign="empty" data-indicator="9">
-          <span class="sdca-indicator-name">Bitcoin RSI</span>
-          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="Bitcoin RSI valuation score" data-key="9">
-        </label>
-        <label class="sdca-card" data-sign="empty" data-indicator="10">
-          <span class="sdca-indicator-name">Bitcoin Pi Cycle Top</span>
-          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="Bitcoin Pi Cycle Top valuation score" data-key="10">
-        </label>
-        <label class="sdca-card" data-sign="empty" data-indicator="11">
-          <span class="sdca-indicator-name">Market Extreme Zone Index</span>
-          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="Market Extreme Zone Index valuation score" data-key="11">
-        </label>
-        <label class="sdca-card" data-sign="empty" data-indicator="12">
-          <span class="sdca-indicator-name">Relative Valuation Oscillator</span>
-          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="Relative Valuation Oscillator valuation score" data-key="12">
-        </label>
-        <label class="sdca-card" data-sign="empty" data-indicator="13">
-          <span class="sdca-indicator-name">Volume-Weighted Price Z-Score</span>
-          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="Volume-Weighted Price Z-Score valuation score" data-key="13">
-        </label>
-        <label class="sdca-card" data-sign="empty" data-indicator="14">
-          <span class="sdca-indicator-name">Crypto Fear and Greed Index</span>
-          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="Crypto Fear and Greed Index valuation score" data-key="14">
-        </label>
-        <label class="sdca-card" data-sign="empty" data-indicator="15">
-          <span class="sdca-indicator-name">Composite Sentiment Score</span>
-          <input class="sdca-score-input" type="number" step="any" inputmode="decimal" placeholder="—" aria-label="Composite Sentiment Score valuation score" data-key="15">
-        </label>
-      </div>
-      <div class="sdca-summary" aria-live="polite">
-        <div><div class="sdca-summary-label">Composite Valuation Score · Original Average</div><strong class="sdca-composite" id="sdca-composite">—</strong></div>
-        <div class="sdca-classification" id="sdca-classification" data-class="neutral">AWAITING INPUTS</div>
-      </div>
-      <div class="sdca-confirm-row">
-        <button class="sdca-confirm-button" id="sdca-confirm-button" type="button" disabled>Confirm Weekly Score</button>
-        <span class="sdca-confirm-status" id="sdca-confirm-status" role="status" aria-live="polite">Enter at least one score to enable confirmation.</span>
-      </div>
-      <p class="sdca-note">Confirm once per weekly review to add a dated composite to the oscillator. Confirming again on the same date replaces that date's point. Scores and history are stored in this browser on this device.</p>
+      <header class="sdca-heading"><div><h2 class="sdca-title" id="sdca-title">SDCA Valuation</h2><p class="sdca-subtitle">Weekly composite from manually scored indicators · inputs are managed on the admin page</p></div><span class="empty-state" id="sdca-count" aria-live="polite">0 / 15 SCORED</span></header>
+      <div class="sdca-summary" aria-live="polite"><div><div class="sdca-summary-label">Composite Valuation Score · Original Average</div><strong class="sdca-composite" id="sdca-composite">—</strong></div><div class="sdca-classification" id="sdca-classification" data-class="neutral">AWAITING INPUTS</div></div>
+      <p class="sdca-note">Scores and confirmed weekly history are stored in this browser on this device. <a class="source-page-link" href="sdca-admin.html">Open SDCA Admin ↗</a></p>
     </section>
     <footer class="system-footer" aria-label="Research system status">
       <span><i class="status-dot" aria-hidden="true"></i>Quote source: Coinbase Exchange · Refresh interval: 60s</span>
@@ -871,193 +814,28 @@
 
   <script>
     (function () {
-      const storageKey = "jxprobability.sdca.manualScores.v1";
-      const historyKey = "jxprobability.sdca.compositeHistory.v1";
-      const inputs = Array.from(document.querySelectorAll(".sdca-score-input"));
-      const count = document.getElementById("sdca-count");
-      const composite = document.getElementById("sdca-composite");
-      const classification = document.getElementById("sdca-classification");
-      const confirmButton = document.getElementById("sdca-confirm-button");
-      const confirmStatus = document.getElementById("sdca-confirm-status");
-      const marker = document.getElementById("oscillator-live-score");
-      const line = document.getElementById("oscillator-score-line");
-      const label = document.getElementById("oscillator-score-label");
-      const status = document.getElementById("oscillator-status");
-      const chartTitle = document.getElementById("oscillator-chart-title");
-      const chartDesc = document.getElementById("oscillator-chart-desc");
-      const historyPath = document.getElementById("oscillator-history-path");
-      const historyPoints = document.getElementById("oscillator-history-points");
-      const dateLabels = document.getElementById("oscillator-date-labels");
-      const numberFormat = new Intl.NumberFormat("en-US", { maximumFractionDigits: 4 });
-      const svgNS = "http://www.w3.org/2000/svg";
-      let saved = {};
-      let history = [];
-      let currentAverage = null;
-      let scoredCount = 0;
-
-      try {
-        const raw = localStorage.getItem(storageKey);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) saved = parsed;
-        }
-      } catch (error) {
-        console.warn("SDCA scores could not be loaded from local storage.", error);
-      }
-      try {
-        const rawHistory = localStorage.getItem(historyKey);
-        if (rawHistory) {
-          const parsed = JSON.parse(rawHistory);
-          if (Array.isArray(parsed)) {
-            history = parsed.filter((item) => item && /^\d{4}-\d{2}-\d{2}$/.test(item.date) && Number.isFinite(item.score))
-              .sort((a, b) => a.date.localeCompare(b.date));
-          }
-        }
-      } catch (error) {
-        console.warn("SDCA history could not be loaded from local storage.", error);
-      }
-
-      inputs.forEach((input) => {
-        const value = saved[input.dataset.key];
-        if (typeof value === "number" && Number.isFinite(value)) input.value = String(value);
-        input.addEventListener("input", updateScores);
-      });
-      confirmButton.addEventListener("click", confirmWeeklyScore);
-
-      function classify(value) {
-        if (value <= -1.5) return { label: "NO VALUE", kind: "negative" };
-        if (value < 0) return { label: "LOW VALUE", kind: "negative" };
-        if (value === 0) return { label: "NEUTRAL", kind: "neutral" };
-        if (value < 1.5) return { label: "VALUE", kind: "positive" };
-        return { label: "HIGH VALUE", kind: "positive" };
-      }
-      function localDateKey(date) {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
-        return year + "-" + month + "-" + day;
-      }
-      function displayDate(dateKey) {
-        const parts = dateKey.split("-").map(Number);
-        return new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "2-digit" });
-      }
-      function persistHistory() {
-        try {
-          localStorage.setItem(historyKey, JSON.stringify(history));
-          return true;
-        } catch (error) {
-          console.warn("SDCA history could not be saved in local storage.", error);
-          confirmStatus.textContent = "Could not save history in this browser. Check storage settings.";
-          return false;
-        }
-      }
-      function updateScores() {
-        const values = [];
-        const nextSaved = {};
-        inputs.forEach((input) => {
-          const card = input.closest(".sdca-card");
-          const raw = input.value.trim();
-          if (raw === "") {
-            card.dataset.sign = "empty";
-            return;
-          }
-          const value = Number(raw);
-          if (!Number.isFinite(value)) {
-            card.dataset.sign = "empty";
-            return;
-          }
-          values.push(value);
-          nextSaved[input.dataset.key] = value;
-          card.dataset.sign = value < 0 ? "negative" : value > 0 ? "positive" : "zero";
-        });
-        try {
-          localStorage.setItem(storageKey, JSON.stringify(nextSaved));
-        } catch (error) {
-          console.warn("SDCA scores could not be saved in local storage.", error);
-        }
-        scoredCount = values.length;
-        count.textContent = values.length + " / 15 SCORED";
-        status.textContent = values.length + " / 15 INDICATORS";
-        confirmButton.disabled = values.length === 0;
-        if (values.length === 0) {
-          currentAverage = null;
-          composite.textContent = "—";
-          classification.textContent = "AWAITING INPUTS";
-          classification.dataset.class = "neutral";
-          marker.setAttribute("visibility", "hidden");
-          chartTitle.textContent = "Valuation oscillator awaiting manual scores";
-          chartDesc.textContent = "No manual SDCA scores are entered. Confirmed weekly history, if present, remains displayed.";
-          confirmStatus.textContent = history.length ? history.length + " confirmed weekly point(s) saved." : "Enter at least one score to enable confirmation.";
-          return;
-        }
-        currentAverage = values.reduce((sum, value) => sum + value, 0) / values.length;
-        const result = classify(currentAverage);
-        composite.textContent = (currentAverage > 0 ? "+" : "") + numberFormat.format(currentAverage);
-        classification.textContent = result.label;
-        classification.dataset.class = result.kind;
-        const plottedValue = Math.max(-2, Math.min(2, currentAverage));
-        const y = 194 + (plottedValue * 83);
-        line.setAttribute("y1", String(y));
-        line.setAttribute("y2", String(y));
-        label.setAttribute("y", String(Math.max(42, y - 9)));
-        label.textContent = (currentAverage > 0 ? "+" : "") + numberFormat.format(currentAverage);
-        marker.setAttribute("visibility", "visible");
-        chartTitle.textContent = "Valuation oscillator: current SDCA average " + ((currentAverage > 0 ? "+" : "") + numberFormat.format(currentAverage));
-        chartDesc.textContent = "The dashed line is the current unconfirmed average. The solid line shows confirmed weekly averages by date. The displayed composite is not inverted; chart positions are clamped to the minus two to plus two range.";
-        confirmStatus.textContent = history.length ? history.length + " confirmed weekly point(s) saved." : "Ready to confirm this week's composite.";
-      }
-      function confirmWeeklyScore() {
-        if (currentAverage === null || scoredCount === 0) return;
-        const date = localDateKey(new Date());
-        const entry = { date: date, score: currentAverage, count: scoredCount };
-        const existingIndex = history.findIndex((item) => item.date === date);
-        if (existingIndex >= 0) history[existingIndex] = entry;
-        else history.push(entry);
-        history.sort((a, b) => a.date.localeCompare(b.date));
-        if (!persistHistory()) return;
-        drawHistory();
-        confirmStatus.textContent = "Confirmed " + displayDate(date) + " · composite " + ((currentAverage > 0 ? "+" : "") + numberFormat.format(currentAverage)) + ".";
-      }
-      function makeSvg(tag, attrs) {
-        const node = document.createElementNS(svgNS, tag);
-        Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, String(value)));
-        return node;
-      }
-      function drawHistory() {
-        historyPath.setAttribute("d", "");
-        historyPoints.replaceChildren();
-        dateLabels.replaceChildren();
-        if (!history.length) return;
-        const left = 82, right = 890, top = 28, bottom = 360;
-        const points = history.map((item, index) => {
-          const x = history.length === 1 ? (left + right) / 2 : left + (index / (history.length - 1)) * (right - left);
-          const score = Math.max(-2, Math.min(2, item.score));
-          const y = 194 + score * 83;
-          return { ...item, x, y };
-        });
-        historyPath.setAttribute("d", points.map((point, index) => (index ? "L " : "M ") + point.x.toFixed(2) + " " + point.y.toFixed(2)).join(" "));
-        points.forEach((point, index) => {
-          const circle = makeSvg("circle", { cx:point.x, cy:point.y, r:4, class:"oscillator-history-point", tabindex:0, role:"img", "aria-label":displayDate(point.date) + ", composite " + point.score.toFixed(4) });
-          const title = makeSvg("title", {});
-          title.textContent = displayDate(point.date) + " · " + ((point.score > 0 ? "+" : "") + numberFormat.format(point.score)) + " · " + point.count + " indicators";
-          circle.appendChild(title);
-          historyPoints.appendChild(circle);
-        });
-        const labelIndexes = new Set([0, points.length - 1]);
-        const maxLabels = 6;
-        for (let i = 1; i < Math.min(maxLabels - 1, points.length - 1); i++) labelIndexes.add(Math.round(i * (points.length - 1) / (maxLabels - 1)));
-        Array.from(labelIndexes).sort((a,b)=>a-b).forEach((index) => {
-          const point = points[index];
-          const anchor = points.length === 1 ? "middle" : index === 0 ? "start" : index === points.length - 1 ? "end" : "middle";
-          const x = points.length === 1 ? point.x : index === 0 ? left : index === points.length - 1 ? right : point.x;
-          const text = makeSvg("text", { x, y:395, "text-anchor":anchor, class:"oscillator-date-label" });
-          text.textContent = displayDate(point.date);
-          dateLabels.appendChild(text);
-        });
-      }
-      drawHistory();
-      updateScores();
-    })();
+      const storageKey="jxprobability.sdca.manualScores.v1",historyKey="jxprobability.sdca.compositeHistory.v1";
+      const count=document.getElementById("sdca-count"),composite=document.getElementById("sdca-composite"),classification=document.getElementById("sdca-classification");
+      const marker=document.getElementById("oscillator-live-score"),line=document.getElementById("oscillator-score-line"),label=document.getElementById("oscillator-score-label"),status=document.getElementById("oscillator-status");
+      const chartTitle=document.getElementById("oscillator-chart-title"),chartDesc=document.getElementById("oscillator-chart-desc"),historyPath=document.getElementById("oscillator-history-path"),historyPoints=document.getElementById("oscillator-history-points"),dateLabels=document.getElementById("oscillator-date-labels");
+      const numberFormat=new Intl.NumberFormat("en-US",{maximumFractionDigits:4}),svgNS="http://www.w3.org/2000/svg";let saved={},history=[];
+      function loadState(){try{const raw=localStorage.getItem(storageKey),parsed=raw?JSON.parse(raw):{};saved=parsed&&typeof parsed==="object"&&!Array.isArray(parsed)?parsed:{};}catch(error){saved={};console.warn("SDCA scores could not be loaded from local storage.",error);}
+        try{const raw=localStorage.getItem(historyKey),parsed=raw?JSON.parse(raw):[];history=Array.isArray(parsed)?parsed.filter((item)=>item&&/^\\d{4}-\\d{2}-\\d{2}$/.test(item.date)&&Number.isFinite(item.score)).sort((a,b)=>a.date.localeCompare(b.date)):[];}catch(error){history=[];console.warn("SDCA history could not be loaded from local storage.",error);}}
+      function classify(v){if(v<=-1.5)return{label:"NO VALUE",kind:"negative"};if(v<0)return{label:"LOW VALUE",kind:"negative"};if(v===0)return{label:"NEUTRAL",kind:"neutral"};if(v<1.5)return{label:"VALUE",kind:"positive"};return{label:"HIGH VALUE",kind:"positive"};}
+      function displayDate(key){const p=key.split("-").map(Number);return new Date(p[0],p[1]-1,p[2]).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"2-digit"});}
+      function makeSvg(tag,attrs){const node=document.createElementNS(svgNS,tag);Object.entries(attrs).forEach(([k,v])=>node.setAttribute(k,String(v)));return node;}
+      function drawHistory(){historyPath.setAttribute("d","");historyPoints.replaceChildren();dateLabels.replaceChildren();if(!history.length)return;const left=82,right=890;
+        const points=history.map((item,i)=>({...item,x:history.length===1?(left+right)/2:left+(i/(history.length-1))*(right-left),y:194+Math.max(-2,Math.min(2,item.score))*83}));
+        historyPath.setAttribute("d",points.map((p,i)=>(i?"L ":"M ")+p.x.toFixed(2)+" "+p.y.toFixed(2)).join(" "));
+        points.forEach((p)=>{const circle=makeSvg("circle",{cx:p.x,cy:p.y,r:4,class:"oscillator-history-point",tabindex:0,role:"img","aria-label":displayDate(p.date)+", composite "+p.score.toFixed(4)});const title=makeSvg("title",{});title.textContent=displayDate(p.date)+" · "+((p.score>0?"+":"")+numberFormat.format(p.score))+" · "+p.count+" indicators";circle.appendChild(title);historyPoints.appendChild(circle);});
+        const indexes=new Set([0,points.length-1]),max=6;for(let i=1;i<Math.min(max-1,points.length-1);i++)indexes.add(Math.round(i*(points.length-1)/(max-1)));
+        Array.from(indexes).sort((a,b)=>a-b).forEach((i)=>{const p=points[i],anchor=points.length===1?"middle":i===0?"start":i===points.length-1?"end":"middle",x=points.length===1?p.x:i===0?left:i===points.length-1?right:p.x,node=makeSvg("text",{x,y:395,"text-anchor":anchor,class:"oscillator-date-label"});node.textContent=displayDate(p.date);dateLabels.appendChild(node);});}
+      function render(){const values=Object.values(saved).filter((v)=>typeof v==="number"&&Number.isFinite(v));count.textContent=values.length+" / 15 SCORED";status.textContent=values.length+" / 15 INDICATORS";
+        if(!values.length){composite.textContent="—";classification.textContent="AWAITING INPUTS";classification.dataset.class="neutral";marker.setAttribute("visibility","hidden");chartTitle.textContent="Valuation oscillator awaiting manual scores";chartDesc.textContent="No manual SDCA scores are entered. Confirmed weekly history, if present, remains displayed.";return;}
+        const avg=values.reduce((s,v)=>s+v,0)/values.length,result=classify(avg);composite.textContent=(avg>0?"+":"")+numberFormat.format(avg);classification.textContent=result.label;classification.dataset.class=result.kind;
+        const y=194+Math.max(-2,Math.min(2,avg))*83;line.setAttribute("y1",String(y));line.setAttribute("y2",String(y));label.setAttribute("y",String(Math.max(42,y-9)));label.textContent=(avg>0?"+":"")+numberFormat.format(avg);marker.setAttribute("visibility","visible");
+        chartTitle.textContent="Valuation oscillator: current SDCA average "+((avg>0?"+":"")+numberFormat.format(avg));chartDesc.textContent="The dashed line is the current unconfirmed average. The solid line shows confirmed weekly averages by date. The displayed composite is not inverted; chart positions are clamped to the minus two to plus two range.";}
+      loadState();drawHistory();render();window.addEventListener("storage",(e)=>{if(e.key===storageKey||e.key===historyKey||e.key===null){loadState();drawHistory();render();}});})();
   </script>
 
 </body>

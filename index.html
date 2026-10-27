@@ -64,7 +64,7 @@
     .landing {
       position: relative;
       z-index: 1;
-      width: min(100% - 64px, 1480px);
+      width: min(calc(100% - 64px), 1480px);
       margin: 0 auto;
       padding: 118px 0 48px;
     }
@@ -707,11 +707,6 @@
         </section>
       </aside>
     </div>
-    <section class="sdca-panel" aria-labelledby="sdca-title">
-      <header class="sdca-heading"><div><h2 class="sdca-title" id="sdca-title">SDCA Valuation</h2><p class="sdca-subtitle">Weekly composite from manually scored indicators · inputs are managed on the admin page</p></div><span class="empty-state" id="sdca-count" aria-live="polite">0 / 15 SCORED</span></header>
-      <div class="sdca-summary" aria-live="polite"><div><div class="sdca-summary-label">Composite Valuation Score · Original Average</div><strong class="sdca-composite" id="sdca-composite">—</strong></div><div class="sdca-classification" id="sdca-classification" data-class="neutral">AWAITING INPUTS</div></div>
-      <p class="sdca-note">Scores and confirmed weekly history are stored in this browser on this device. <a class="source-page-link" href="sdca-admin.html">Open SDCA Admin ↗</a></p>
-    </section>
     <footer class="system-footer" aria-label="Research system status">
       <span><i class="status-dot" aria-hidden="true"></i>Quote source: Coinbase Exchange · Refresh interval: 60s</span>
       <span><a class="source-page-link" href="sources.html">Sources &amp; Methodology ↗</a></span>

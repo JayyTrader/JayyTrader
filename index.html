@@ -632,7 +632,6 @@
               </div>
               <p class="panel-subtitle">Standardized valuation scale · −2 to +2</p>
             </div>
-            <a class="source-page-link" href="sdca-admin.html">SDCA Admin</a>
           </div>
           <svg class="oscillator-plot" viewBox="0 0 900 420" role="img" aria-labelledby="oscillator-chart-title oscillator-chart-desc" preserveAspectRatio="none">
             <title id="oscillator-chart-title">Valuation oscillator with the manual SDCA composite score</title>
@@ -719,7 +718,7 @@
     </div>
     <footer class="system-footer" aria-label="Research system status">
       <span><i class="status-dot" aria-hidden="true"></i>Quote source: Coinbase Exchange · Refresh interval: 60s</span>
-      <span><a class="source-page-link" href="sources.html">Sources &amp; Methodology ↗</a></span>
+      <span><a class="source-page-link" href="sdca-admin.html">SDCA Admin ↗</a></span>
     </footer>
   </main>
   <script src="scripts/live-btc-usd.js"></script>
@@ -808,7 +807,6 @@
   <script>
     (function () {
       const storageKey="jxprobability.sdca.manualScores.v1",historyKey="jxprobability.sdca.compositeHistory.v1";
-      const count=document.getElementById("sdca-count"),composite=document.getElementById("sdca-composite"),classification=document.getElementById("sdca-classification");
       const marker=document.getElementById("oscillator-live-score"),line=document.getElementById("oscillator-score-line"),label=document.getElementById("oscillator-score-label"),headingScore=document.getElementById("oscillator-heading-score");
       const chartTitle=document.getElementById("oscillator-chart-title"),chartDesc=document.getElementById("oscillator-chart-desc"),historyPath=document.getElementById("oscillator-history-path"),historyPoints=document.getElementById("oscillator-history-points"),dateLabels=document.getElementById("oscillator-date-labels");
       const numberFormat=new Intl.NumberFormat("en-US",{maximumFractionDigits:4}),svgNS="http://www.w3.org/2000/svg";let saved={},history=[];
@@ -823,9 +821,9 @@
         points.forEach((p)=>{const circle=makeSvg("circle",{cx:p.x,cy:p.y,r:4,class:"oscillator-history-point",tabindex:0,role:"img","aria-label":displayDate(p.date)+", composite "+p.score.toFixed(4)});const title=makeSvg("title",{});title.textContent=displayDate(p.date)+" · "+((p.score>0?"+":"")+numberFormat.format(p.score))+" · "+p.count+" indicators";circle.appendChild(title);historyPoints.appendChild(circle);});
         const indexes=new Set([0,points.length-1]),max=6;for(let i=1;i<Math.min(max-1,points.length-1);i++)indexes.add(Math.round(i*(points.length-1)/(max-1)));
         Array.from(indexes).sort((a,b)=>a-b).forEach((i)=>{const p=points[i],anchor=points.length===1?"middle":i===0?"start":i===points.length-1?"end":"middle",x=points.length===1?p.x:i===0?left:i===points.length-1?right:p.x,node=makeSvg("text",{x,y:395,"text-anchor":anchor,class:"oscillator-date-label"});node.textContent=displayDate(p.date);dateLabels.appendChild(node);});}
-      function render(){const values=Object.values(saved).filter((v)=>typeof v==="number"&&Number.isFinite(v));count.textContent=values.length+" / 15 SCORED";
-        if(!values.length){composite.textContent="—";classification.textContent="AWAITING INPUTS";classification.dataset.class="neutral";marker.setAttribute("visibility","hidden");headingScore.textContent="";headingScore.removeAttribute("data-state");chartTitle.textContent="Valuation oscillator awaiting manual scores";chartDesc.textContent="No manual SDCA scores are entered. Confirmed weekly history, if present, remains displayed.";return;}
-        const avg=values.reduce((s,v)=>s+v,0)/values.length,result=classify(avg),formatted=(avg>0?"+":"")+numberFormat.format(avg);composite.textContent=formatted;classification.textContent=result.label;classification.dataset.class=result.kind;
+      function render(){const values=Object.values(saved).filter((v)=>typeof v==="number"&&Number.isFinite(v));
+        if(!values.length){marker.setAttribute("visibility","hidden");headingScore.textContent="";headingScore.removeAttribute("data-state");chartTitle.textContent="Valuation oscillator awaiting manual scores";chartDesc.textContent="No manual SDCA scores are entered. Confirmed weekly history, if present, remains displayed.";return;}
+        const avg=values.reduce((s,v)=>s+v,0)/values.length,formatted=(avg>0?"+":"")+numberFormat.format(avg);
         const y=194+Math.max(-2,Math.min(2,avg))*83;line.setAttribute("y1",String(y));line.setAttribute("y2",String(y));label.setAttribute("y",String(Math.max(42,y-9)));label.textContent="";marker.setAttribute("visibility","visible");
         headingScore.textContent=formatted;headingScore.dataset.state=avg>0?"undervalued":avg<0?"overvalued":"neutral";
         chartTitle.textContent="Valuation oscillator: current SDCA average "+formatted;chartDesc.textContent="The dashed line is the current unconfirmed average. The solid line shows confirmed weekly averages by date. The displayed composite is not inverted; chart positions are clamped to the minus two to plus two range.";}

@@ -604,7 +604,7 @@
             <text class="trend-gauge-scale" x="31" y="155" text-anchor="start">−1 BEAR</text><text class="trend-gauge-scale" x="160" y="49" text-anchor="middle">0 / NEUTRAL</text><text class="trend-gauge-scale" x="289" y="155" text-anchor="end">+1 BULL</text><text class="trend-gauge-center" id="ltpi-total" x="160" y="104" text-anchor="middle">—</text><text class="trend-gauge-placeholder" id="ltpi-count" x="160" y="121" text-anchor="middle">NO SCORE</text><line id="ltpi-needle" x1="160" y1="137" x2="160" y2="31" stroke="#27D9E8" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/><circle cx="160" cy="137" r="4" fill="#27D9E8"/>
           </g>
         </svg>
-        <div class="trend-gauge-caption"><span>3D trend direction</span><span id="ltpi-caption">12 indicators · awaiting scores</span></div>
+        <div class="trend-gauge-caption"><span>Cycle Regime</span><span id="ltpi-caption"></span></div>
       </article>
       <article class="trend-instrument" data-horizon="medium" aria-labelledby="mtpi-title">
         <header class="trend-instrument-heading"><div><h2 class="trend-instrument-title" id="mtpi-title">Medium-Term Trend</h2><div class="trend-instrument-code">MTPI</div></div><span class="trend-instrument-state">AWAITING INPUTS</span></header>
@@ -751,9 +751,9 @@
         const aggregate = vals.reduce((a, v) => a + v, 0) / vals.length;
         const angle = aggregate * 90;
         total.textContent = (aggregate > 0 ? "+" : "") + aggregate.toFixed(2);
-        count.textContent = vals.length + " / 12 SCORED";
-        state.textContent = vals.length === 12 ? "SCORE COMPLETE" : "PARTIAL INPUTS";
-        caption.textContent = "Aggregated directional score · " + vals.length + " of 12";
+        count.textContent = "";
+        state.textContent = vals.length === 12 ? "" : "PARTIAL INPUTS";
+        caption.textContent = "";
         needle.setAttribute("transform", "rotate(" + angle + " 160 137)");
         card.dataset.scoreState = aggregate > 0 ? "bullish" : aggregate < 0 ? "bearish" : "neutral";
       }

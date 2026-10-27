@@ -748,14 +748,14 @@
           card.dataset.scoreState = "empty";
           return;
         }
-        const sum = vals.reduce((a, v) => a + v, 0);
-        const angle = (sum / 12) * 90;
-        total.textContent = sum > 0 ? "+" + sum : String(sum);
+        const aggregate = vals.reduce((a, v) => a + v, 0) / vals.length;
+        const angle = aggregate * 90;
+        total.textContent = (aggregate > 0 ? "+" : "") + aggregate.toFixed(2);
         count.textContent = vals.length + " / 12 SCORED";
         state.textContent = vals.length === 12 ? "SCORE COMPLETE" : "PARTIAL INPUTS";
-        caption.textContent = "Total directional score · " + vals.length + " of 12";
+        caption.textContent = "Aggregated directional score · " + vals.length + " of 12";
         needle.setAttribute("transform", "rotate(" + angle + " 160 137)");
-        card.dataset.scoreState = sum > 0 ? "bullish" : sum < 0 ? "bearish" : "neutral";
+        card.dataset.scoreState = aggregate > 0 ? "bullish" : aggregate < 0 ? "bearish" : "neutral";
       }
       render();
       window.addEventListener("storage", e => { if (e.key === key || e.key === null) render(); });

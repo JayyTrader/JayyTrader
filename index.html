@@ -863,8 +863,9 @@
         if(!values.length){marker.setAttribute("visibility","hidden");headingScore.textContent="";headingScore.removeAttribute("data-state");chartTitle.textContent="Valuation oscillator awaiting manual scores";chartDesc.textContent="No manual SDCA scores are entered. Confirmed weekly history, if present, remains displayed.";return;}
         const avg=values.reduce((s,v)=>s+v,0)/values.length,formatted=(avg>0?"+":"")+numberFormat.format(avg);
         const y=194+Math.max(-2,Math.min(2,avg))*83;line.setAttribute("y1",String(y));line.setAttribute("y2",String(y));label.setAttribute("y",String(Math.max(42,y-9)));label.textContent="";marker.setAttribute("visibility","visible");
-        headingScore.textContent=formatted;headingScore.dataset.state=avg>0?"undervalued":avg<0?"overvalued":"neutral";
-        chartTitle.textContent="Valuation oscillator: current SDCA average "+formatted;chartDesc.textContent="The dashed line is the current unconfirmed average. The solid line shows confirmed weekly averages by date. The displayed composite is not inverted; chart positions are clamped to the minus two to plus two range.";}
+        const valuationState=avg>0?"UNDERVALUED":avg<0?"OVERVALUED":"NEUTRAL";
+        headingScore.textContent=formatted+" · "+valuationState;headingScore.dataset.state=avg>0?"undervalued":avg<0?"overvalued":"neutral";
+        chartTitle.textContent="Valuation oscillator: "+valuationState+" · current SDCA average "+formatted;chartDesc.textContent="Positive averages indicate undervaluation, negative averages indicate overvaluation, and zero is neutral. The dashed line is the current unconfirmed average. The solid line shows confirmed weekly averages by date. Chart positions are clamped to the minus two to plus two range.";}
       loadState();drawHistory();render();window.addEventListener("storage",(e)=>{if(e.key===storageKey||e.key===historyKey||e.key===null){loadState();drawHistory();render();}});})();
   </script>
 

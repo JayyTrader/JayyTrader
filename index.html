@@ -652,7 +652,7 @@
               <text class="oscillator-label" x="64" y="198" text-anchor="end">0</text>
               <text class="oscillator-label" x="64" y="115" text-anchor="end">−1</text>
               <text class="oscillator-label extreme" x="64" y="32" text-anchor="end">−2</text>
-              <text class="oscillator-label extreme" x="890" y="17" text-anchor="end">OVERVALUED</text>
+              <text class="oscillator-label extreme" id="oscillator-state-label" x="890" y="17" text-anchor="end">OVERVALUED</text>
               <text class="oscillator-label" x="890" y="374" text-anchor="end">UNDERVALUED</text>
             </g>
             <g id="oscillator-history" aria-label="Confirmed weekly composite history">
@@ -845,7 +845,7 @@
   <script>
     (function () {
       const storageKey="jxprobability.sdca.manualScores.v1",historyKey="jxprobability.sdca.compositeHistory.v1";
-      const marker=document.getElementById("oscillator-live-score"),line=document.getElementById("oscillator-score-line"),label=document.getElementById("oscillator-score-label"),headingScore=document.getElementById("oscillator-heading-score");
+      const marker=document.getElementById("oscillator-live-score"),line=document.getElementById("oscillator-score-line"),label=document.getElementById("oscillator-score-label"),headingScore=document.getElementById("oscillator-heading-score"),stateLabel=document.getElementById("oscillator-state-label");
       const chartTitle=document.getElementById("oscillator-chart-title"),chartDesc=document.getElementById("oscillator-chart-desc"),historyPath=document.getElementById("oscillator-history-path"),historyPoints=document.getElementById("oscillator-history-points"),dateLabels=document.getElementById("oscillator-date-labels");
       const numberFormat=new Intl.NumberFormat("en-US",{maximumFractionDigits:4}),svgNS="http://www.w3.org/2000/svg";let saved={},history=[];
       function loadState(){try{const raw=localStorage.getItem(storageKey),parsed=raw?JSON.parse(raw):{};saved=parsed&&typeof parsed==="object"&&!Array.isArray(parsed)?parsed:{};}catch(error){saved={};console.warn("SDCA scores could not be loaded from local storage.",error);}
@@ -864,7 +864,7 @@
         const avg=values.reduce((s,v)=>s+v,0)/values.length,formatted=(avg>0?"+":"")+numberFormat.format(avg);
         const y=194+Math.max(-2,Math.min(2,avg))*83;line.setAttribute("y1",String(y));line.setAttribute("y2",String(y));label.setAttribute("y",String(Math.max(42,y-9)));label.textContent="";marker.setAttribute("visibility","visible");
         const valuationState=avg>0?"UNDERVALUED":avg<0?"OVERVALUED":"NEUTRAL";
-        headingScore.textContent=formatted+" · "+valuationState;headingScore.dataset.state=avg>0?"undervalued":avg<0?"overvalued":"neutral";
+        headingScore.textContent=formatted;headingScore.dataset.state=avg>0?"undervalued":avg<0?"overvalued":"neutral";stateLabel.textContent=valuationState;stateLabel.dataset.state=avg>0?"undervalued":avg<0?"overvalued":"neutral";
         chartTitle.textContent="Valuation oscillator: "+valuationState+" · current SDCA average "+formatted;chartDesc.textContent="Positive averages indicate undervaluation, negative averages indicate overvaluation, and zero is neutral. The dashed line is the current unconfirmed average. The solid line shows confirmed weekly averages by date. Chart positions are clamped to the minus two to plus two range.";}
       loadState();drawHistory();render();window.addEventListener("storage",(e)=>{if(e.key===storageKey||e.key===historyKey||e.key===null){loadState();drawHistory();render();}});})();
   </script>

@@ -72,3 +72,6 @@
 
 
 - Live cryptocurrency feeds removal in progress: branch `feature/remove-all-live-feeds`, based on current `main`. Removed the BTC/ETH/SOL live quote rail, Coinbase source/status/refresh footer text, live-feed rendering and polling code, related quote CSS, and deleted `scripts/live-btc-usd.js` plus `scripts/live-crypto-usd.js`. Preserved the dashboard's research panels, SDCA Admin link, and independent cursor-glow interaction. Browser rendering has not been verified. Do not merge/deploy without operator authorization.
+
+
+- Dashboard layout refinement added to PR #69: moved the SDCA valuation oscillator into the primary left column at the top of the dashboard grid and moved the LTPI/MTPI gauges into a stacked right-hand column, occupying the former live-feed rail. At tablet widths the chart appears first with the gauges in a two-column row below; at narrow mobile widths the gauges stack. Also corrected malformed leftover closing markup and a stray script-tag character introduced during live-feed removal. Browser rendering remains unverified.

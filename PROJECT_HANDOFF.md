@@ -75,3 +75,6 @@
 
 
 - Dashboard layout refinement added to PR #69: moved the SDCA valuation oscillator into the primary left column at the top of the dashboard grid and moved the LTPI/MTPI gauges into a stacked right-hand column, occupying the former live-feed rail. At tablet widths the chart appears first with the gauges in a two-column row below; at narrow mobile widths the gauges stack. Also corrected malformed leftover closing markup and a stray script-tag character introduced during live-feed removal. Browser rendering remains unverified.
+
+
+- LTPI regime display added to PR #69: removed the two dashboard slogans and added a prominent regime panel driven solely by the existing LTPI manual-score aggregate (no SDCA score is used). Scores below -0.25 display `REGIME: RISK OFF` in red; scores above +0.25 display `REGIME: RISK ON` in green; scores from -0.25 through +0.25 display `REGIME: NEUTRAL`. With no valid LTPI scores, the panel displays `AWAITING LTPI SCORE`. Exact boundary values -0.25 and +0.25 are neutral. Source updated on `feature/remove-all-live-feeds`; browser rendering and live localStorage updates remain unverified. Do not merge/deploy without operator authorization.

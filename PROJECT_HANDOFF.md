@@ -69,3 +69,9 @@
 
 
 - Live-feed 24-hour percentage change in progress: branch `feature/crypto-24h-percent-change`, based on latest `main`. Updated `index.html`, `scripts/live-btc-usd.js`, and `scripts/live-crypto-usd.js` to display a signed 24-hour percentage move for BTC, ETH, and SOL. The calculation uses Coinbase Exchange product stats' rolling 24-hour open price: `(current ticker price - 24h open) / 24h open * 100`. If stats are unavailable, the live price remains available and the percentage displays as unavailable; existing stale/live price handling is preserved. Positive moves use the existing green accent; negative/flat moves use white, consistent with the single-accent palette. Source review and final PR diff remain to be completed. Browser rendering and live API behavior are unverified. Do not merge without operator authorization.
+
+
+- Live cryptocurrency feeds removal in progress: branch `feature/remove-all-live-feeds`, based on current `main`. Removed the BTC/ETH/SOL live quote rail, Coinbase source/status/refresh footer text, live-feed rendering and polling code, related quote CSS, and deleted `scripts/live-btc-usd.js` plus `scripts/live-crypto-usd.js`. Preserved the dashboard's research panels, SDCA Admin link, and independent cursor-glow interaction. Browser rendering has not been verified. Do not merge/deploy without operator authorization.
+
+
+- Dashboard layout refinement added to PR #69: moved the SDCA valuation oscillator into the primary left column at the top of the dashboard grid and moved the LTPI/MTPI gauges into a stacked right-hand column, occupying the former live-feed rail. At tablet widths the chart appears first with the gauges in a two-column row below; at narrow mobile widths the gauges stack. Also corrected malformed leftover closing markup and a stray script-tag character introduced during live-feed removal. Browser rendering remains unverified.

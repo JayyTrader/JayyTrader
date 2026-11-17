@@ -465,15 +465,15 @@
           <div class="panel-heading">
             <div class="oscillator-heading-copy">
               <div class="oscillator-title-row">
-                <h2 class="panel-title" id="oscillator-title">Valuation Oscillator</h2>
+                <h2 class="panel-title" id="oscillator-title">SDCA · BTC</h2>
                 <span id="oscillator-heading-score" aria-live="polite"></span>
               </div>
               <p class="panel-subtitle">Standardized valuation scale · −2 to +2</p>
             </div>
           </div>
           <svg class="oscillator-plot" viewBox="0 0 900 420" role="img" aria-labelledby="oscillator-chart-title oscillator-chart-desc" preserveAspectRatio="none">
-            <title id="oscillator-chart-title">Valuation oscillator with the manual SDCA composite score</title>
-            <desc id="oscillator-chart-desc">Valuation scale from plus two undervalued to minus two overvalued. The arithmetic average of entered SDCA scores is plotted when at least one score is available.</desc>
+            <title id="oscillator-chart-title">SDCA Bitcoin valuation chart with the manual composite score</title>
+            <desc id="oscillator-chart-desc">Bitcoin valuation scale from plus two undervalued to minus two overvalued. The arithmetic average of entered SDCA scores is plotted when at least one score is available.</desc>
             <g aria-hidden="true">
               <line class="oscillator-grid" x1="82" y1="28" x2="890" y2="28" />
               <line class="oscillator-grid" x1="82" y1="111" x2="890" y2="111" />
@@ -514,7 +514,7 @@
       </section>
       <aside class="trend-instruments" aria-label="Trend probability instruments">
       <article class="trend-instrument" data-horizon="long" aria-labelledby="ltpi-title">
-        <header class="trend-instrument-heading"><div><h2 class="trend-instrument-title" id="ltpi-title">Long-Term Trend</h2><div class="trend-instrument-code">LTPI</div></div><span class="trend-instrument-state" id="ltpi-state" hidden>AWAITING INPUTS</span></header>
+        <header class="trend-instrument-heading"><div><h2 class="trend-instrument-title" id="ltpi-title">LTPI · BTC</h2><div class="trend-instrument-code">BTC/USD · 3D</div></div><span class="trend-instrument-state" id="ltpi-state" hidden>AWAITING INPUTS</span></header>
         <svg class="trend-gauge" viewBox="0 0 320 170" role="img" aria-labelledby="ltpi-gauge-title ltpi-gauge-desc">
           <title id="ltpi-gauge-title">Long-term trend probability gauge</title><desc id="ltpi-gauge-desc">An empty semicircular gauge from bearish minus one through neutral zero to bullish plus one. The gauge displays the average of the 16 manually scored long-term trend indicators.</desc>
           <path class="trend-gauge-track" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-edge" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-accent" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-inner" d="M 49 137 A 111 111 0 0 1 271 137"/>
@@ -564,7 +564,7 @@
         } catch (error) { console.warn("LTPI scores could not be loaded.", error); }
         const vals = Object.entries(scores).filter(([k, v]) => Number.isInteger(Number(k)) && Number(k) >= 1 && Number(k) <= 16 && (v === -1 || v === 0 || v === 1)).map(([, v]) => v);
         if (!vals.length) {
-          total.textContent = "—"; count.textContent = "NO SCORE"; state.textContent = "AWAITING INPUTS";
+          total.textContent = "—"; count.textContent = "NO SCORE"; state.textContent = "AWAITING INPUTS"; state.hidden = false;
           caption.textContent = "16 indicators · awaiting scores";
           needle.setAttribute("transform", "rotate(0 160 137)");
           card.dataset.scoreState = "empty";
@@ -574,22 +574,18 @@
         }
         const aggregate = vals.reduce((a, v) => a + v, 0) / vals.length;
         const angle = aggregate * 90;
-        if (aggregate < -0.25) {
-          regimePanel.dataset.regime = "risk-off";
-          regimeValue.textContent = "RISK OFF";
-        } else if (aggregate > 0.25) {
-          regimePanel.dataset.regime = "risk-on";
-          regimeValue.textContent = "RISK ON";
-        } else {
-          regimePanel.dataset.regime = "neutral";
-          regimeValue.textContent = "NEUTRAL";
-        }
+        const classification = aggregate < -0.25 ? "RISK OFF" : aggregate > 0.25 ? "RISK ON" : "NEUTRAL";
+        const regime = aggregate < -0.25 ? "risk-off" : aggregate > 0.25 ? "risk-on" : "neutral";
+        regimePanel.dataset.regime = regime;
+        regimeValue.textContent = classification;
         total.textContent = (aggregate > 0 ? "+" : "") + aggregate.toFixed(2);
-        count.textContent = "";
-        state.textContent = vals.length === 16 ? "" : "PARTIAL INPUTS";
-        caption.textContent = "";
+        count.textContent = vals.length + "/16 SCORED";
+        state.textContent = classification;
+        state.hidden = false;
+        state.dataset.regime = regime;
+        caption.textContent = "BTC/USD · 3D";
         needle.setAttribute("transform", "rotate(" + angle + " 160 137)");
-        card.dataset.scoreState = aggregate > 0 ? "bullish" : aggregate < 0 ? "bearish" : "neutral";
+        card.dataset.scoreState = regime;
       }
       render();
       window.addEventListener("storage", e => { if (e.key === key || e.key === null) render(); });

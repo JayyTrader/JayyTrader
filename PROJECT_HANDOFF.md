@@ -1,7 +1,11 @@
 # Project Handoff
 
+## Current brand direction
+- Product/site name restored to **JayyTrader**.
+- Visual accent restored to a single green palette (`#00FF88`) on the existing dark graphite background; cyan/amber aliases now resolve to green so existing component states remain visually consistent without rewriting their behavior.
+
 ## Project
-- Name: JXProbability
+- Name: JayyTrader
 - Repository: https://github.com/JayyTrader/JayyTrader
 - Default branch: `main`
 - Live site: https://jayytrader.github.io/JayyTrader/

@@ -485,23 +485,10 @@
     .quote-details a:focus-visible { outline: 1px solid var(--cyan); outline-offset: 3px; }
 
 
-    /* Keep the score editor completely hidden until the passphrase is accepted. */
-    /* Minimal password-only landing screen. */
     .admin-shell { position:relative; z-index:1; display:grid; grid-template-rows:auto 1fr; width:100%; min-height:100vh; padding:32px; }
     .admin-back { display:none !important; }
     body > h1 { display:none; }
-    .admin-gate { display:contents; }
-    #admin-gate-title { margin:0; color:var(--text); font-size:clamp(15px,2vw,20px); font-weight:600; letter-spacing:.12em; text-align:center; text-transform:uppercase; }
-    #admin-gate > p:not(.admin-message) { display:none; }
-    #admin-login-form { position:absolute; top:50%; left:50%; display:flex; width:min(320px,calc(100vw - 48px)); transform:translate(-50%,-50%); }
-    .admin-password { width:100%; min-width:0; padding:14px 16px; border:1px solid var(--line); border-bottom:1px solid var(--cyan); border-radius:2px; outline:none; background:color-mix(in srgb,var(--panel) 92%,transparent); color:var(--text); font:500 14px/1.3 var(--font-ui); text-align:center; box-shadow:0 0 22px color-mix(in srgb,var(--cyan) 5%,transparent); }
-    .admin-password:focus { border-color:var(--cyan); box-shadow:0 0 18px color-mix(in srgb,var(--cyan) 12%,transparent); }
-    .admin-password::placeholder { color:var(--muted); opacity:.65; }
-    .admin-action { display:none; }
-    .admin-message { position:absolute; top:calc(50% + 42px); left:50%; width:min(320px,calc(100vw - 48px)); margin:0; transform:translateX(-50%); color:var(--amber); font-size:10px; line-height:1.5; text-align:center; }
-    .admin-message:empty { display:none; }
     @media (max-width:600px) { .admin-shell { padding:24px 16px; } }
-    .admin-hidden { display: none !important; }
     .sdca-panel {
       margin-top:24px; padding:20px; border:1px solid var(--line);
       border-top:1px solid color-mix(in srgb,var(--cyan) 55%,transparent);
@@ -596,10 +583,7 @@
 </head>
 <body><div id="cursor-glow" aria-hidden="true"></div><h1>J<span class="brand-hazard">x</span><span>Probability</span><span class="cursor" aria-hidden="true"></span></h1>
   <main class="admin-shell">
-    <section class="admin-gate" id="admin-gate" aria-labelledby="admin-gate-title"><h2 id="admin-gate-title">Admin Access</h2><p>Enter the locally configured passphrase to edit weekly indicator scores. This is a client-side deterrent, not secure authentication.</p>
-      <form id="admin-login-form"><input class="admin-password" id="admin-password" type="password" autocomplete="current-password" aria-label="Admin password" placeholder="" required><button class="admin-action" type="submit" aria-label="Submit password">Unlock</button></form>
-      <p class="admin-message" id="admin-message" role="status" aria-live="polite"></p></section>
-    <section class="sdca-panel admin-hidden" id="admin-controls" aria-labelledby="sdca-title">
+    <section class="sdca-panel" id="admin-controls" aria-labelledby="sdca-title">
       <header class="sdca-heading">
         <div><h2 class="sdca-title" id="sdca-title">SDCA Valuation Inputs</h2><p class="sdca-subtitle">15 manual indicator scores · enter the current weekly valuation score for each indicator</p></div>
         <span class="empty-state" id="sdca-count" aria-live="polite">0 / 15 SCORED</span>
@@ -675,7 +659,7 @@
         <span class="sdca-confirm-status" id="sdca-confirm-status" role="status" aria-live="polite">Enter at least one score to enable confirmation.</span>
       </div>
       <p class="sdca-note">Confirm once per weekly review to add a dated composite to the oscillator. Confirming again on the same date replaces that date's point. Scores and history are stored in this browser on this device.</p></section>
-    <section class="sdca-panel admin-hidden" id="ltpi-admin-controls" aria-labelledby="ltpi-admin-title">
+    <section class="sdca-panel" id="ltpi-admin-controls" aria-labelledby="ltpi-admin-title">
       <header class="sdca-heading">
         <div><h2 class="sdca-title" id="ltpi-admin-title">LTPI Indicator Inputs</h2><p class="sdca-subtitle">16 manual indicator scores · −1 bearish, 0 neutral, +1 bullish · BTC/USD, 3D timeframe</p></div>
         <span class="empty-state" id="ltpi-admin-count" aria-live="polite">0 / 16 SCORED</span>
@@ -786,20 +770,18 @@
     </section>
     <footer class="system-footer" aria-label="Admin page status"><span><i class="status-dot" aria-hidden="true"></i>SDCA / LTPI manual score administration</span><span><a class="source-page-link" href="index.html">Dashboard ↗</a></span></footer>
   </main>
-  <script src="scripts/sdca-admin-config.js?v=20261027-1"></script><script>
-    (()=>{const sk="jxprobability.sdca.manualScores.v1",hk="jxprobability.sdca.compositeHistory.v1",form=document.getElementById("admin-login-form"),password=document.getElementById("admin-password"),message=document.getElementById("admin-message"),gate=document.getElementById("admin-gate"),controls=document.getElementById("admin-controls"),ltpiControls=document.getElementById("ltpi-admin-controls"),inputs=Array.from(document.querySelectorAll("#sdca-grid .sdca-score-input")),ltpiInputs=Array.from(document.querySelectorAll(".ltpi-score-input")),ltpiCount=document.getElementById("ltpi-admin-count"),ltpiTotal=document.getElementById("ltpi-admin-total"),ltpiClass=document.getElementById("ltpi-admin-classification"),count=document.getElementById("sdca-count"),composite=document.getElementById("sdca-composite"),classification=document.getElementById("sdca-classification"),button=document.getElementById("sdca-confirm-button"),confirmStatus=document.getElementById("sdca-confirm-status"),fmt=new Intl.NumberFormat("en-US",{maximumFractionDigits:4});let history=[],avg=null,n=0;const configured=typeof window.SDCA_ADMIN_PASSWORD_HASH==="string"&&/^[a-f0-9]{64}$/i.test(window.SDCA_ADMIN_PASSWORD_HASH);
+  <script>
+    (()=>{const sk="jxprobability.sdca.manualScores.v1",hk="jxprobability.sdca.compositeHistory.v1",message={textContent:""},controls=document.getElementById("admin-controls"),ltpiControls=document.getElementById("ltpi-admin-controls"),inputs=Array.from(document.querySelectorAll("#sdca-grid .sdca-score-input")),ltpiInputs=Array.from(document.querySelectorAll(".ltpi-score-input")),ltpiCount=document.getElementById("ltpi-admin-count"),ltpiTotal=document.getElementById("ltpi-admin-total"),ltpiClass=document.getElementById("ltpi-admin-classification"),count=document.getElementById("sdca-count"),composite=document.getElementById("sdca-composite"),classification=document.getElementById("sdca-classification"),button=document.getElementById("sdca-confirm-button"),confirmStatus=document.getElementById("sdca-confirm-status"),fmt=new Intl.NumberFormat("en-US",{maximumFractionDigits:4});let history=[],avg=null,n=0;
       function classify(v){if(v<=-1.5)return["NO VALUE","negative"];if(v<0)return["LOW VALUE","negative"];if(v===0)return["NEUTRAL","neutral"];if(v<1.5)return["VALUE","positive"];return["HIGH VALUE","positive"];}
       function dateKey(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}function displayDate(k){const p=k.split("-").map(Number);return new Date(p[0],p[1]-1,p[2]).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"2-digit"});}
       function loadScores(){let saved={};try{const raw=localStorage.getItem(sk),p=raw?JSON.parse(raw):{};if(p&&typeof p==="object"&&!Array.isArray(p))saved=p;}catch(e){console.warn(e);}inputs.forEach((i)=>{const v=saved[i.dataset.key];i.value=typeof v==="number"&&Number.isFinite(v)?String(v):"";});}
       function loadHistory(){try{const raw=localStorage.getItem(hk),p=raw?JSON.parse(raw):[];history=Array.isArray(p)?p.filter((x)=>x&&/^\d{4}-\d{2}-\d{2}$/.test(x.date)&&Number.isFinite(x.score)).sort((a,b)=>a.date.localeCompare(b.date)):[];}catch(e){history=[];console.warn(e);}}
       function update(){const next={},vals=[];inputs.forEach((i)=>{const card=i.closest(".sdca-card"),raw=i.value.trim();if(raw===""){card.dataset.sign="empty";return;}const v=Number(raw);if(!Number.isFinite(v)){card.dataset.sign="empty";return;}vals.push(v);next[i.dataset.key]=v;card.dataset.sign=v<0?"negative":v>0?"positive":"zero";});try{localStorage.setItem(sk,JSON.stringify(next));}catch(e){message.textContent="Could not save scores in this browser.";}n=vals.length;count.textContent=n+" / 15 SCORED";button.disabled=!n;if(!n){avg=null;composite.textContent="—";classification.textContent="AWAITING INPUTS";classification.dataset.class="neutral";confirmStatus.textContent=history.length?history.length+" confirmed weekly point(s) saved.":"Enter at least one score to enable confirmation.";return;}avg=vals.reduce((a,v)=>a+v,0)/n;const [text,kind]=classify(avg);composite.textContent=(avg>0?"+":"")+fmt.format(avg);classification.textContent=text;classification.dataset.class=kind;confirmStatus.textContent=history.length?history.length+" confirmed weekly point(s) saved.":"Ready to confirm this week's composite.";}
       function confirm(){if(avg===null||!n)return;const d=dateKey(new Date()),entry={date:d,score:avg,count:n},i=history.findIndex((x)=>x.date===d);if(i>=0)history[i]=entry;else history.push(entry);history.sort((a,b)=>a.date.localeCompare(b.date));try{localStorage.setItem(hk,JSON.stringify(history));confirmStatus.textContent="Confirmed "+displayDate(d)+" · composite "+((avg>0?"+":"")+fmt.format(avg))+".";}catch(e){confirmStatus.textContent="Could not save history in this browser.";}}
-      async function hash(v){const d=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v));return Array.from(new Uint8Array(d)).map((b)=>b.toString(16).padStart(2,"0")).join("");}
-      form.addEventListener("submit",async(e)=>{e.preventDefault();if(!configured){message.textContent="Password not configured. Set a SHA-256 hash in scripts/sdca-admin-config.js.";return;}const b=form.querySelector("button");b.disabled=true;try{if(await hash(password.value)===window.SDCA_ADMIN_PASSWORD_HASH.toLowerCase()){gate.classList.add("admin-hidden");controls.classList.remove("admin-hidden");ltpiControls.classList.remove("admin-hidden");loadScores();loadHistory();update();loadLtpiScores();updateLtpi();}else{message.textContent="Access denied. Check the passphrase and try again.";password.value="";password.focus();}}catch(error){message.textContent="Password check failed in this browser.";}finally{b.disabled=false;}});
       inputs.forEach((i)=>i.addEventListener("input",update));button.addEventListener("click",confirm);
       const ltpiKey="jxprobability.ltpi.manualScores.v2";
       function loadLtpiScores(){let saved={};try{const raw=localStorage.getItem(ltpiKey),p=raw?JSON.parse(raw):{};if(p&&typeof p==="object"&&!Array.isArray(p))saved=p;}catch(e){console.warn(e);}ltpiInputs.forEach(i=>{i.value=[-1,0,1].includes(saved[i.dataset.key])?String(saved[i.dataset.key]):"";});}
       function updateLtpi(){const next={},vals=[];ltpiInputs.forEach(i=>{const card=i.closest(".sdca-card"),raw=i.value;if(raw===""){card.dataset.sign="empty";return;}const v=Number(raw);if(![-1,0,1].includes(v)){card.dataset.sign="empty";return;}next[i.dataset.key]=v;vals.push(v);card.dataset.sign=v<0?"negative":v>0?"positive":"zero";});try{localStorage.setItem(ltpiKey,JSON.stringify(next));}catch(e){message.textContent="Could not save LTPI scores in this browser.";}const n=vals.length;ltpiCount.textContent=n+" / 16 SCORED";if(!n){ltpiTotal.textContent="—";ltpiClass.textContent="AWAITING INPUTS";ltpiClass.dataset.class="neutral";return;}const aggregate=vals.reduce((s,v)=>s+v,0)/n;ltpiTotal.textContent=(aggregate>0?"+":"")+aggregate.toFixed(2);ltpiClass.textContent=n<16?"PARTIAL INPUTS":aggregate>0?"BULLISH":aggregate<0?"BEARISH":"NEUTRAL";ltpiClass.dataset.class=aggregate>0?"positive":aggregate<0?"negative":"neutral";}
-      ltpiInputs.forEach(i=>i.addEventListener("change",updateLtpi));message.textContent=configured?"Passphrase required.":"Password not configured yet. See scripts/sdca-admin-config.js.";
+      ltpiInputs.forEach(i=>i.addEventListener("change",updateLtpi));loadScores();loadHistory();update();loadLtpiScores();updateLtpi();
     })();
   </script></body></html>

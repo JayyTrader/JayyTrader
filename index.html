@@ -597,7 +597,7 @@
       <article class="trend-instrument" data-horizon="long" aria-labelledby="ltpi-title">
         <header class="trend-instrument-heading"><div><h2 class="trend-instrument-title" id="ltpi-title">Long-Term Trend</h2><div class="trend-instrument-code">LTPI</div></div><span class="trend-instrument-state" id="ltpi-state" hidden>AWAITING INPUTS</span></header>
         <svg class="trend-gauge" viewBox="0 0 320 170" role="img" aria-labelledby="ltpi-gauge-title ltpi-gauge-desc">
-          <title id="ltpi-gauge-title">Long-term trend probability gauge</title><desc id="ltpi-gauge-desc">An empty semicircular gauge from bearish minus one through neutral zero to bullish plus one. No score is calculated because indicator inputs are not connected.</desc>
+          <title id="ltpi-gauge-title">Long-term trend probability gauge</title><desc id="ltpi-gauge-desc">An empty semicircular gauge from bearish minus one through neutral zero to bullish plus one. The gauge displays the average of the 16 manually scored long-term trend indicators.</desc>
           <path class="trend-gauge-track" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-edge" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-accent" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-inner" d="M 49 137 A 111 111 0 0 1 271 137"/>
           <g aria-hidden="true">
             <line class="trend-gauge-tick major" x1="36" y1="137" x2="49" y2="137"/><line class="trend-gauge-tick" x1="40" y1="108" x2="50" y2="111"/><line class="trend-gauge-tick" x1="48" y1="76" x2="59" y2="82"/><line class="trend-gauge-tick" x1="69" y1="50" x2="78" y2="59"/><line class="trend-gauge-tick major" x1="99" y1="31" x2="105" y2="43"/><line class="trend-gauge-tick" x1="128" y1="17" x2="131" y2="29"/><line class="trend-gauge-tick major" x1="160" y1="13" x2="160" y2="27"/><line class="trend-gauge-tick" x1="192" y1="17" x2="189" y2="29"/><line class="trend-gauge-tick major" x1="221" y1="31" x2="215" y2="43"/><line class="trend-gauge-tick" x1="251" y1="50" x2="242" y2="59"/><line class="trend-gauge-tick" x1="272" y1="76" x2="261" y2="82"/><line class="trend-gauge-tick" x1="280" y1="108" x2="270" y2="111"/><line class="trend-gauge-tick major" x1="284" y1="137" x2="271" y2="137"/>
@@ -725,7 +725,7 @@
   <script src="scripts/live-crypto-usd.js"></script>
   <script>
     (() => {
-      const key = "jxprobability.ltpi.manualScores.v1";
+      const key = "jxprobability.ltpi.manualScores.v2";
       const card = document.querySelector('.trend-instrument[data-horizon="long"]');
       const total = document.getElementById("ltpi-total");
       const count = document.getElementById("ltpi-count");
@@ -740,10 +740,10 @@
           const parsed = raw ? JSON.parse(raw) : {};
           if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) scores = parsed;
         } catch (error) { console.warn("LTPI scores could not be loaded.", error); }
-        const vals = Object.values(scores).filter(v => v === -1 || v === 0 || v === 1);
+        const vals = Object.entries(scores).filter(([k, v]) => Number.isInteger(Number(k)) && Number(k) >= 1 && Number(k) <= 16 && (v === -1 || v === 0 || v === 1)).map(([, v]) => v);
         if (!vals.length) {
           total.textContent = "—"; count.textContent = "NO SCORE"; state.textContent = "AWAITING INPUTS";
-          caption.textContent = "12 indicators · awaiting scores";
+          caption.textContent = "16 indicators · awaiting scores";
           needle.setAttribute("transform", "rotate(0 160 137)");
           card.dataset.scoreState = "empty";
           return;
@@ -752,7 +752,7 @@
         const angle = aggregate * 90;
         total.textContent = (aggregate > 0 ? "+" : "") + aggregate.toFixed(2);
         count.textContent = "";
-        state.textContent = vals.length === 12 ? "" : "PARTIAL INPUTS";
+        state.textContent = vals.length === 16 ? "" : "PARTIAL INPUTS";
         caption.textContent = "";
         needle.setAttribute("transform", "rotate(" + angle + " 160 137)");
         card.dataset.scoreState = aggregate > 0 ? "bullish" : aggregate < 0 ? "bearish" : "neutral";

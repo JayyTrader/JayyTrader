@@ -70,7 +70,7 @@
     }
     .dashboard-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+      grid-template-columns: minmax(0, 1fr);
       align-items: stretch;
       gap: 16px;
     }
@@ -163,41 +163,6 @@
       letter-spacing: .025em;
       line-height: 1.6;
     }
-    .quote-rail {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      gap: 16px;
-      min-width: 0;
-      align-self: stretch;
-    }
-    .quote-rail .quote {
-      width: 100%;
-      margin: 0;
-      padding: 17px 16px 15px;
-      border-top-color: color-mix(in srgb, var(--amber) 42%, transparent);
-      box-shadow: inset 0 1px 0 color-mix(in srgb, var(--amber) 5%, transparent), 0 12px 32px rgba(0, 0, 0, .18);
-    }
-    .quote-rail .quote:hover {
-      border-top-color: color-mix(in srgb, var(--cyan) 55%, transparent);
-    }
-    .quote-rail .quote-primary {
-      align-items: flex-start;
-      flex-direction: column;
-      gap: 9px;
-    }
-    .quote-rail .live-quote-status { max-width: none; text-align: left; }
-    .quote-rail .price { font-size: clamp(21px, 2.1vw, 27px); }
-    .quote-rail .quote-details { align-items: flex-start; flex-wrap: wrap; }
-    .asset-symbol {
-      display: inline-block;
-      margin-right: 8px;
-      color: var(--cyan);
-      font-size: 9px;
-      letter-spacing: .12em;
-    }
-    .quote[data-asset="ETH"] .asset-symbol { color: var(--amber-soft); }
-    .quote[data-asset="SOL"] .asset-symbol { color: var(--cyan-soft); }
     h1 {
       position: absolute;
       top: 24px;
@@ -348,35 +313,6 @@
       font-size: 9px;
       line-height: 1.6;
     }
-    .quote-rail {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      min-width: 0;
-      align-self: stretch;
-    }
-    .quote-rail .quote {
-      width: 100%;
-      margin: 0;
-      padding: 16px;
-    }
-    .quote-rail .quote-primary {
-      align-items: flex-start;
-      flex-direction: column;
-      gap: 9px;
-    }
-    .quote-rail .live-quote-status { max-width: none; text-align: left; }
-    .quote-rail .price { font-size: clamp(21px, 2.1vw, 27px); }
-    .quote-rail .quote-details { align-items: flex-start; flex-wrap: wrap; }
-    .asset-symbol {
-      display: inline-block;
-      margin-right: 8px;
-      color: var(--cyan);
-      font-size: 9px;
-      letter-spacing: .12em;
-    }
-    .quote[data-asset="ETH"] .asset-symbol { color: var(--amber-soft); }
-    .quote[data-asset="SOL"] .asset-symbol { color: var(--cyan-soft); }
     .motto {
       margin: 9px 0 0;
       color: var(--cyan-soft);
@@ -416,90 +352,6 @@
       text-transform: uppercase;
     }
     .system-footer span:last-child { text-align: right; }
-    .system-footer .status-dot {
-      display: inline-block;
-      width: 5px;
-      height: 5px;
-      margin: 0 7px 1px 0;
-      border-radius: 50%;
-      background: var(--amber);
-    }
-    .quote {
-      width: min(100%, 390px);
-      margin: 38px auto 0;
-      padding: 16px 18px;
-      border: var(--border-hairline);
-      border-top: 1px solid color-mix(in srgb, var(--amber) 58%, transparent);
-      box-shadow: inset 0 1px 0 color-mix(in srgb, var(--amber) 8%, transparent), 0 14px 42px rgba(0, 0, 0, .22);
-      background: linear-gradient(145deg, var(--panel2), var(--panel));
-      text-align: left;
-    }
-    .quote-primary {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-    .quote-label {
-      padding-left: 7px;
-      border-left: 1px solid var(--amber);
-      color: var(--muted);
-      font-size: 8px;
-      letter-spacing: .18em;
-      line-height: 1.5;
-    }
-    .price {
-      display: block;
-      margin-top: 5px;
-      color: var(--text);
-      font-size: clamp(22px, 5vw, 27px);
-      font-variant-numeric: tabular-nums;
-      font-weight: 650;
-      letter-spacing: -.03em;
-    }
-    .live-quote-status {
-      max-width: 185px;
-      color: var(--muted);
-      font-size: 9px;
-      line-height: 1.5;
-      text-align: right;
-    }
-    .live-quote-status[data-status="live"] { color: var(--cyan); }
-    .live-quote-status[data-status="stale"],
-    .live-quote-status[data-status="error"] { color: var(--amber); }
-    .quote-change {
-      display: inline-block;
-      margin-top: 5px;
-      color: var(--muted);
-      font-size: 11px;
-      font-weight: 650;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: .04em;
-    }
-    .quote-change[data-direction="up"] { color: var(--cyan); }
-    .quote-change[data-direction="down"],
-    .quote-change[data-direction="flat"] { color: var(--text); }
-    .quote-details {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      margin-top: 12px;
-      padding-top: 10px;
-      border-top: 1px solid var(--line);
-      color: var(--muted);
-      font-size: 8px;
-      line-height: 1.5;
-    }
-    .quote-details a {
-      color: var(--muted);
-      text-decoration: none;
-      text-underline-offset: 3px;
-    }
-    .quote-details a:hover,
-    .quote-details a:focus-visible { color: var(--cyan); text-decoration: underline; }
-    .quote-details a:focus-visible { outline: 1px solid var(--cyan); outline-offset: 3px; }
-
-
     .sdca-panel {
       margin-top:24px; padding:20px; border:1px solid var(--line);
       border-top:1px solid color-mix(in srgb,var(--cyan) 55%,transparent);
@@ -565,10 +417,6 @@
       .research-column { display: block; }
       .oscillator-panel { margin-top: 22px; min-height: 0; }
       .mvrv-score-row { margin-top:14px; }
-      .quote-rail { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; }
-      .quote-rail .quote { padding: 12px; }
-      .quote-rail .price { font-size: clamp(16px, 2.8vw, 23px); }
-      .quote-rail .quote-details { font-size: 7px; }
       .oscillator-plot { min-height: 280px; }
     }
     @media (max-width: 600px) {
@@ -576,9 +424,6 @@
       .landing { width: min(100% - 32px, 720px); padding-top: 92px; }
       .trend-instruments { grid-template-columns: minmax(0, 1fr); gap: 14px; }
       .trend-instrument { padding: 16px 14px 12px; }
-      .quote-rail { grid-template-columns: minmax(0, 1fr); }
-      .quote-rail .quote { padding: 14px; }
-      .quote-rail .price { font-size: 24px; }
       .oscillator-panel { padding: 16px 12px 14px; margin-top: 22px; }
       .panel-heading { flex-direction: column; gap: 10px; }
       .oscillator-plot { min-height: 240px; }
@@ -682,58 +527,12 @@
         </section>
 
       </section>
-      <aside class="quote-rail" aria-label="Live cryptocurrency prices">
-        <section class="quote" data-asset="BTC" aria-label="Live Bitcoin to US dollar quote">
-          <div class="quote-primary">
-            <div>
-              <span class="quote-label"><span class="asset-symbol">BTC</span>/ USD</span>
-              <strong class="price" id="live-btc-usd-price">Loading…</strong>
-              <span class="quote-change" id="live-btc-usd-change" data-direction="flat">24H —</span>
-            </div>
-            <p class="live-quote-status" id="live-btc-usd-status" role="status" aria-live="polite">Connecting to Coinbase Exchange…</p>
-          </div>
-          <div class="quote-details">
-            <span>Updated <time id="live-btc-usd-updated">Unavailable</time></span>
-            <span>Coinbase Exchange</span>
-          </div>
-        </section>
-        <section class="quote" data-asset="ETH" aria-label="Live Ethereum to US dollar quote">
-          <div class="quote-primary">
-            <div>
-              <span class="quote-label"><span class="asset-symbol">ETH</span>/ USD</span>
-              <strong class="price" id="live-eth-usd-price">Loading…</strong>
-              <span class="quote-change" id="live-eth-usd-change" data-direction="flat">24H —</span>
-            </div>
-            <p class="live-quote-status" id="live-eth-usd-status" role="status" aria-live="polite">Connecting to Coinbase Exchange…</p>
-          </div>
-          <div class="quote-details">
-            <span>Updated <time id="live-eth-usd-updated">Unavailable</time></span>
-            <span>Coinbase Exchange</span>
-          </div>
-        </section>
-        <section class="quote" data-asset="SOL" aria-label="Live Solana to US dollar quote">
-          <div class="quote-primary">
-            <div>
-              <span class="quote-label"><span class="asset-symbol">SOL</span>/ USD</span>
-              <strong class="price" id="live-sol-usd-price">Loading…</strong>
-              <span class="quote-change" id="live-sol-usd-change" data-direction="flat">24H —</span>
-            </div>
-            <p class="live-quote-status" id="live-sol-usd-status" role="status" aria-live="polite">Connecting to Coinbase Exchange…</p>
-          </div>
-          <div class="quote-details">
-            <span>Updated <time id="live-sol-usd-updated">Unavailable</time></span>
-            <span>Coinbase Exchange</span>
-          </div>
-        </section>
       </aside>
     </div>
     <footer class="system-footer" aria-label="Research system status">
-      <span><i class="status-dot" aria-hidden="true"></i>Quote source: Coinbase Exchange · Refresh interval: 60s</span>
       <span><a class="source-page-link" href="sdca-admin.html">SDCA Admin ↗</a></span>
     </footer>
   </main>
-  <script src="scripts/live-btc-usd.js"></script>
-  <script src="scripts/live-crypto-usd.js"></script>
   <script>
     (() => {
       const key = "jxprobability.ltpi.manualScores.v2";
@@ -773,100 +572,12 @@
     })();
   </script>
   <script>
-    function formatTimestamp(value) {
-      if (!value) return "Not available";
-      const epoch = typeof value === "string" && /^\d{10}$/.test(value) ? Number(value) * 1000 : value;
-      const date = new Date(epoch);
-      if (Number.isNaN(date.getTime())) return "Invalid timestamp";
-      return date.toLocaleString("en-GB", {
-        timeZone: "UTC", year: "numeric", month: "short", day: "2-digit",
-        hour: "2-digit", minute: "2-digit", timeZoneName: "short"
-      });
-    }
-
-    function renderQuoteChange(symbol, value) {
-      const node = document.getElementById(`live-${symbol}-usd-change`);
-      if (!node) return;
-      if (Number.isFinite(value)) {
-        node.textContent = (value > 0 ? "+" : "") + value.toFixed(2) + "% · 24H";
-        node.dataset.direction = value > 0 ? "up" : value < 0 ? "down" : "flat";
-        node.setAttribute("aria-label", `24-hour change ${value > 0 ? "up" : value < 0 ? "down" : "unchanged"} ${Math.abs(value).toFixed(2)} percent`);
-      } else {
-        node.textContent = "24H —";
-        node.dataset.direction = "flat";
-        node.setAttribute("aria-label", "24-hour change unavailable");
-      }
-    }
-
-    function renderLiveBTCUSD(state) {
-      const price = document.getElementById("live-btc-usd-price");
-      const status = document.getElementById("live-btc-usd-status");
-      const updated = document.getElementById("live-btc-usd-updated");
-      status.dataset.status = state.status;
-
-      if (Number.isFinite(state.price) && state.price > 0) {
-        price.textContent = LiveBTCUSD.formatUSDPrice(state.price);
-      } else if (state.status === "loading") {
-        price.textContent = "Loading…";
-      } else {
-        price.textContent = "Unavailable";
-      }
-
-      updated.textContent = state.receivedAt ? formatTimestamp(state.receivedAt) : "Unavailable";
-      renderQuoteChange(prefix, state.change24h);
-      renderQuoteChange("btc", state.change24h);
-      if (state.status === "live") {
-        status.textContent = `LIVE · Coinbase Exchange last trade ${formatTimestamp(state.sourceTime)}`;
-      } else if (state.status === "refreshing") {
-        status.textContent = "Refreshing · showing the last successful quote";
-      } else if (state.status === "stale") {
-        status.textContent = `STALE · refresh failed: ${state.error}. Displayed price is from the last successful update.`;
-      } else if (state.status === "error") {
-        status.textContent = `Connection error: ${state.error}. No current quote is available.`;
-      } else {
-        status.textContent = "Connecting to Coinbase Exchange…";
-      }
-    }
-
     const cursorGlow = document.getElementById("cursor-glow");
     window.addEventListener("pointermove", (event) => {
       cursorGlow.style.left = `${event.clientX}px`;
       cursorGlow.style.top = `${event.clientY}px`;
     }, { passive: true });
-
-    const liveBTCUSDController = LiveBTCUSD.createController({ onState: renderLiveBTCUSD });
-    void liveBTCUSDController.start();
-    const liveCryptoUSDController = LiveCryptoUSD.createController({
-      onState: (symbol, state) => renderLiveCryptoUSD(symbol, state)
-    });
-    function renderLiveCryptoUSD(symbol, state) {
-      const prefix = symbol.toLowerCase();
-      const price = document.getElementById(`live-${prefix}-usd-price`);
-      const status = document.getElementById(`live-${prefix}-usd-status`);
-      const updated = document.getElementById(`live-${prefix}-usd-updated`);
-      status.dataset.status = state.status;
-      if (Number.isFinite(state.price) && state.price > 0) {
-        price.textContent = LiveCryptoUSD.formatUSDPrice(state.price);
-      } else if (state.status === "loading") {
-        price.textContent = "Loading…";
-      } else {
-        price.textContent = "Unavailable";
-      }
-      updated.textContent = state.receivedAt ? formatTimestamp(state.receivedAt) : "Unavailable";
-      if (state.status === "live") {
-        status.textContent = `LIVE · Coinbase Exchange last trade ${formatTimestamp(state.sourceTime)}`;
-      } else if (state.status === "refreshing") {
-        status.textContent = "Refreshing · showing the last successful quote";
-      } else if (state.status === "stale") {
-        status.textContent = `STALE · refresh failed: ${state.error}. Displayed price is from the last successful update.`;
-      } else if (state.status === "error") {
-        status.textContent = `Connection error: ${state.error}. No current quote is available.`;
-      } else {
-        status.textContent = "Connecting to Coinbase Exchange…";
-      }
-    }
-    void liveCryptoUSDController.start();
-  </script>
+  </script>>
 
 
   <script>

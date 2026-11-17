@@ -1,64 +1,26 @@
-
-name: Daily SDCA Update
+name: Repository Validation
 
 on:
   push:
-    paths-ignore:
-      - "data/**"
-  schedule:
-    # GitHub Actions uses UTC. Run daily at 00:00 UTC.
-    - cron: "0 0 * * *"
+    branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
-  contents: write
-
-concurrency:
-  group: sdca-daily-update
-  cancel-in-progress: false
+  contents: read
 
 jobs:
-  update-sdca:
+  validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-
     steps:
-      - name: Check out JayyTrader
+      - name: Check out repository
         uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-
       - name: Test calculations and data validation
         run: python -m unittest discover -s tests -p 'test_*.py' -v
-
       - name: Test dashboard integrity
         run: node --test tests/*.test.js
-
-      - name: Run SDCA data pipeline
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-        run: python scripts/update_sdca.py
-
-      - name: Update and validate Explore21 MVRV Z-Score
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-        run: python scripts/update_mvrv_zscore.py
-
-      - name: Update Realized Cap HODL Waves 1W–1M score
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-        run: python scripts/update_realized_cap_hodl.py
-        continue-on-error: true
-
-      - name: Commit updated research data
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-        run: |
-          if [[ -n "$(git status --porcelain data/)" ]]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add data/
-            git commit -m "Daily SDCA, MVRV, and HODL Waves data update"
-            git push
-          else
-            echo "No data changes to commit."
-          fi

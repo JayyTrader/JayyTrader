@@ -677,79 +677,103 @@
       <p class="sdca-note">Confirm once per weekly review to add a dated composite to the oscillator. Confirming again on the same date replaces that date's point. Scores and history are stored in this browser on this device.</p></section>
     <section class="sdca-panel admin-hidden" id="ltpi-admin-controls" aria-labelledby="ltpi-admin-title">
       <header class="sdca-heading">
-        <div><h2 class="sdca-title" id="ltpi-admin-title">LTPI Trend Inputs</h2><p class="sdca-subtitle">12 manual trend-indicator scores · −1 bearish, 0 neutral, +1 bullish · BTC/USD, 3D timeframe</p></div>
-        <span class="empty-state" id="ltpi-admin-count" aria-live="polite">0 / 12 SCORED</span>
+        <div><h2 class="sdca-title" id="ltpi-admin-title">LTPI Indicator Inputs</h2><p class="sdca-subtitle">16 manual indicator scores · −1 bearish, 0 neutral, +1 bullish · BTC/USD, 3D timeframe</p></div>
+        <span class="empty-state" id="ltpi-admin-count" aria-live="polite">0 / 16 SCORED</span>
       </header>
       <div class="sdca-grid ltpi-admin-grid" id="ltpi-admin-grid">
         <label class="sdca-card" data-sign="empty" data-indicator="ltpi-1">
-          <span class="sdca-indicator-name">Median Gaussian SuperTrend Standard</span>
-          <select class="sdca-score-input ltpi-score-input" data-key="1" aria-label="Median Gaussian SuperTrend Standard LTPI score">
+          <span class="sdca-indicator-name">C1 · Adaptive Causal Wavelet Trend Filter</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="1" aria-label="C1 Adaptive Causal Wavelet Trend Filter LTPI score">
             <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
           </select>
         </label>
         <label class="sdca-card" data-sign="empty" data-indicator="ltpi-2">
-          <span class="sdca-indicator-name">EMA Trend Regime</span>
-          <select class="sdca-score-input ltpi-score-input" data-key="2" aria-label="EMA Trend Regime LTPI score">
+          <span class="sdca-indicator-name">C1 · Adaptive Ehlers Filtered Percentile</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="2" aria-label="C1 Adaptive Ehlers Filtered Percentile LTPI score">
             <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
           </select>
         </label>
         <label class="sdca-card" data-sign="empty" data-indicator="ltpi-3">
-          <span class="sdca-indicator-name">Adaptive Ehlers Filtered Percentile</span>
-          <select class="sdca-score-input ltpi-score-input" data-key="3" aria-label="Adaptive Ehlers Filtered Percentile LTPI score">
+          <span class="sdca-indicator-name">C1 · Adaptive Entropy Trend</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="3" aria-label="C1 Adaptive Entropy Trend LTPI score">
             <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
           </select>
         </label>
         <label class="sdca-card" data-sign="empty" data-indicator="ltpi-4">
-          <span class="sdca-indicator-name">Adaptive Entropy Trend</span>
-          <select class="sdca-score-input ltpi-score-input" data-key="4" aria-label="Adaptive Entropy Trend LTPI score">
+          <span class="sdca-indicator-name">C1 · Adaptive Kalman Trend Filter</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="4" aria-label="C1 Adaptive Kalman Trend Filter LTPI score">
             <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
           </select>
         </label>
         <label class="sdca-card" data-sign="empty" data-indicator="ltpi-5">
-          <span class="sdca-indicator-name">Adaptive Causal Wavelet Trend Filter (ACWTF)</span>
-          <select class="sdca-score-input ltpi-score-input" data-key="5" aria-label="Adaptive Causal Wavelet Trend Filter (ACWTF) LTPI score">
+          <span class="sdca-indicator-name">C1 · EMA RMSD Bands</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="5" aria-label="C1 EMA RMSD Bands LTPI score">
             <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
           </select>
         </label>
         <label class="sdca-card" data-sign="empty" data-indicator="ltpi-6">
-          <span class="sdca-indicator-name">Trend Filter (2-pole)</span>
-          <select class="sdca-score-input ltpi-score-input" data-key="6" aria-label="Trend Filter (2-pole) LTPI score">
+          <span class="sdca-indicator-name">C1 · Fractal Retracement</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="6" aria-label="C1 Fractal Retracement LTPI score">
             <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
           </select>
         </label>
         <label class="sdca-card" data-sign="empty" data-indicator="ltpi-7">
-          <span class="sdca-indicator-name">Fractal Retracement</span>
-          <select class="sdca-score-input ltpi-score-input" data-key="7" aria-label="Fractal Retracement LTPI score">
+          <span class="sdca-indicator-name">C1 · G-Channel Trend Detection</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="7" aria-label="C1 G-Channel Trend Detection LTPI score">
             <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
           </select>
         </label>
         <label class="sdca-card" data-sign="empty" data-indicator="ltpi-8">
-          <span class="sdca-indicator-name">G-Channel Trend Detection + Alerts</span>
-          <select class="sdca-score-input ltpi-score-input" data-key="8" aria-label="G-Channel Trend Detection + Alerts LTPI score">
+          <span class="sdca-indicator-name">C1 · Median Gaussian SuperTrend</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="8" aria-label="C1 Median Gaussian SuperTrend LTPI score">
             <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
           </select>
         </label>
         <label class="sdca-card" data-sign="empty" data-indicator="ltpi-9">
-          <span class="sdca-indicator-name">Adaptive Kalman Trend Filter</span>
-          <select class="sdca-score-input ltpi-score-input" data-key="9" aria-label="Adaptive Kalman Trend Filter LTPI score">
+          <span class="sdca-indicator-name">C1 · NLMS Trend</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="9" aria-label="C1 NLMS Trend LTPI score">
             <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
           </select>
         </label>
         <label class="sdca-card" data-sign="empty" data-indicator="ltpi-10">
-          <span class="sdca-indicator-name">Sattam | Trend Filter</span>
-          <select class="sdca-score-input ltpi-score-input" data-key="10" aria-label="Sattam | Trend Filter LTPI score">
+          <span class="sdca-indicator-name">C1 · Trend Filter (2-Pole)</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="10" aria-label="C1 Trend Filter (2-Pole) LTPI score">
             <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
           </select>
         </label>
         <label class="sdca-card" data-sign="empty" data-indicator="ltpi-11">
-          <span class="sdca-indicator-name">Pullback Master</span>
-          <select class="sdca-score-input ltpi-score-input" data-key="11" aria-label="Pullback Master LTPI score">
+          <span class="sdca-indicator-name">C1 · Trend State Signals</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="11" aria-label="C1 Trend State Signals LTPI score">
             <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
           </select>
         </label>
         <label class="sdca-card" data-sign="empty" data-indicator="ltpi-12">
-          <span class="sdca-indicator-name">NLMS Adaptive Trend Filter</span>
-          <select class="sdca-score-input ltpi-score-input" data-key="12" aria-label="NLMS Adaptive Trend Filter LTPI score">
+          <span class="sdca-indicator-name">C1 · Weighted Extreme</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="12" aria-label="C1 Weighted Extreme LTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="ltpi-13">
+          <span class="sdca-indicator-name">C2 · HODL Wave v1.0</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="13" aria-label="C2 HODL Wave v1.0 LTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="ltpi-14">
+          <span class="sdca-indicator-name">C2 · NUPL Z-Score</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="14" aria-label="C2 NUPL Z-Score LTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="ltpi-15">
+          <span class="sdca-indicator-name">C2 · STH MVRV</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="15" aria-label="C2 STH MVRV LTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="ltpi-16">
+          <span class="sdca-indicator-name">C2 · Unrealized Cap STH Relative</span>
+          <select class="sdca-score-input ltpi-score-input" data-key="16" aria-label="C2 Unrealized Cap STH Relative LTPI score">
             <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
           </select>
         </label>
@@ -773,9 +797,9 @@
       async function hash(v){const d=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(v));return Array.from(new Uint8Array(d)).map((b)=>b.toString(16).padStart(2,"0")).join("");}
       form.addEventListener("submit",async(e)=>{e.preventDefault();if(!configured){message.textContent="Password not configured. Set a SHA-256 hash in scripts/sdca-admin-config.js.";return;}const b=form.querySelector("button");b.disabled=true;try{if(await hash(password.value)===window.SDCA_ADMIN_PASSWORD_HASH.toLowerCase()){gate.classList.add("admin-hidden");controls.classList.remove("admin-hidden");ltpiControls.classList.remove("admin-hidden");loadScores();loadHistory();update();loadLtpiScores();updateLtpi();}else{message.textContent="Access denied. Check the passphrase and try again.";password.value="";password.focus();}}catch(error){message.textContent="Password check failed in this browser.";}finally{b.disabled=false;}});
       inputs.forEach((i)=>i.addEventListener("input",update));button.addEventListener("click",confirm);
-      const ltpiKey="jxprobability.ltpi.manualScores.v1";
+      const ltpiKey="jxprobability.ltpi.manualScores.v2";
       function loadLtpiScores(){let saved={};try{const raw=localStorage.getItem(ltpiKey),p=raw?JSON.parse(raw):{};if(p&&typeof p==="object"&&!Array.isArray(p))saved=p;}catch(e){console.warn(e);}ltpiInputs.forEach(i=>{i.value=[-1,0,1].includes(saved[i.dataset.key])?String(saved[i.dataset.key]):"";});}
-      function updateLtpi(){const next={},vals=[];ltpiInputs.forEach(i=>{const card=i.closest(".sdca-card"),raw=i.value;if(raw===""){card.dataset.sign="empty";return;}const v=Number(raw);if(![-1,0,1].includes(v)){card.dataset.sign="empty";return;}next[i.dataset.key]=v;vals.push(v);card.dataset.sign=v<0?"negative":v>0?"positive":"zero";});try{localStorage.setItem(ltpiKey,JSON.stringify(next));}catch(e){message.textContent="Could not save LTPI scores in this browser.";}const n=vals.length;ltpiCount.textContent=n+" / 12 SCORED";if(!n){ltpiTotal.textContent="—";ltpiClass.textContent="AWAITING INPUTS";ltpiClass.dataset.class="neutral";return;}const aggregate=vals.reduce((s,v)=>s+v,0)/n;ltpiTotal.textContent=(aggregate>0?"+":"")+aggregate.toFixed(2);ltpiClass.textContent=n<12?"PARTIAL INPUTS":aggregate>0?"BULLISH":aggregate<0?"BEARISH":"NEUTRAL";ltpiClass.dataset.class=aggregate>0?"positive":aggregate<0?"negative":"neutral";}
+      function updateLtpi(){const next={},vals=[];ltpiInputs.forEach(i=>{const card=i.closest(".sdca-card"),raw=i.value;if(raw===""){card.dataset.sign="empty";return;}const v=Number(raw);if(![-1,0,1].includes(v)){card.dataset.sign="empty";return;}next[i.dataset.key]=v;vals.push(v);card.dataset.sign=v<0?"negative":v>0?"positive":"zero";});try{localStorage.setItem(ltpiKey,JSON.stringify(next));}catch(e){message.textContent="Could not save LTPI scores in this browser.";}const n=vals.length;ltpiCount.textContent=n+" / 16 SCORED";if(!n){ltpiTotal.textContent="—";ltpiClass.textContent="AWAITING INPUTS";ltpiClass.dataset.class="neutral";return;}const aggregate=vals.reduce((s,v)=>s+v,0)/n;ltpiTotal.textContent=(aggregate>0?"+":"")+aggregate.toFixed(2);ltpiClass.textContent=n<16?"PARTIAL INPUTS":aggregate>0?"BULLISH":aggregate<0?"BEARISH":"NEUTRAL";ltpiClass.dataset.class=aggregate>0?"positive":aggregate<0?"negative":"neutral";}
       ltpiInputs.forEach(i=>i.addEventListener("change",updateLtpi));message.textContent=configured?"Passphrase required.":"Password not configured yet. See scripts/sdca-admin-config.js.";
     })();
   </script></body></html>

@@ -320,24 +320,21 @@
       letter-spacing: .035em;
       line-height: 1.6;
     }
-    .motto-banner {
-      margin: 0 0 6px;
-      color: var(--cyan-soft);
-      font-size: 11px;
-      letter-spacing: .045em;
-      line-height: 1.7;
-      text-align: center;
-      text-wrap: balance;
+    .regime-panel {
+      display:flex; align-items:center; justify-content:space-between; gap:16px;
+      margin:0 0 18px; padding:14px 18px; border:1px solid var(--line);
+      border-left:3px solid var(--muted); background:var(--panel);
+      letter-spacing:.12em; text-transform:uppercase;
     }
-    .tagline-banner {
-      margin: 0 0 22px;
-      color: var(--muted);
-      font-size: 12px;
-      letter-spacing: .015em;
-      line-height: 1.6;
-      text-align: center;
-      text-wrap: balance;
-    }
+    .regime-label { color:var(--muted); font-size:10px; font-weight:650; }
+    .regime-value { color:var(--text); font-size:13px; font-weight:750; }
+    .regime-panel[data-regime="risk-off"] { border-left-color:#F04444; }
+    .regime-panel[data-regime="risk-off"] .regime-value { color:#F04444; }
+    .regime-panel[data-regime="risk-on"] { border-left-color:var(--green); }
+    .regime-panel[data-regime="risk-on"] .regime-value { color:var(--green); }
+    .regime-panel[data-regime="neutral"] { border-left-color:var(--text); }
+    .regime-panel[data-regime="neutral"] .regime-value { color:var(--text); }
+    @media (max-width:600px) { .regime-panel { padding:12px 14px; } .regime-value { font-size:11px; } }
     .system-footer {
       display: flex;
       justify-content: space-between;
@@ -444,8 +441,10 @@
   <div id="cursor-glow" aria-hidden="true"></div>
   <h1>JayyTrader<span class="cursor" aria-hidden="true"></span></h1>
   <main class="landing">
-    <p class="motto motto-banner">Probabilities are the currency of the markets. No noise. Just signal.</p>
-    <p class="tagline tagline-banner">Transparent valuation research. Systematic accumulation intelligence.</p>
+    <section class="regime-panel" id="regime-panel" data-regime="awaiting" aria-live="polite" aria-label="Market regime">
+      <span class="regime-label">REGIME</span>
+      <strong class="regime-value" id="regime-value">AWAITING LTPI SCORE</strong>
+    </section>
 
     <div class="dashboard-grid">
       <section class="research-column" aria-label="Valuation oscillator">
@@ -542,6 +541,8 @@
       const state = document.getElementById("ltpi-state");
       const needle = document.getElementById("ltpi-needle");
       const caption = document.getElementById("ltpi-caption");
+      const regimePanel = document.getElementById("regime-panel");
+      const regimeValue = document.getElementById("regime-value");
       const fmt = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0, signDisplay: "always" });
       function render() {
         let scores = {};
@@ -556,10 +557,22 @@
           caption.textContent = "16 indicators · awaiting scores";
           needle.setAttribute("transform", "rotate(0 160 137)");
           card.dataset.scoreState = "empty";
+          regimePanel.dataset.regime = "awaiting";
+          regimeValue.textContent = "AWAITING LTPI SCORE";
           return;
         }
         const aggregate = vals.reduce((a, v) => a + v, 0) / vals.length;
         const angle = aggregate * 90;
+        if (aggregate < -0.25) {
+          regimePanel.dataset.regime = "risk-off";
+          regimeValue.textContent = "RISK OFF";
+        } else if (aggregate > 0.25) {
+          regimePanel.dataset.regime = "risk-on";
+          regimeValue.textContent = "RISK ON";
+        } else {
+          regimePanel.dataset.regime = "neutral";
+          regimeValue.textContent = "NEUTRAL";
+        }
         total.textContent = (aggregate > 0 ? "+" : "") + aggregate.toFixed(2);
         count.textContent = "";
         state.textContent = vals.length === 16 ? "" : "PARTIAL INPUTS";

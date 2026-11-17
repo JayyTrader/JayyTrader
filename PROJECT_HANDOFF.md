@@ -1,7 +1,7 @@
 # Project Handoff
 
 ## Project
-- Name: JXProbability
+- Name: JayyTrader
 - Repository: https://github.com/JayyTrader/JayyTrader
 - Default branch: `main`
 - Live site: https://jayytrader.github.io/JayyTrader/
@@ -13,6 +13,10 @@
 - Make only explicitly requested changes, on a dedicated branch, and verify all resulting changes in GitHub.
 - Use a pull request for changes targeting `main`. Do not merge or deploy unless the operator authorizes it.
 - Never store credentials or tokens in this repository. Documentation preserves workflow, not authentication state.
+
+## Current brand direction
+- Site and project name: **JayyTrader**.
+- Accent palette restored to green (`#00FF88` with soft green `#A6FFD2`) on the existing dark graphite background. Existing cyan/amber semantic CSS variables now use the same green accents so all states share one color family.
 
 ## Latest verified work
 - Font change PR #12: https://github.com/JayyTrader/JayyTrader/pull/12 — merged on 2026-10-21. Source Code Pro import and shared `--font-ui` token are on `main`; live rendering has not been independently verified.
@@ -53,3 +57,5 @@
 - LTPI approved 16-indicator registry update in progress: branch `feature/ltpi-16-indicator-registry`, based on `main` SHA `4d143db0f6f19301d069a4842345063f7c582c56`. Updated `sdca-admin.html` with the exact 16 indicators from the operator's registry (12 C1 trend indicators and 4 C2 on-chain indicators), each manually scored -1 / 0 / +1. The existing arithmetic-average aggregation is retained; unentered indicators remain excluded. Updated `index.html` LTPI gauge to read the versioned `jxprobability.ltpi.manualScores.v2` key, average only valid scores for keys 1–16, and reflect 16-input completion. The key was versioned to avoid carrying over scores mapped to the old, different 12-indicator registry. Source checks confirmed 16 unique inputs, all 16 exact names, the shared v2 key, and unchanged SDCA storage. Dashboard inline JavaScript syntax passed. Browser rendering, admin interaction/localStorage persistence, and gauge behavior in a real browser remain unverified. PR pending; do not merge/deploy without operator authorization.
 
 - Manual SDCA/admin simplification in progress: branch `chore/remove-admin-password-and-sdca-fetch`, based on current main after LTPI 16-indicator PR #62 merged. Removed the client-side password gate and passphrase UI from `sdca-admin.html`; SDCA and LTPI manual score panels now render immediately and load their existing browser-local scores on page load. Deleted obsolete `scripts/sdca-admin-config.js`. Replaced scheduled `.github/workflows/sdca-update.yml` data-ingestion workflow with validation-only CI (push/PR/manual dispatch); removed scheduled SDCA/MVRV/HODL fetch steps and automated data commits. Preserved manual SDCA inputs, weekly composite history, and the 16-indicator LTPI scoring workflow. Source checks and inline JavaScript syntax passed; browser interaction remains unverified. PR pending; not merged/deployed.
+
+- Brand restoration in progress: branch `brand/restore-jayytrader-green`, based on `main` after PR #63 merged (main HEAD `0ca64eca94700ce8966af924ef7b8ede052eb220`). Updated `index.html` and `sdca-admin.html` titles/wordmarks to JayyTrader, removed the split-color JxProbability wordmark styling, and restored a unified green accent palette in `styles/tokens.css` while retaining the dark graphite background and existing layout/behavior. Updated project name and brand direction in this handoff. Source checks confirm both page titles/wordmarks, no old JxProbability brand markup, green accent tokens, and the 16 LTPI score inputs remain present. Browser rendering and deployed appearance remain unverified. PR pending; do not merge until operator review.

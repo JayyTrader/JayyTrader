@@ -16,7 +16,8 @@
 
 ## Current brand direction
 - Site and project name: **JayyTrader**.
-- Accent palette restored to green (`#00FF88` with soft green `#A6FFD2`) on the existing dark graphite background. Existing cyan/amber semantic CSS variables now use the same green accents so all states share one color family.
+- Use one mint/emerald green accent (`#00F5A0`) and white (`#FFFFFF`) for all neutral text and contrast, on the existing dark graphite background.
+- No amber, cyan, blue-grey, purple, or other secondary accent colors. Legacy semantic CSS token names may remain for compatibility, but every accent token must resolve to the same green; muted and primary text tokens resolve to white.
 
 ## Latest verified work
 - Font change PR #12: https://github.com/JayyTrader/JayyTrader/pull/12 — merged on 2026-10-21. Source Code Pro import and shared `--font-ui` token are on `main`; live rendering has not been independently verified.
@@ -59,3 +60,6 @@
 - Manual SDCA/admin simplification in progress: branch `chore/remove-admin-password-and-sdca-fetch`, based on current main after LTPI 16-indicator PR #62 merged. Removed the client-side password gate and passphrase UI from `sdca-admin.html`; SDCA and LTPI manual score panels now render immediately and load their existing browser-local scores on page load. Deleted obsolete `scripts/sdca-admin-config.js`. Replaced scheduled `.github/workflows/sdca-update.yml` data-ingestion workflow with validation-only CI (push/PR/manual dispatch); removed scheduled SDCA/MVRV/HODL fetch steps and automated data commits. Preserved manual SDCA inputs, weekly composite history, and the 16-indicator LTPI scoring workflow. Source checks and inline JavaScript syntax passed; browser interaction remains unverified. PR pending; not merged/deployed.
 
 - Brand restoration in progress: branch `brand/restore-jayytrader-green`, based on `main` after PR #63 merged (main HEAD `0ca64eca94700ce8966af924ef7b8ede052eb220`). Updated `index.html` and `sdca-admin.html` titles/wordmarks to JayyTrader, removed the split-color JxProbability wordmark styling, and restored a unified green accent palette in `styles/tokens.css` while retaining the dark graphite background and existing layout/behavior. Updated project name and brand direction in this handoff. Source checks confirm both page titles/wordmarks, no old JxProbability brand markup, green accent tokens, and the 16 LTPI score inputs remain present. Browser rendering and deployed appearance remain unverified. PR pending; do not merge until operator review.
+
+
+- Single-green/white palette correction in progress: branch `brand/single-green-white-palette`, based on latest `main` SHA `fe003e9a46fc08878de4b239888fea42e59110e8`. Updated `styles/tokens.css` so every accent token resolves to the single mint/emerald green `#00F5A0`, all neutral text tokens resolve to white `#FFFFFF`, and the existing dark graphite backgrounds/panels remain unchanged. No layout or application logic changed. PR pending; CSS source verification and final diff/PR verification remain to be completed. Browser rendering and deployed appearance are unverified. Do not merge without operator authorization.

@@ -14,6 +14,11 @@
     return `https://api.exchange.coinbase.com/products/${symbol}-USD/ticker`;
   }
 
+  function statsEndpointFor(symbol) {
+    if (!SYMBOLS.includes(symbol)) throw new TypeError("Unsupported cryptocurrency symbol");
+    return `https://api.exchange.coinbase.com/products/${symbol}-USD/stats`;
+  }
+
   function formatUSDPrice(value) {
     if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) {
       throw new TypeError("USD price must be a finite positive number");
@@ -41,6 +46,23 @@
       throw new TypeError("Coinbase ticker response has an invalid trade timestamp");
     }
     return { price, sourceTime: new Date(payload.time).toISOString() };
+  }
+
+  function parseStats(payload) {
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) throw new TypeError("Coinbase stats response must be an object");
+    const open = Number(payload.open);
+    if (!Number.isFinite(open) || open <= 0) throw new TypeError("Coinbase 24-hour opening price is invalid");
+    return open;
+  }
+
+  function calculatePercentChange(current, open) {
+    if (![current, open].every(Number.isFinite) || current <= 0 || open <= 0) return null;
+    return ((current - open) / open) * 100;
+  }
+
+  function formatPercentChange(value) {
+    if (!Number.isFinite(value)) return "24H —";
+    return "24H " + (value > 0 ? "+" : "") + value.toFixed(2) + "%";
   }
 
   function createController(options = {}) {
@@ -87,11 +109,25 @@
         });
         if (!response || !response.ok) throw new Error(`HTTP ${response ? response.status : "unknown"}`);
         const ticker = parseTicker(await response.json());
+        let change24h = null;
+        try {
+          const statsResponse = await fetchImpl(statsEndpointFor(symbol), {
+            method: "GET",
+            headers: { Accept: "application/json" },
+            signal: requestController.signal
+          });
+          if (statsResponse && statsResponse.ok) {
+            const open = parseStats(await statsResponse.json());
+            change24h = calculatePercentChange(ticker.price, open);
+          }
+        } catch (statsError) {
+          // Keep the live price available if Coinbase's 24-hour stats are temporarily unavailable.
+        }
         const receivedAt = now();
         if (!(receivedAt instanceof Date) || !Number.isFinite(receivedAt.getTime())) {
           throw new TypeError("Local update timestamp is invalid");
         }
-        asset.lastSuccess = { ...ticker, receivedAt };
+        asset.lastSuccess = { ...ticker, change24h, receivedAt };
         onState(symbol, { ...asset.lastSuccess, status: "live", error: null });
         return true;
       } catch (error) {
@@ -131,5 +167,5 @@
     return { refresh, start, stop };
   }
 
-  return { SYMBOLS, REFRESH_INTERVAL_MS, REQUEST_TIMEOUT_MS, endpointFor, formatUSDPrice, parseTicker, createController };
+  return { SYMBOLS, REFRESH_INTERVAL_MS, REQUEST_TIMEOUT_MS, endpointFor, statsEndpointFor, formatUSDPrice, parseTicker, parseStats, calculatePercentChange, formatPercentChange, createController };
 });

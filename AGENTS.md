@@ -1,7 +1,7 @@
 # GitHub-First Coding Protocol
 
 ## Mission
-Build JXProbability forward in the existing repository. Do not import unrelated local code or perform local coding.
+Build JayyTrader forward in the existing repository. Do not import unrelated local code or perform local coding.
 
 ## Single source repository
 - Repository: https://github.com/JayyTrader/JayyTrader

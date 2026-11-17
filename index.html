@@ -323,9 +323,10 @@
     .regime-panel {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
       gap: 16px;
-      margin: 0 0 18px;
+      width: 33.333%;
+      margin: 0 auto 18px;
       padding: 14px 18px;
       border: 1px solid var(--line);
       border-left: 3px solid var(--muted);
@@ -342,7 +343,7 @@
     .regime-panel[data-regime="neutral"] { border-left-color: var(--text); }
     .regime-panel[data-regime="neutral"] .regime-value { color: var(--text); }
     @media (max-width: 600px) {
-      .regime-panel { padding: 12px 14px; }
+      .regime-panel { width: 100%; padding: 12px 14px; }
       .regime-value { font-size: 11px; }
     }
     .system-footer {

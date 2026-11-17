@@ -16,7 +16,7 @@
 
 ## Current brand direction
 - Site and project name: **JayyTrader**.
-- Use one mint/emerald green accent (`#00F5A0`) and white (`#FFFFFF`) for all neutral text and contrast, on the existing dark graphite background.
+- Use one deeper, richer emerald green accent (`#00C987`) and white (`#FFFFFF`) for all neutral text and contrast, on the existing dark graphite background.
 - No amber, cyan, blue-grey, purple, or other secondary accent colors. Legacy semantic CSS token names may remain for compatibility, but every accent token must resolve to the same green; muted and primary text tokens resolve to white.
 
 ## Latest verified work
@@ -63,3 +63,6 @@
 
 
 - Single-green/white palette correction in progress: branch `brand/single-green-white-palette`, based on latest `main` SHA `fe003e9a46fc08878de4b239888fea42e59110e8`. Updated `styles/tokens.css` so every accent token resolves to the single mint/emerald green `#00F5A0`, all neutral text tokens resolve to white `#FFFFFF`, and the existing dark graphite backgrounds/panels remain unchanged. No layout or application logic changed. PR pending; CSS source verification and final diff/PR verification remain to be completed. Browser rendering and deployed appearance are unverified. Do not merge without operator authorization.
+
+
+- Deeper emerald palette refinement in progress: branch `brand/deeper-emerald-palette`, based on latest `main`. Updated `styles/tokens.css` to use `#00C987` as the single richer emerald accent, with white neutral text and the existing dark graphite backgrounds. All legacy accent tokens resolve to the same green. No layout or application logic changed. PR pending; browser rendering and deployed appearance are unverified. Do not merge without operator authorization.

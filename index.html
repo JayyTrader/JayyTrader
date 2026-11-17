@@ -467,6 +467,18 @@
     .live-quote-status[data-status="live"] { color: var(--cyan); }
     .live-quote-status[data-status="stale"],
     .live-quote-status[data-status="error"] { color: var(--amber); }
+    .quote-change {
+      display: inline-block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 650;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: .04em;
+    }
+    .quote-change[data-direction="up"] { color: var(--cyan); }
+    .quote-change[data-direction="down"],
+    .quote-change[data-direction="flat"] { color: var(--text); }
     .quote-details {
       display: flex;
       justify-content: space-between;
@@ -676,6 +688,7 @@
             <div>
               <span class="quote-label"><span class="asset-symbol">BTC</span>/ USD</span>
               <strong class="price" id="live-btc-usd-price">Loading…</strong>
+              <span class="quote-change" id="live-btc-usd-change" data-direction="flat">24H —</span>
             </div>
             <p class="live-quote-status" id="live-btc-usd-status" role="status" aria-live="polite">Connecting to Coinbase Exchange…</p>
           </div>
@@ -689,6 +702,7 @@
             <div>
               <span class="quote-label"><span class="asset-symbol">ETH</span>/ USD</span>
               <strong class="price" id="live-eth-usd-price">Loading…</strong>
+              <span class="quote-change" id="live-eth-usd-change" data-direction="flat">24H —</span>
             </div>
             <p class="live-quote-status" id="live-eth-usd-status" role="status" aria-live="polite">Connecting to Coinbase Exchange…</p>
           </div>
@@ -702,6 +716,7 @@
             <div>
               <span class="quote-label"><span class="asset-symbol">SOL</span>/ USD</span>
               <strong class="price" id="live-sol-usd-price">Loading…</strong>
+              <span class="quote-change" id="live-sol-usd-change" data-direction="flat">24H —</span>
             </div>
             <p class="live-quote-status" id="live-sol-usd-status" role="status" aria-live="polite">Connecting to Coinbase Exchange…</p>
           </div>

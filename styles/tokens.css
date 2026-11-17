@@ -3,14 +3,14 @@
   --bg: #080D12;
   --panel: rgba(23, 35, 44, .96);
   --panel2: rgba(29, 43, 53, .82);
-  --cyan: #00F5A0;
-  --cyan-soft: #00F5A0;
+  --cyan: #00C987;
+  --cyan-soft: #00C987;
   --muted: #FFFFFF;
-  --line: rgba(0, 245, 160, .18);
-  --amber: #00F5A0;
-  --amber-soft: #00F5A0;
-  --line-amber: rgba(0, 245, 160, .18);
-  --glow-amber-soft: 0 0 10px rgba(0, 245, 160, .16);
+  --line: rgba(0, 201, 135, .18);
+  --amber: #00C987;
+  --amber-soft: #00C987;
+  --line-amber: rgba(0, 201, 135, .18);
+  --glow-amber-soft: 0 0 10px rgba(0, 201, 135, .16);
   --text: #FFFFFF;
   --font-ui: "Source Code Pro", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --space-1: 4px;
@@ -19,5 +19,5 @@
   --space-4: 16px;
   --space-6: 24px;
   --border-hairline: 1px solid var(--line);
-  --glow-cyan-soft: 0 0 8px rgba(0, 245, 160, .25);
+  --glow-cyan-soft: 0 0 8px rgba(0, 201, 135, .25);
 }

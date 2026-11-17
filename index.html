@@ -70,7 +70,7 @@
     }
     .dashboard-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
       align-items: stretch;
       gap: 16px;
     }
@@ -195,7 +195,7 @@
       font-size: clamp(13px, 2vw, 16px);
       line-height: 1.7;
     }
-    .trend-instruments { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-bottom: 24px; }
+    .trend-instruments { display: flex; flex-direction: column; gap: 16px; min-width: 0; margin: 0; }
     .trend-instrument {
       position: relative;
       min-width: 0;
@@ -412,10 +412,10 @@
 
     @media (max-width: 900px) {
       .landing { width: min(100% - 40px, 720px); padding-top: 108px; }
-      .trend-instruments { gap: 16px; }
+      .trend-instruments { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
       .dashboard-grid { grid-template-columns: minmax(0, 1fr); gap: 24px; }
       .research-column { display: block; }
-      .oscillator-panel { margin-top: 22px; min-height: 0; }
+      .oscillator-panel { margin-top: 0; min-height: 0; }
       .mvrv-score-row { margin-top:14px; }
       .oscillator-plot { min-height: 280px; }
     }
@@ -424,7 +424,7 @@
       .landing { width: min(100% - 32px, 720px); padding-top: 92px; }
       .trend-instruments { grid-template-columns: minmax(0, 1fr); gap: 14px; }
       .trend-instrument { padding: 16px 14px 12px; }
-      .oscillator-panel { padding: 16px 12px 14px; margin-top: 22px; }
+      .oscillator-panel { padding: 16px 12px 14px; margin-top: 0; }
       .panel-heading { flex-direction: column; gap: 10px; }
       .oscillator-plot { min-height: 240px; }
       .oscillator-caption { flex-direction: column; gap: 3px; }
@@ -446,32 +446,7 @@
   <main class="landing">
     <p class="motto motto-banner">Probabilities are the currency of the markets. No noise. Just signal.</p>
     <p class="tagline tagline-banner">Transparent valuation research. Systematic accumulation intelligence.</p>
-    <section class="trend-instruments" aria-label="Trend probability instruments">
-      <article class="trend-instrument" data-horizon="long" aria-labelledby="ltpi-title">
-        <header class="trend-instrument-heading"><div><h2 class="trend-instrument-title" id="ltpi-title">Long-Term Trend</h2><div class="trend-instrument-code">LTPI</div></div><span class="trend-instrument-state" id="ltpi-state" hidden>AWAITING INPUTS</span></header>
-        <svg class="trend-gauge" viewBox="0 0 320 170" role="img" aria-labelledby="ltpi-gauge-title ltpi-gauge-desc">
-          <title id="ltpi-gauge-title">Long-term trend probability gauge</title><desc id="ltpi-gauge-desc">An empty semicircular gauge from bearish minus one through neutral zero to bullish plus one. The gauge displays the average of the 16 manually scored long-term trend indicators.</desc>
-          <path class="trend-gauge-track" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-edge" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-accent" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-inner" d="M 49 137 A 111 111 0 0 1 271 137"/>
-          <g aria-hidden="true">
-            <line class="trend-gauge-tick major" x1="36" y1="137" x2="49" y2="137"/><line class="trend-gauge-tick" x1="40" y1="108" x2="50" y2="111"/><line class="trend-gauge-tick" x1="48" y1="76" x2="59" y2="82"/><line class="trend-gauge-tick" x1="69" y1="50" x2="78" y2="59"/><line class="trend-gauge-tick major" x1="99" y1="31" x2="105" y2="43"/><line class="trend-gauge-tick" x1="128" y1="17" x2="131" y2="29"/><line class="trend-gauge-tick major" x1="160" y1="13" x2="160" y2="27"/><line class="trend-gauge-tick" x1="192" y1="17" x2="189" y2="29"/><line class="trend-gauge-tick major" x1="221" y1="31" x2="215" y2="43"/><line class="trend-gauge-tick" x1="251" y1="50" x2="242" y2="59"/><line class="trend-gauge-tick" x1="272" y1="76" x2="261" y2="82"/><line class="trend-gauge-tick" x1="280" y1="108" x2="270" y2="111"/><line class="trend-gauge-tick major" x1="284" y1="137" x2="271" y2="137"/>
-            <text class="trend-gauge-scale" x="31" y="155" text-anchor="start">−1 BEAR</text><text class="trend-gauge-scale" x="160" y="49" text-anchor="middle">0 / NEUTRAL</text><text class="trend-gauge-scale" x="289" y="155" text-anchor="end">+1 BULL</text><text class="trend-gauge-center" id="ltpi-total" x="160" y="104" text-anchor="middle">—</text><text class="trend-gauge-placeholder" id="ltpi-count" x="160" y="121" text-anchor="middle">NO SCORE</text><line id="ltpi-needle" x1="160" y1="137" x2="160" y2="31" stroke="#27D9E8" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/><circle cx="160" cy="137" r="4" fill="#27D9E8"/>
-          </g>
-        </svg>
-        <div class="trend-gauge-caption"><span>Cycle Regime</span><span id="ltpi-caption"></span></div>
-      </article>
-      <article class="trend-instrument" data-horizon="medium" aria-labelledby="mtpi-title">
-        <header class="trend-instrument-heading"><div><h2 class="trend-instrument-title" id="mtpi-title">Medium-Term Trend</h2><div class="trend-instrument-code">MTPI</div></div><span class="trend-instrument-state">AWAITING INPUTS</span></header>
-        <svg class="trend-gauge" viewBox="0 0 320 170" role="img" aria-labelledby="mtpi-gauge-title mtpi-gauge-desc">
-          <title id="mtpi-gauge-title">Medium-term trend probability gauge</title><desc id="mtpi-gauge-desc">An empty semicircular gauge from bearish minus one through neutral zero to bullish plus one. No score is calculated because indicator inputs are not connected.</desc>
-          <path class="trend-gauge-track" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-edge" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-accent" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-inner" d="M 49 137 A 111 111 0 0 1 271 137"/>
-          <g aria-hidden="true">
-            <line class="trend-gauge-tick major" x1="36" y1="137" x2="49" y2="137"/><line class="trend-gauge-tick" x1="40" y1="108" x2="50" y2="111"/><line class="trend-gauge-tick" x1="48" y1="76" x2="59" y2="82"/><line class="trend-gauge-tick" x1="69" y1="50" x2="78" y2="59"/><line class="trend-gauge-tick major" x1="99" y1="31" x2="105" y2="43"/><line class="trend-gauge-tick" x1="128" y1="17" x2="131" y2="29"/><line class="trend-gauge-tick major" x1="160" y1="13" x2="160" y2="27"/><line class="trend-gauge-tick" x1="192" y1="17" x2="189" y2="29"/><line class="trend-gauge-tick major" x1="221" y1="31" x2="215" y2="43"/><line class="trend-gauge-tick" x1="251" y1="50" x2="242" y2="59"/><line class="trend-gauge-tick" x1="272" y1="76" x2="261" y2="82"/><line class="trend-gauge-tick" x1="280" y1="108" x2="270" y2="111"/><line class="trend-gauge-tick major" x1="284" y1="137" x2="271" y2="137"/>
-            <text class="trend-gauge-scale" x="31" y="155" text-anchor="start">−1 BEAR</text><text class="trend-gauge-scale" x="160" y="49" text-anchor="middle">0 / NEUTRAL</text><text class="trend-gauge-scale" x="289" y="155" text-anchor="end">+1 BULL</text><text class="trend-gauge-center" x="160" y="104" text-anchor="middle">—</text><text class="trend-gauge-placeholder" x="160" y="121" text-anchor="middle">NO SCORE</text><circle cx="160" cy="137" r="4" fill="#D99A36"/>
-          </g>
-        </svg>
-        <div class="trend-gauge-caption"><span>Tactical direction</span><span>Inputs not connected</span></div>
-      </article>
-    </section>
+
     <div class="dashboard-grid">
       <section class="research-column" aria-label="Valuation oscillator">
 
@@ -527,6 +502,31 @@
         </section>
 
       </section>
+      <aside class="trend-instruments" aria-label="Trend probability instruments">
+      <article class="trend-instrument" data-horizon="long" aria-labelledby="ltpi-title">
+        <header class="trend-instrument-heading"><div><h2 class="trend-instrument-title" id="ltpi-title">Long-Term Trend</h2><div class="trend-instrument-code">LTPI</div></div><span class="trend-instrument-state" id="ltpi-state" hidden>AWAITING INPUTS</span></header>
+        <svg class="trend-gauge" viewBox="0 0 320 170" role="img" aria-labelledby="ltpi-gauge-title ltpi-gauge-desc">
+          <title id="ltpi-gauge-title">Long-term trend probability gauge</title><desc id="ltpi-gauge-desc">An empty semicircular gauge from bearish minus one through neutral zero to bullish plus one. The gauge displays the average of the 16 manually scored long-term trend indicators.</desc>
+          <path class="trend-gauge-track" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-edge" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-accent" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-inner" d="M 49 137 A 111 111 0 0 1 271 137"/>
+          <g aria-hidden="true">
+            <line class="trend-gauge-tick major" x1="36" y1="137" x2="49" y2="137"/><line class="trend-gauge-tick" x1="40" y1="108" x2="50" y2="111"/><line class="trend-gauge-tick" x1="48" y1="76" x2="59" y2="82"/><line class="trend-gauge-tick" x1="69" y1="50" x2="78" y2="59"/><line class="trend-gauge-tick major" x1="99" y1="31" x2="105" y2="43"/><line class="trend-gauge-tick" x1="128" y1="17" x2="131" y2="29"/><line class="trend-gauge-tick major" x1="160" y1="13" x2="160" y2="27"/><line class="trend-gauge-tick" x1="192" y1="17" x2="189" y2="29"/><line class="trend-gauge-tick major" x1="221" y1="31" x2="215" y2="43"/><line class="trend-gauge-tick" x1="251" y1="50" x2="242" y2="59"/><line class="trend-gauge-tick" x1="272" y1="76" x2="261" y2="82"/><line class="trend-gauge-tick" x1="280" y1="108" x2="270" y2="111"/><line class="trend-gauge-tick major" x1="284" y1="137" x2="271" y2="137"/>
+            <text class="trend-gauge-scale" x="31" y="155" text-anchor="start">−1 BEAR</text><text class="trend-gauge-scale" x="160" y="49" text-anchor="middle">0 / NEUTRAL</text><text class="trend-gauge-scale" x="289" y="155" text-anchor="end">+1 BULL</text><text class="trend-gauge-center" id="ltpi-total" x="160" y="104" text-anchor="middle">—</text><text class="trend-gauge-placeholder" id="ltpi-count" x="160" y="121" text-anchor="middle">NO SCORE</text><line id="ltpi-needle" x1="160" y1="137" x2="160" y2="31" stroke="#27D9E8" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/><circle cx="160" cy="137" r="4" fill="#27D9E8"/>
+          </g>
+        </svg>
+        <div class="trend-gauge-caption"><span>Cycle Regime</span><span id="ltpi-caption"></span></div>
+      </article>
+      <article class="trend-instrument" data-horizon="medium" aria-labelledby="mtpi-title">
+        <header class="trend-instrument-heading"><div><h2 class="trend-instrument-title" id="mtpi-title">Medium-Term Trend</h2><div class="trend-instrument-code">MTPI</div></div><span class="trend-instrument-state">AWAITING INPUTS</span></header>
+        <svg class="trend-gauge" viewBox="0 0 320 170" role="img" aria-labelledby="mtpi-gauge-title mtpi-gauge-desc">
+          <title id="mtpi-gauge-title">Medium-term trend probability gauge</title><desc id="mtpi-gauge-desc">An empty semicircular gauge from bearish minus one through neutral zero to bullish plus one. No score is calculated because indicator inputs are not connected.</desc>
+          <path class="trend-gauge-track" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-edge" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-accent" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-inner" d="M 49 137 A 111 111 0 0 1 271 137"/>
+          <g aria-hidden="true">
+            <line class="trend-gauge-tick major" x1="36" y1="137" x2="49" y2="137"/><line class="trend-gauge-tick" x1="40" y1="108" x2="50" y2="111"/><line class="trend-gauge-tick" x1="48" y1="76" x2="59" y2="82"/><line class="trend-gauge-tick" x1="69" y1="50" x2="78" y2="59"/><line class="trend-gauge-tick major" x1="99" y1="31" x2="105" y2="43"/><line class="trend-gauge-tick" x1="128" y1="17" x2="131" y2="29"/><line class="trend-gauge-tick major" x1="160" y1="13" x2="160" y2="27"/><line class="trend-gauge-tick" x1="192" y1="17" x2="189" y2="29"/><line class="trend-gauge-tick major" x1="221" y1="31" x2="215" y2="43"/><line class="trend-gauge-tick" x1="251" y1="50" x2="242" y2="59"/><line class="trend-gauge-tick" x1="272" y1="76" x2="261" y2="82"/><line class="trend-gauge-tick" x1="280" y1="108" x2="270" y2="111"/><line class="trend-gauge-tick major" x1="284" y1="137" x2="271" y2="137"/>
+            <text class="trend-gauge-scale" x="31" y="155" text-anchor="start">−1 BEAR</text><text class="trend-gauge-scale" x="160" y="49" text-anchor="middle">0 / NEUTRAL</text><text class="trend-gauge-scale" x="289" y="155" text-anchor="end">+1 BULL</text><text class="trend-gauge-center" x="160" y="104" text-anchor="middle">—</text><text class="trend-gauge-placeholder" x="160" y="121" text-anchor="middle">NO SCORE</text><circle cx="160" cy="137" r="4" fill="#D99A36"/>
+          </g>
+        </svg>
+        <div class="trend-gauge-caption"><span>Tactical direction</span><span>Inputs not connected</span></div>
+      </article>
       </aside>
     </div>
     <footer class="system-footer" aria-label="Research system status">
@@ -577,7 +577,7 @@
       cursorGlow.style.left = `${event.clientX}px`;
       cursorGlow.style.top = `${event.clientY}px`;
     }, { passive: true });
-  </script>>
+  </script>
 
 
   <script>

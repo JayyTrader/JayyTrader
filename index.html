@@ -452,6 +452,10 @@
   <div id="cursor-glow" aria-hidden="true"></div>
   <h1>JayyTrader<span class="cursor" aria-hidden="true"></span></h1>
   <main class="landing">
+    <section class="regime-panel" id="regimePanel" data-regime="neutral" aria-live="polite" aria-label="Current market regime">
+      <span class="regime-label">CURRENT REGIME</span>
+      <span class="regime-value" id="regimeValue">AWAITING INPUTS</span>
+    </section>
     <div class="dashboard-grid">
       <section class="research-column" aria-label="Valuation oscillator">
 
@@ -509,7 +513,7 @@
       </section>
       <aside class="trend-instruments" aria-label="Trend probability instruments">
       <article class="trend-instrument" data-horizon="long" aria-labelledby="ltpi-title">
-        <header class="trend-instrument-heading"><div><h2 class="trend-instrument-title" id="ltpi-title">LTPI · BTC</h2><div class="trend-instrument-code">BTC/USD · 3D</div></div><span class="trend-instrument-state" id="ltpi-state" hidden>AWAITING INPUTS</span></header>
+        <header class="trend-instrument-heading"><div><h2 class="trend-instrument-title" id="ltpi-title">LTPI · BTC</h2><div class="trend-instrument-code">BTC/USD · 3D</div></div></header>
         <svg class="trend-gauge" viewBox="0 0 320 170" role="img" aria-labelledby="ltpi-gauge-title ltpi-gauge-desc">
           <title id="ltpi-gauge-title">Long-term trend probability gauge</title><desc id="ltpi-gauge-desc">An empty semicircular gauge from bearish minus one through neutral zero to bullish plus one. The gauge displays the average of the 16 manually scored long-term trend indicators.</desc>
           <path class="trend-gauge-track" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-edge" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-accent" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-inner" d="M 49 137 A 111 111 0 0 1 271 137"/>
@@ -544,10 +548,11 @@
       const card = document.querySelector('.trend-instrument[data-horizon="long"]');
       const total = document.getElementById("ltpi-total");
       const count = document.getElementById("ltpi-count");
-      const state = document.getElementById("ltpi-state");
       const needle = document.getElementById("ltpi-needle");
       const caption = document.getElementById("ltpi-caption");
       const regimeLabel = document.getElementById("ltpi-regime-label");
+      const regimePanel = document.getElementById("regimePanel");
+      const regimeValue = document.getElementById("regimeValue");
       const fmt = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0, signDisplay: "always" });
       function render() {
         let scores = {};
@@ -558,11 +563,13 @@
         } catch (error) { console.warn("LTPI scores could not be loaded.", error); }
         const vals = Object.entries(scores).filter(([k, v]) => Number.isInteger(Number(k)) && Number(k) >= 1 && Number(k) <= 16 && (v === -1 || v === 0 || v === 1)).map(([, v]) => v);
         if (!vals.length) {
-          total.textContent = "—"; count.textContent = "NO SCORE"; state.textContent = "AWAITING INPUTS"; state.hidden = false;
+          total.textContent = "—"; count.textContent = "NO SCORE";
           caption.textContent = "16 indicators · awaiting scores";
           needle.setAttribute("transform", "rotate(0 160 137)");
           card.dataset.scoreState = "empty";
           regimeLabel.textContent = "AWAITING INPUTS";
+          regimeValue.textContent = "AWAITING INPUTS";
+          regimePanel.dataset.regime = "neutral";
           return;
         }
         const aggregate = vals.reduce((a, v) => a + v, 0) / vals.length;
@@ -570,11 +577,10 @@
         const classification = aggregate < -0.25 ? "RISK OFF" : aggregate > 0.25 ? "RISK ON" : "NEUTRAL";
         const regime = aggregate < -0.25 ? "risk-off" : aggregate > 0.25 ? "risk-on" : "neutral";
         regimeLabel.textContent = classification;
+        regimeValue.textContent = classification;
+        regimePanel.dataset.regime = regime;
         total.textContent = (aggregate > 0 ? "+" : "") + aggregate.toFixed(2);
         count.textContent = vals.length + "/16 SCORED";
-        state.textContent = classification;
-        state.hidden = false;
-        state.dataset.regime = regime;
         caption.textContent = "BTC/USD · 3D";
         needle.setAttribute("transform", "rotate(" + angle + " 160 137)");
         card.dataset.scoreState = regime;

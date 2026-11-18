@@ -610,7 +610,9 @@
       function displayDate(key){const p=key.split("-").map(Number);return new Date(p[0],p[1]-1,p[2]).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"2-digit"});}
       function makeSvg(tag,attrs){const node=document.createElementNS(svgNS,tag);Object.entries(attrs).forEach(([k,v])=>node.setAttribute(k,String(v)));return node;}
       function drawHistory(){historyPath.setAttribute("d","");historyPoints.replaceChildren();dateLabels.replaceChildren();if(!history.length)return;const left=82,right=890;
-        const points=history.map((item,i)=>({...item,x:history.length===1?(left+right)/2:left+(i/(history.length-1))*(right-left),y:194+Math.max(-2,Math.min(2,item.score))*83}));
+        const dateValue=(key)=>{const p=key.split("-").map(Number);return new Date(p[0],p[1]-1,p[2]).getTime();};
+        const firstDate=dateValue(history[0].date),lastDate=dateValue(history[history.length-1].date),dateSpan=lastDate-firstDate;
+        const points=history.map((item)=>({...item,x:dateSpan===0?(left+right)/2:left+((dateValue(item.date)-firstDate)/dateSpan)*(right-left),y:194+Math.max(-2,Math.min(2,item.score))*83}));
         historyPath.setAttribute("d",points.map((p,i)=>(i?"L ":"M ")+p.x.toFixed(2)+" "+p.y.toFixed(2)).join(" "));
         points.forEach((p)=>{const circle=makeSvg("circle",{cx:p.x,cy:p.y,r:4,class:"oscillator-history-point",tabindex:0,role:"img","aria-label":displayDate(p.date)+", composite "+p.score.toFixed(4)});const title=makeSvg("title",{});title.textContent=displayDate(p.date)+" · "+((p.score>0?"+":"")+numberFormat.format(p.score))+" · "+p.count+" indicators";circle.appendChild(title);historyPoints.appendChild(circle);});
         const indexes=new Set([0,points.length-1]),max=6;for(let i=1;i<Math.min(max-1,points.length-1);i++)indexes.add(Math.round(i*(points.length-1)/(max-1)));

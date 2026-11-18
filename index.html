@@ -452,11 +452,6 @@
   <div id="cursor-glow" aria-hidden="true"></div>
   <h1>JayyTrader<span class="cursor" aria-hidden="true"></span></h1>
   <main class="landing">
-    <section class="regime-panel" id="regime-panel" data-regime="awaiting" aria-live="polite" aria-label="Market regime">
-      <span class="regime-label">REGIME</span>
-      <strong class="regime-value" id="regime-value">AWAITING LTPI SCORE</strong>
-    </section>
-
     <div class="dashboard-grid">
       <section class="research-column" aria-label="Valuation oscillator">
 
@@ -520,7 +515,7 @@
           <path class="trend-gauge-track" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-edge" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-accent" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-inner" d="M 49 137 A 111 111 0 0 1 271 137"/>
           <g aria-hidden="true">
             <line class="trend-gauge-tick major" x1="36" y1="137" x2="49" y2="137"/><line class="trend-gauge-tick" x1="40" y1="108" x2="50" y2="111"/><line class="trend-gauge-tick" x1="48" y1="76" x2="59" y2="82"/><line class="trend-gauge-tick" x1="69" y1="50" x2="78" y2="59"/><line class="trend-gauge-tick major" x1="99" y1="31" x2="105" y2="43"/><line class="trend-gauge-tick" x1="128" y1="17" x2="131" y2="29"/><line class="trend-gauge-tick major" x1="160" y1="13" x2="160" y2="27"/><line class="trend-gauge-tick" x1="192" y1="17" x2="189" y2="29"/><line class="trend-gauge-tick major" x1="221" y1="31" x2="215" y2="43"/><line class="trend-gauge-tick" x1="251" y1="50" x2="242" y2="59"/><line class="trend-gauge-tick" x1="272" y1="76" x2="261" y2="82"/><line class="trend-gauge-tick" x1="280" y1="108" x2="270" y2="111"/><line class="trend-gauge-tick major" x1="284" y1="137" x2="271" y2="137"/>
-            <text class="trend-gauge-scale" x="31" y="155" text-anchor="start">−1 BEAR</text><text class="trend-gauge-scale" x="160" y="49" text-anchor="middle">0 / NEUTRAL</text><text class="trend-gauge-scale" x="289" y="155" text-anchor="end">+1 BULL</text><text class="trend-gauge-center" id="ltpi-total" x="160" y="104" text-anchor="middle">—</text><text class="trend-gauge-placeholder" id="ltpi-count" x="160" y="121" text-anchor="middle">NO SCORE</text><line id="ltpi-needle" x1="160" y1="137" x2="160" y2="31" stroke="#27D9E8" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/><circle cx="160" cy="137" r="4" fill="#27D9E8"/>
+            <text class="trend-gauge-scale" x="31" y="155" text-anchor="start">−1 BEAR</text><text class="trend-gauge-scale" id="ltpi-regime-label" x="160" y="49" text-anchor="middle">AWAITING INPUTS</text><text class="trend-gauge-scale" x="289" y="155" text-anchor="end">+1 BULL</text><text class="trend-gauge-center" id="ltpi-total" x="160" y="104" text-anchor="middle">—</text><text class="trend-gauge-placeholder" id="ltpi-count" x="160" y="121" text-anchor="middle">NO SCORE</text><line id="ltpi-needle" x1="160" y1="137" x2="160" y2="31" stroke="#27D9E8" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/><circle cx="160" cy="137" r="4" fill="#27D9E8"/>
           </g>
         </svg>
         <div class="trend-gauge-caption"><span>Cycle Regime</span><span id="ltpi-caption"></span></div>
@@ -552,8 +547,7 @@
       const state = document.getElementById("ltpi-state");
       const needle = document.getElementById("ltpi-needle");
       const caption = document.getElementById("ltpi-caption");
-      const regimePanel = document.getElementById("regime-panel");
-      const regimeValue = document.getElementById("regime-value");
+      const regimeLabel = document.getElementById("ltpi-regime-label");
       const fmt = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0, signDisplay: "always" });
       function render() {
         let scores = {};
@@ -568,16 +562,14 @@
           caption.textContent = "16 indicators · awaiting scores";
           needle.setAttribute("transform", "rotate(0 160 137)");
           card.dataset.scoreState = "empty";
-          regimePanel.dataset.regime = "awaiting";
-          regimeValue.textContent = "AWAITING LTPI SCORE";
+          regimeLabel.textContent = "AWAITING INPUTS";
           return;
         }
         const aggregate = vals.reduce((a, v) => a + v, 0) / vals.length;
         const angle = aggregate * 90;
         const classification = aggregate < -0.25 ? "RISK OFF" : aggregate > 0.25 ? "RISK ON" : "NEUTRAL";
         const regime = aggregate < -0.25 ? "risk-off" : aggregate > 0.25 ? "risk-on" : "neutral";
-        regimePanel.dataset.regime = regime;
-        regimeValue.textContent = classification;
+        regimeLabel.textContent = classification;
         total.textContent = (aggregate > 0 ? "+" : "") + aggregate.toFixed(2);
         count.textContent = vals.length + "/16 SCORED";
         state.textContent = classification;

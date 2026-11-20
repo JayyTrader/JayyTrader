@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080D12">
-  <title>JayyTrader · SDCA Admin</title>
+  <title>JayyTrader · System Admin</title>
   <meta name="description" content="Transparent Bitcoin valuation research. Probabilities are the currency of the markets. No noise. Just signal.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -764,7 +764,80 @@
       </div>
       <p class="sdca-note">Scores are stored in this browser on this device and update the LTPI gauge on the dashboard. The aggregate is the average of entered indicator values (range −1.00 to +1.00); unentered indicators are excluded until scored.</p>
     </section>
-    <footer class="system-footer" aria-label="Admin page status"><span><i class="status-dot" aria-hidden="true"></i>SDCA / LTPI manual score administration</span><span><a class="source-page-link" href="index.html">Dashboard ↗</a></span></footer>
+    <section class="sdca-panel" id="mtpi-admin-controls" aria-labelledby="mtpi-admin-title">
+      <header class="sdca-heading">
+        <div><h2 class="sdca-title" id="mtpi-admin-title">MTPI Indicator Inputs</h2><p class="sdca-subtitle">10 manual indicator scores · −1 bearish, 0 neutral, +1 bullish · BTC/USD, 1D timeframe</p></div>
+        <span class="empty-state" id="mtpi-admin-count" aria-live="polite">0 / 10 SCORED</span>
+      </header>
+      <div class="sdca-grid mtpi-admin-grid" id="mtpi-admin-grid">
+        <label class="sdca-card" data-sign="empty" data-indicator="mtpi-1">
+          <span class="sdca-indicator-name">Adaptive Entropy Trend</span>
+          <select class="sdca-score-input mtpi-score-input" data-key="1" aria-label="Adaptive Entropy Trend MTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="mtpi-2">
+          <span class="sdca-indicator-name">Michael's EMA</span>
+          <select class="sdca-score-input mtpi-score-input" data-key="2" aria-label="Michael's EMA MTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="mtpi-3">
+          <span class="sdca-indicator-name">SPMA SuperTrend</span>
+          <select class="sdca-score-input mtpi-score-input" data-key="3" aria-label="SPMA SuperTrend MTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="mtpi-4">
+          <span class="sdca-indicator-name">G-Channel Trend</span>
+          <select class="sdca-score-input mtpi-score-input" data-key="4" aria-label="G-Channel Trend MTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="mtpi-5">
+          <span class="sdca-indicator-name">Trend Filter (2-Pole)</span>
+          <select class="sdca-score-input mtpi-score-input" data-key="5" aria-label="Trend Filter (2-Pole) MTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="mtpi-6">
+          <span class="sdca-indicator-name">Adaptive Kalman Trend</span>
+          <select class="sdca-score-input mtpi-score-input" data-key="6" aria-label="Adaptive Kalman Trend MTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="mtpi-7">
+          <span class="sdca-indicator-name">Pure Momentum Oscillator</span>
+          <select class="sdca-score-input mtpi-score-input" data-key="7" aria-label="Pure Momentum Oscillator MTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="mtpi-8">
+          <span class="sdca-indicator-name">RSI Fast</span>
+          <select class="sdca-score-input mtpi-score-input" data-key="8" aria-label="RSI Fast MTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="mtpi-9">
+          <span class="sdca-indicator-name">Dual MA SD Oscillator</span>
+          <select class="sdca-score-input mtpi-score-input" data-key="9" aria-label="Dual MA SD Oscillator MTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+        <label class="sdca-card" data-sign="empty" data-indicator="mtpi-10">
+          <span class="sdca-indicator-name">DEMA Z-Score</span>
+          <select class="sdca-score-input mtpi-score-input" data-key="10" aria-label="DEMA Z-Score MTPI score">
+            <option value="">—</option><option value="-1">−1</option><option value="0">0</option><option value="1">+1</option>
+          </select>
+        </label>
+      </div>
+      <div class="sdca-summary" aria-live="polite">
+        <div><div class="sdca-summary-label">MTPI Aggregated Directional Score · Average</div><strong class="sdca-composite" id="mtpi-admin-total">—</strong></div>
+        <div class="sdca-classification" id="mtpi-admin-classification" data-class="neutral">AWAITING INPUTS</div>
+      </div>
+      <p class="sdca-note">Scores are stored in this browser on this device and update the MTPI gauge on the dashboard. The aggregate is the average of entered indicator values (range −1.00 to +1.00); unentered indicators are excluded until scored.</p>
+    </section>
+    <footer class="system-footer" aria-label="Admin page status"><span><i class="status-dot" aria-hidden="true"></i>SDCA / LTPI / MTPI manual score administration</span><span><a class="source-page-link" href="index.html">Dashboard ↗</a></span></footer>
   </main>
   <script>
     (()=>{const sk="jxprobability.sdca.manualScores.v1",hk="jxprobability.sdca.compositeHistory.v1",message={textContent:""},controls=document.getElementById("admin-controls"),ltpiControls=document.getElementById("ltpi-admin-controls"),inputs=Array.from(document.querySelectorAll("#sdca-grid .sdca-score-input")),ltpiInputs=Array.from(document.querySelectorAll(".ltpi-score-input")),ltpiCount=document.getElementById("ltpi-admin-count"),ltpiTotal=document.getElementById("ltpi-admin-total"),ltpiClass=document.getElementById("ltpi-admin-classification"),count=document.getElementById("sdca-count"),composite=document.getElementById("sdca-composite"),classification=document.getElementById("sdca-classification"),button=document.getElementById("sdca-confirm-button"),confirmStatus=document.getElementById("sdca-confirm-status"),fmt=new Intl.NumberFormat("en-US",{maximumFractionDigits:4});let history=[],avg=null,n=0;
@@ -778,6 +851,10 @@
       const ltpiKey="jxprobability.ltpi.manualScores.v2";
       function loadLtpiScores(){let saved={};try{const raw=localStorage.getItem(ltpiKey),p=raw?JSON.parse(raw):{};if(p&&typeof p==="object"&&!Array.isArray(p))saved=p;}catch(e){console.warn(e);}ltpiInputs.forEach(i=>{i.value=[-1,0,1].includes(saved[i.dataset.key])?String(saved[i.dataset.key]):"";});}
       function updateLtpi(){const next={},vals=[];ltpiInputs.forEach(i=>{const card=i.closest(".sdca-card"),raw=i.value;if(raw===""){card.dataset.sign="empty";return;}const v=Number(raw);if(![-1,0,1].includes(v)){card.dataset.sign="empty";return;}next[i.dataset.key]=v;vals.push(v);card.dataset.sign=v<0?"negative":v>0?"positive":"zero";});try{localStorage.setItem(ltpiKey,JSON.stringify(next));}catch(e){message.textContent="Could not save LTPI scores in this browser.";}const n=vals.length;ltpiCount.textContent=n+" / 16 SCORED";if(!n){ltpiTotal.textContent="—";ltpiClass.textContent="AWAITING INPUTS";ltpiClass.dataset.class="neutral";return;}const aggregate=vals.reduce((s,v)=>s+v,0)/n;ltpiTotal.textContent=(aggregate>0?"+":"")+aggregate.toFixed(2);ltpiClass.textContent=aggregate < -0.25 ? "RISK OFF" : aggregate > 0.25 ? "RISK ON" : "NEUTRAL";ltpiClass.dataset.class=aggregate < -0.25 ? "negative" : aggregate > 0.25 ? "positive" : "neutral";}
-      ltpiInputs.forEach(i=>i.addEventListener("change",updateLtpi));loadScores();loadHistory();update();loadLtpiScores();updateLtpi();
+      ltpiInputs.forEach(i=>i.addEventListener("change",updateLtpi));
+      const mtpiKey="jxprobability.mtpi.manualScores.v1",mtpiInputs=Array.from(document.querySelectorAll(".mtpi-score-input")),mtpiCount=document.getElementById("mtpi-admin-count"),mtpiTotal=document.getElementById("mtpi-admin-total"),mtpiClass=document.getElementById("mtpi-admin-classification");
+      function loadMtpiScores(){let saved={};try{const raw=localStorage.getItem(mtpiKey),p=raw?JSON.parse(raw):{};if(p&&typeof p==="object"&&!Array.isArray(p))saved=p;}catch(e){console.warn(e);}mtpiInputs.forEach(i=>{i.value=[-1,0,1].includes(saved[i.dataset.key])?String(saved[i.dataset.key]):"";});}
+      function updateMtpi(){const next={},vals=[];mtpiInputs.forEach(i=>{const card=i.closest(".sdca-card"),raw=i.value;if(raw===""){card.dataset.sign="empty";return;}const v=Number(raw);if(![-1,0,1].includes(v)){card.dataset.sign="empty";return;}next[i.dataset.key]=v;vals.push(v);card.dataset.sign=v<0?"negative":v>0?"positive":"zero";});try{localStorage.setItem(mtpiKey,JSON.stringify(next));}catch(e){mtpiCount.textContent="SAVE ERROR";}const n=vals.length;mtpiCount.textContent=n+" / 10 SCORED";if(!n){mtpiTotal.textContent="—";mtpiClass.textContent="AWAITING INPUTS";mtpiClass.dataset.class="neutral";return;}const aggregate=vals.reduce((s,v)=>s+v,0)/n;mtpiTotal.textContent=(aggregate>0?"+":"")+aggregate.toFixed(2);mtpiClass.textContent=aggregate < -0.25 ? "RISK OFF" : aggregate > 0.25 ? "RISK ON" : "NEUTRAL";mtpiClass.dataset.class=aggregate < -0.25 ? "negative" : aggregate > 0.25 ? "positive" : "neutral";}
+      mtpiInputs.forEach(i=>i.addEventListener("change",updateMtpi));loadScores();loadHistory();update();loadLtpiScores();updateLtpi();loadMtpiScores();updateMtpi();
     })();
   </script></body></html>

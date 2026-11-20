@@ -240,6 +240,15 @@
     .trend-gauge-tick { stroke: #62717b; stroke-width: 1; }
     .trend-gauge-tick.major { stroke: #b4c0c7; stroke-width: 1.6; }
     .trend-gauge-scale { fill: var(--muted); font-family: var(--font-ui); font-size: 10px; letter-spacing: .04em; }
+    /* Gauge regime text follows the live classification. */
+    .trend-instrument[data-score-state="risk-off"] #ltpi-regime-label,
+    .trend-instrument[data-score-state="risk-off"] #mtpi-regime-scale { fill: #ef777d; }
+    .trend-instrument[data-score-state="neutral"] #ltpi-regime-label,
+    .trend-instrument[data-score-state="neutral"] #mtpi-regime-scale,
+    .trend-instrument[data-score-state="empty"] #ltpi-regime-label,
+    .trend-instrument[data-score-state="empty"] #mtpi-regime-scale { fill: #9aa6b2; }
+    .trend-instrument[data-score-state="risk-on"] #ltpi-regime-label,
+    .trend-instrument[data-score-state="risk-on"] #mtpi-regime-scale { fill: #36d399; }
     .trend-gauge-center { fill: var(--text); font-family: var(--font-ui); font-size: 26px; font-weight: 600; letter-spacing: .04em; }
     .trend-gauge-placeholder { fill: var(--cyan); font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: .16em; }
     .trend-instrument[data-horizon="medium"] .trend-gauge-placeholder { fill: var(--amber); }

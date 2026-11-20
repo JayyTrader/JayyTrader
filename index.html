@@ -525,7 +525,7 @@
         <div class="trend-gauge-caption"><span>Cycle Regime</span><span id="ltpi-caption"></span></div>
       </article>
       <article class="trend-instrument" data-horizon="medium" aria-labelledby="mtpi-title">
-        <header class="trend-instrument-heading"><div><h2 class="trend-instrument-title" id="mtpi-title">Medium-Term Trend</h2><div class="trend-instrument-code">MTPI · BTC/USD · 1D</div></div><span class="trend-instrument-state" id="mtpi-regime-label">AWAITING INPUTS</span></header>
+        <header class="trend-instrument-heading"><div><h2 class="trend-instrument-title" id="mtpi-title">Medium-Term Trend</h2><div class="trend-instrument-code">MTPI · BTC/USD · 1D</div></div></header>
         <svg class="trend-gauge" viewBox="0 0 320 170" role="img" aria-labelledby="mtpi-gauge-title mtpi-gauge-desc">
           <title id="mtpi-gauge-title">Medium-term trend probability gauge</title><desc id="mtpi-gauge-desc">A manual score gauge based on up to 10 medium-term trend indicators, ranging from bearish minus one through neutral zero to bullish plus one.</desc>
           <path class="trend-gauge-track" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-edge" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-accent" d="M 36 137 A 124 124 0 0 1 284 137"/><path class="trend-gauge-inner" d="M 49 137 A 111 111 0 0 1 271 137"/>
@@ -597,7 +597,6 @@
       const count = document.getElementById("mtpi-count");
       const needle = document.getElementById("mtpi-needle");
       const caption = document.getElementById("mtpi-caption");
-      const regimeLabel = document.getElementById("mtpi-regime-label");
       const regimeScale = document.getElementById("mtpi-regime-scale");
       const fmt = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2, signDisplay: "always" });
       function render() {
@@ -613,7 +612,6 @@
           caption.textContent = "10 indicators · awaiting scores";
           needle.setAttribute("transform", "rotate(0 160 137)");
           card.dataset.scoreState = "empty";
-          regimeLabel.textContent = "AWAITING INPUTS";
           regimeScale.textContent = "AWAITING INPUTS";
           return;
         }
@@ -621,7 +619,6 @@
         const angle = aggregate * 90;
         const classification = aggregate < -0.25 ? "RISK OFF" : aggregate > 0.25 ? "RISK ON" : "NEUTRAL";
         const regime = aggregate < -0.25 ? "risk-off" : aggregate > 0.25 ? "risk-on" : "neutral";
-        regimeLabel.textContent = classification;
         regimeScale.textContent = classification;
         total.textContent = (aggregate > 0 ? "+" : "") + aggregate.toFixed(2);
         count.textContent = vals.length + "/10 SCORED";

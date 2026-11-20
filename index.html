@@ -143,7 +143,19 @@
       height: 0;
       overflow: visible;
     }
+    .oscillator-zone { stroke: none; }
+    .oscillator-zone.overvalued { fill: rgba(240,68,68,.13); }
+    .oscillator-zone.middle { fill: rgba(217,154,54,.10); }
+    .oscillator-zone.undervalued { fill: rgba(0,210,140,.13); }
     .oscillator-grid { stroke: var(--line); stroke-width: 1; opacity: .68; }
+    .oscillator-history-segment { fill: none; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+    .oscillator-history-segment[data-zone="overvalued"] { stroke: #f04444; }
+    .oscillator-history-segment[data-zone="middle"] { stroke: #e6a13a; }
+    .oscillator-history-segment[data-zone="undervalued"] { stroke: #00d28c; }
+    .oscillator-history-point[data-zone="overvalued"] { stroke: #f04444; }
+    .oscillator-history-point[data-zone="middle"] { stroke: #e6a13a; }
+    .oscillator-history-point[data-zone="undervalued"] { stroke: #00d28c; }
+    .oscillator-date-label { font-size: 10px; }
     .oscillator-grid.zero { stroke: color-mix(in srgb, var(--cyan) 64%, transparent); stroke-width: 1.6; opacity: 1; }
     .oscillator-label {
       fill: var(--muted);
@@ -483,6 +495,9 @@
             <title id="oscillator-chart-title">SDCA Bitcoin valuation chart with the manual composite score</title>
             <desc id="oscillator-chart-desc">Bitcoin valuation scale from plus two undervalued to minus two overvalued. The arithmetic average of entered SDCA scores is plotted when at least one score is available.</desc>
             <g aria-hidden="true">
+              <rect class="oscillator-zone overvalued" x="82" y="28" width="808" height="83" />
+              <rect class="oscillator-zone middle" x="82" y="111" width="808" height="166" />
+              <rect class="oscillator-zone undervalued" x="82" y="277" width="808" height="83" />
               <line class="oscillator-grid" x1="82" y1="28" x2="890" y2="28" />
               <line class="oscillator-grid" x1="82" y1="111" x2="890" y2="111" />
               <line class="oscillator-grid zero" x1="82" y1="194" x2="890" y2="194" />
@@ -657,20 +672,23 @@
       function loadState(){try{const raw=localStorage.getItem(storageKey),parsed=raw?JSON.parse(raw):{};saved=parsed&&typeof parsed==="object"&&!Array.isArray(parsed)?parsed:{};}catch(error){saved={};console.warn("SDCA scores could not be loaded from local storage.",error);}
         try{const raw=localStorage.getItem(historyKey),parsed=raw?JSON.parse(raw):[];history=Array.isArray(parsed)?parsed.filter((item)=>item&&/^\d{4}-\d{2}-\d{2}$/.test(item.date)&&Number.isFinite(item.score)).sort((a,b)=>a.date.localeCompare(b.date)):[];}catch(error){history=[];console.warn("SDCA history could not be loaded from local storage.",error);}}
       function classify(v){if(v<=-1.5)return{label:"NO VALUE",kind:"negative"};if(v<0)return{label:"LOW VALUE",kind:"negative"};if(v===0)return{label:"NEUTRAL",kind:"neutral"};if(v<1.5)return{label:"VALUE",kind:"positive"};return{label:"HIGH VALUE",kind:"positive"};}
-      function displayDate(key){const p=key.split("-").map(Number);return new Date(p[0],p[1]-1,p[2]).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"2-digit"});}
+      function displayDate(key,withYear=true){const p=key.split("-").map(Number);return new Date(p[0],p[1]-1,p[2]).toLocaleDateString("en-US",withYear?{month:"short",day:"numeric",year:"2-digit"}:{month:"short",day:"numeric"});}
+      function zoneFor(v){return v<=-1?"overvalued":v>=1?"undervalued":"middle";}
       function makeSvg(tag,attrs){const node=document.createElementNS(svgNS,tag);Object.entries(attrs).forEach(([k,v])=>node.setAttribute(k,String(v)));return node;}
       function drawHistory(){historyPath.setAttribute("d","");historyPoints.replaceChildren();dateLabels.replaceChildren();if(!history.length)return;const left=82,right=890;
         const dateValue=(key)=>{const p=key.split("-").map(Number);return new Date(p[0],p[1]-1,p[2]).getTime();};
         const firstDate=dateValue(history[0].date),lastDate=dateValue(history[history.length-1].date),dateSpan=lastDate-firstDate;
-        const points=history.map((item)=>({...item,x:dateSpan===0?(left+right)/2:left+((dateValue(item.date)-firstDate)/dateSpan)*(right-left),y:194+Math.max(-2,Math.min(2,item.score))*83}));
-        historyPath.setAttribute("d",points.map((p,i)=>(i?"L ":"M ")+p.x.toFixed(2)+" "+p.y.toFixed(2)).join(" "));
-        points.forEach((p)=>{const circle=makeSvg("circle",{cx:p.x,cy:p.y,r:4,class:"oscillator-history-point",tabindex:0,role:"img","aria-label":displayDate(p.date)+", composite "+p.score.toFixed(4)});const title=makeSvg("title",{});title.textContent=displayDate(p.date)+" · "+((p.score>0?"+":"")+numberFormat.format(p.score))+" · "+p.count+" indicators";circle.appendChild(title);historyPoints.appendChild(circle);});
-        const indexes=new Set([0,points.length-1]),max=6;for(let i=1;i<Math.min(max-1,points.length-1);i++)indexes.add(Math.round(i*(points.length-1)/(max-1)));
-        Array.from(indexes).sort((a,b)=>a-b).forEach((i)=>{const p=points[i],anchor=points.length===1?"middle":i===0?"start":i===points.length-1?"end":"middle",x=points.length===1?p.x:i===0?left:i===points.length-1?right:p.x,node=makeSvg("text",{x,y:395,"text-anchor":anchor,class:"oscillator-date-label"});node.textContent=displayDate(p.date);dateLabels.appendChild(node);});}
+        const points=history.map((item)=>({...item,x:dateSpan===0?(left+right)/2:left+((dateValue(item.date)-firstDate)/dateSpan)*(right-left),y:194+Math.max(-2,Math.min(2,item.score))*83,zone:zoneFor(item.score)}));
+        points.slice(1).forEach((p,i)=>{const prev=points[i],segment=makeSvg("path",{d:"M "+prev.x.toFixed(2)+" "+prev.y.toFixed(2)+" L "+p.x.toFixed(2)+" "+p.y.toFixed(2),class:"oscillator-history-segment","data-zone":zoneFor((prev.score+p.score)/2)});historyPoints.appendChild(segment);});
+        points.forEach((p)=>{const circle=makeSvg("circle",{cx:p.x,cy:p.y,r:4,class:"oscillator-history-point","data-zone":p.zone,tabindex:0,role:"img","aria-label":displayDate(p.date)+", composite "+p.score.toFixed(4)});const title=makeSvg("title",{});title.textContent=displayDate(p.date)+" · "+((p.score>0?"+":"")+numberFormat.format(p.score))+" · "+p.count+" indicators";circle.appendChild(title);historyPoints.appendChild(circle);});
+        const candidates=[0,points.length-1],maxTicks=5;for(let i=1;i<Math.min(maxTicks-1,points.length-1);i++)candidates.push(Math.round(i*(points.length-1)/(maxTicks-1)));
+        const indexes=[];candidates.sort((a,b)=>a-b).forEach((idx)=>{if(!indexes.length||points[idx].x-points[indexes[indexes.length-1]].x>=82)indexes.push(idx);});
+        if(points.length>1&&indexes[indexes.length-1]!==points.length-1){while(indexes.length>1&&points[points.length-1].x-points[indexes[indexes.length-1]].x<82)indexes.pop();indexes.push(points.length-1);}
+        indexes.forEach((i)=>{const p=points[i],anchor=points.length===1?"middle":i===0?"start":i===points.length-1?"end":"middle",x=points.length===1?p.x:i===0?left:i===points.length-1?right:p.x,node=makeSvg("text",{x,y:395,"text-anchor":anchor,class:"oscillator-date-label"});node.textContent=displayDate(p.date,false);dateLabels.appendChild(node);});}
       function render(){const values=Object.values(saved).filter((v)=>typeof v==="number"&&Number.isFinite(v));
         if(!values.length){marker.setAttribute("visibility","hidden");headingScore.textContent="";headingScore.removeAttribute("data-state");chartTitle.textContent="Valuation oscillator awaiting manual scores";chartDesc.textContent="No manual SDCA scores are entered. Confirmed weekly history, if present, remains displayed.";return;}
         const avg=values.reduce((s,v)=>s+v,0)/values.length,formatted=(avg>0?"+":"")+numberFormat.format(avg);
-        const y=194+Math.max(-2,Math.min(2,avg))*83;line.setAttribute("y1",String(y));line.setAttribute("y2",String(y));label.setAttribute("y",String(Math.max(42,y-9)));label.textContent="";marker.setAttribute("visibility","visible");
+        const y=194+Math.max(-2,Math.min(2,avg))*83;line.setAttribute("y1",String(y));line.setAttribute("y2",String(y));line.style.stroke=avg<=-1?"#f04444":avg>=1?"#00d28c":"#e6a13a";label.setAttribute("y",String(Math.max(42,y-9)));label.textContent="";marker.setAttribute("visibility","visible");
         const valuationState=avg>0?"UNDERVALUED":avg<0?"OVERVALUED":"NEUTRAL";
         headingScore.textContent=formatted;headingScore.dataset.state=avg>0?"undervalued":avg<0?"overvalued":"neutral";stateLabel.textContent=valuationState;stateLabel.dataset.state=avg>0?"undervalued":avg<0?"overvalued":"neutral";
         chartTitle.textContent="Valuation oscillator: "+valuationState+" · current SDCA average "+formatted;chartDesc.textContent="Positive averages indicate undervaluation, negative averages indicate overvaluation, and zero is neutral. The dashed line is the current unconfirmed average. The solid line shows confirmed weekly averages by date. Chart positions are clamped to the minus two to plus two range.";}

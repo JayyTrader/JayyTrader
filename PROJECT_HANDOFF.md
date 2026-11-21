@@ -99,3 +99,6 @@
 
 
 - Background tone correction proposed on branch `visual/unify-page-background`: replaced the final vertical/radial body background gradient with a uniform pure-black `#000000` base to prevent the page's upper and lower regions from appearing different in brightness. The existing subtle grid overlay remains. No dashboard content, chart, gauge, scoring, or storage behavior changed. Awaiting merge authorization.
+
+
+- Background grid uniformity proposed on branch `visual/even-grid-coverage`: removed the vertical mask that faded the grid toward the bottom of the page. Grid line color and spacing remain unchanged; the subtle grid now covers the full fixed background consistently. Awaiting merge authorization.

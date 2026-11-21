@@ -880,9 +880,10 @@
         lumpSumSignal.setAttribute("aria-label",lumpSum?"Lump sum invest signal active: LTPI is "+ltpiAvg.toFixed(2):"Lump sum invest signal inactive: LTPI is below +0.10 or has no scores");
       }
       function render(){const values=Object.values(saved).filter((v)=>typeof v==="number"&&Number.isFinite(v));
-        if(!values.length){marker.setAttribute("visibility","hidden");headingScore.textContent="";headingScore.removeAttribute("data-state");accumulationRate.textContent="AWAITING SDCA";chartTitle.textContent="Valuation oscillator awaiting manual scores";chartDesc.textContent="No manual SDCA scores are entered. Confirmed weekly history, if present, remains displayed.";return;}
+        if(!values.length){marker.setAttribute("visibility","hidden");headingScore.textContent="";headingScore.removeAttribute("data-state");if(history.length){updateAccumulation(history[history.length-1].score);}else{accumulationRate.textContent="AWAITING SDCA";lumpSumSignal.textContent="LUMP SUM SIGNAL INACTIVE";lumpSumSignal.dataset.active="false";}chartTitle.textContent="Valuation oscillator awaiting manual scores";chartDesc.textContent="No manual SDCA scores are entered. Confirmed weekly history, if present, remains displayed.";return;}
         const avg=values.reduce((s,v)=>s+v,0)/values.length,formatted=(avg>0?"+":"")+numberFormat.format(avg);
-        updateAccumulation(avg);
+        const confirmedScore=history.length?history[history.length-1].score:avg;
+        updateAccumulation(confirmedScore);
         const y=194+Math.max(-2,Math.min(2,avg))*83;line.setAttribute("y1",String(y));line.setAttribute("y2",String(y));line.style.stroke=avg<=-1?"#f04444":avg>=1?"#00d28c":"#e6a13a";label.setAttribute("y",String(Math.max(42,y-9)));label.textContent="";marker.setAttribute("visibility","visible");
         const valuationState=avg>0?"UNDERVALUED":avg<0?"OVERVALUED":"NEUTRAL";
         headingScore.textContent=formatted;headingScore.dataset.state=avg>0?"undervalued":avg<0?"overvalued":"neutral";stateLabel.textContent=valuationState;stateLabel.dataset.state=avg>0?"undervalued":avg<0?"overvalued":"neutral";

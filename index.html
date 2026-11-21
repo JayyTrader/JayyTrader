@@ -219,6 +219,10 @@
     .trend-instruments { display: flex; flex-direction: column; gap: 16px; min-width: 0; margin: 0; }
     .trend-instrument {
       position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      aspect-ratio: 1 / 1;
       min-width: 0;
       padding: 18px 20px 14px;
       overflow: hidden;
@@ -461,7 +465,7 @@
       h1 { top: 16px; left: 16px; font-size: clamp(10.5px, 3vw, 14px); }
       .landing { width: min(100% - 32px, 720px); padding-top: 92px; }
       .trend-instruments { grid-template-columns: minmax(0, 1fr); gap: 14px; }
-      .trend-instrument { padding: 16px 14px 12px; }
+      .trend-instrument { display: block; aspect-ratio: auto; padding: 16px 14px 12px; }
       .oscillator-panel { padding: 16px 12px 14px; margin-top: 0; }
       .panel-heading { flex-direction: column; gap: 10px; }
       .oscillator-plot { min-height: 240px; }

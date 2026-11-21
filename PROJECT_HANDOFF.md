@@ -105,3 +105,5 @@
 
 
 - SDCA accumulation percentage typography merged via PR #84, commit `4ddebe50a41acc29d0b19ca296fa724b1ec151b5`: halved the responsive accumulation-rate font size (`clamp(20px, 3vw, 30px)` → `clamp(10px, 1.5vw, 15px)`), split the number, percent symbol, and `/ DAY` into separate spans with a `0.18em` gap, and hid the symbol/period while awaiting scores. Accumulation formula and signal logic unchanged. Source verified on `main`; browser visual verification pending. Repository Validation's calculation/data checks passed, but the existing Dashboard Integrity step failed; investigate its exact failure before treating validation as green.
+
+- SDCA admin page update prepared in PR #85 on branch `ui/sdca-admin-black-background`: set `sdca-admin.html` body background to pure black `#000000` to match the dashboard, preserving the grid overlay, panel styling, and score behavior; shortened the dashboard navigation label from `System Admin` to `Admin` in `index.html`. Browser visual verification remains pending. Merge/deploy only with operator authorization.

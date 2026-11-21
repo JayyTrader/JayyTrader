@@ -144,17 +144,20 @@
       overflow: visible;
     }
     .oscillator-zone { stroke: none; }
-    .oscillator-zone.overvalued { fill: rgba(240,68,68,.13); }
-    .oscillator-zone.middle { fill: rgba(217,154,54,.10); }
-    .oscillator-zone.undervalued { fill: rgba(0,210,140,.13); }
+    .oscillator-zone.overvalued { fill: rgba(255,59,59,.17); }
+    .oscillator-zone.middle-high { fill: rgba(255,157,0,.15); }
+    .oscillator-zone.middle-low { fill: rgba(165,217,0,.13); }
+    .oscillator-zone.undervalued { fill: rgba(0,200,83,.16); }
     .oscillator-grid { stroke: var(--line); stroke-width: 1; opacity: .68; }
     .oscillator-history-segment { fill: none; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
-    .oscillator-history-segment[data-zone="overvalued"] { stroke: #f04444; }
-    .oscillator-history-segment[data-zone="middle"] { stroke: #e6a13a; }
-    .oscillator-history-segment[data-zone="undervalued"] { stroke: #00d28c; }
-    .oscillator-history-point[data-zone="overvalued"] { stroke: #f04444; }
-    .oscillator-history-point[data-zone="middle"] { stroke: #e6a13a; }
-    .oscillator-history-point[data-zone="undervalued"] { stroke: #00d28c; }
+    .oscillator-history-segment[data-zone="overvalued"] { stroke: #ff3b3b; }
+    .oscillator-history-segment[data-zone="middle-high"] { stroke: #ff9d00; }
+    .oscillator-history-segment[data-zone="middle-low"] { stroke: #a5d900; }
+    .oscillator-history-segment[data-zone="undervalued"] { stroke: #00c853; }
+    .oscillator-history-point[data-zone="overvalued"] { stroke: #ff3b3b; }
+    .oscillator-history-point[data-zone="middle-high"] { stroke: #ff9d00; }
+    .oscillator-history-point[data-zone="middle-low"] { stroke: #a5d900; }
+    .oscillator-history-point[data-zone="undervalued"] { stroke: #00c853; }
     .oscillator-date-label { font-size: 10px; }
     .oscillator-grid.zero { stroke: color-mix(in srgb, var(--cyan) 64%, transparent); stroke-width: 1.6; opacity: 1; }
     .oscillator-label {
@@ -496,7 +499,8 @@
             <desc id="oscillator-chart-desc">Bitcoin valuation scale from plus two undervalued to minus two overvalued. The arithmetic average of entered SDCA scores is plotted when at least one score is available.</desc>
             <g aria-hidden="true">
               <rect class="oscillator-zone overvalued" x="82" y="28" width="808" height="83" />
-              <rect class="oscillator-zone middle" x="82" y="111" width="808" height="166" />
+              <rect class="oscillator-zone middle-high" x="82" y="111" width="808" height="83" />
+              <rect class="oscillator-zone middle-low" x="82" y="194" width="808" height="83" />
               <rect class="oscillator-zone undervalued" x="82" y="277" width="808" height="83" />
               <line class="oscillator-grid" x1="82" y1="28" x2="890" y2="28" />
               <line class="oscillator-grid" x1="82" y1="111" x2="890" y2="111" />
@@ -673,7 +677,7 @@
         try{const raw=localStorage.getItem(historyKey),parsed=raw?JSON.parse(raw):[];history=Array.isArray(parsed)?parsed.filter((item)=>item&&/^\d{4}-\d{2}-\d{2}$/.test(item.date)&&Number.isFinite(item.score)).sort((a,b)=>a.date.localeCompare(b.date)):[];}catch(error){history=[];console.warn("SDCA history could not be loaded from local storage.",error);}}
       function classify(v){if(v<=-1.5)return{label:"NO VALUE",kind:"negative"};if(v<0)return{label:"LOW VALUE",kind:"negative"};if(v===0)return{label:"NEUTRAL",kind:"neutral"};if(v<1.5)return{label:"VALUE",kind:"positive"};return{label:"HIGH VALUE",kind:"positive"};}
       function displayDate(key,withYear=true){const p=key.split("-").map(Number);return new Date(p[0],p[1]-1,p[2]).toLocaleDateString("en-US",withYear?{month:"short",day:"numeric",year:"2-digit"}:{month:"short",day:"numeric"});}
-      function zoneFor(v){return v<=-1?"overvalued":v>=1?"undervalued":"middle";}
+      function zoneFor(v){return v<=-1?"overvalued":v<0?"middle-high":v<1?"middle-low":"undervalued";}
       function makeSvg(tag,attrs){const node=document.createElementNS(svgNS,tag);Object.entries(attrs).forEach(([k,v])=>node.setAttribute(k,String(v)));return node;}
       function drawHistory(){historyPath.setAttribute("d","");historyPoints.replaceChildren();dateLabels.replaceChildren();if(!history.length)return;const left=82,right=890;
         const dateValue=(key)=>{const p=key.split("-").map(Number);return new Date(p[0],p[1]-1,p[2]).getTime();};

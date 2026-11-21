@@ -93,3 +93,6 @@
 
 
 - Square trend-gauge card alignment in progress: branch `ui/square-trend-gauge-cards`, based on main SHA `84d06b0d8ed8d136535c83c4617e83a8d9bf8243`. Updated `index.html` so LTPI and MTPI instrument cards use a 1:1 square aspect ratio and flex layout on desktop/tablet, with the existing gauge SVG and captions spaced within the square. At narrow mobile widths, the cards revert to their prior natural height to avoid oversized square panels. No score logic, localStorage, colors, chart, or gauge behavior changed. Source check confirms desktop square ratio and mobile reset; browser visual verification remains pending.
+
+
+- Trend gauge scored-count cleanup merged via PR #81: removed the visible `X/X SCORED` and `NO SCORE` text from both LTPI and MTPI gauges. Center score values moved slightly downward to occupy the available space. Gauge score calculations, thresholds, storage, and captions remain unchanged.

@@ -576,101 +576,25 @@
       .cursor { animation: none; }
     }
   
-    /* Shared wave-banner and refined admin presentation */
-    .wave-banner {
-      position: relative;
-      z-index: 1;
-      width: min(calc(100% - 64px), 1480px);
-      height: clamp(132px, 16vw, 220px);
-      margin: 16px auto 0;
-      overflow: hidden;
-      background: #020407;
-      border: 1px solid rgba(155, 183, 198, .12);
-      border-radius: 8px;
-      isolation: isolate;
-    }
-    .wave-banner img {
-      display: block;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center 52%;
-      opacity: .94;
-    }
-    .wave-banner::after {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, rgba(2,4,7,.18), transparent 35%, rgba(2,4,7,.12)), linear-gradient(0deg, rgba(8,13,18,.42), transparent 48%);
-      content: "";
-      pointer-events: none;
-    }
-    body {
-      display: block;
-      background: radial-gradient(ellipse at 50% 10%, rgba(39,217,232,.045), transparent 45%), linear-gradient(180deg, #05090d 0%, #080d12 48%, #05090d 100%);
-    }
-    body::before { opacity: .52; mask-image: linear-gradient(to bottom, rgba(0,0,0,.72), transparent 72%); }
-    #cursor-glow {
-      background: radial-gradient(circle, rgba(39,217,232,.045) 0%, rgba(39,217,232,.022) 32%, rgba(39,217,232,.008) 55%, transparent 72%);
-    }
-    .admin-shell {
-      width: min(calc(100% - 64px), 1480px);
-      min-height: auto;
-      margin: 0 auto;
-      padding: 22px 0 64px;
-      grid-template-rows: auto;
-      gap: 20px;
-    }
-    .admin-shell > section,
-    .admin-shell .sdca-panel {
-      border-radius: 10px;
-      border-color: rgba(142,166,180,.17);
-      border-top-color: rgba(39,217,232,.48);
-      background: linear-gradient(145deg, rgba(16,27,35,.96), rgba(8,13,18,.98));
-      box-shadow: 0 16px 42px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.025);
-    }
-    .admin-shell .sdca-panel { padding: 22px; }
-    .admin-shell .sdca-heading { align-items: center; padding-bottom: 16px; border-bottom: 1px solid rgba(142,166,180,.13); }
-    .admin-shell .sdca-title { font-size: 15px; letter-spacing: .075em; }
-    .admin-shell .sdca-subtitle { max-width: 680px; font-size: 10px; line-height: 1.75; }
-    .admin-shell .sdca-grid { gap: 9px; }
-    .admin-shell .sdca-card {
-      min-height: 58px;
-      padding: 9px 10px 8px;
-      border-radius: 6px;
-      border-color: rgba(142,166,180,.14);
-      background: linear-gradient(145deg, rgba(19,31,40,.86), rgba(7,12,17,.96));
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
-    }
-    .admin-shell .sdca-card:focus-within {
-      border-color: rgba(39,217,232,.58);
-      box-shadow: 0 0 0 2px rgba(39,217,232,.08), inset 0 1px 0 rgba(255,255,255,.025);
-    }
-    .admin-shell input,
-    .admin-shell select,
-    .admin-shell button {
-      border-radius: 5px;
-    }
-    @media (max-width: 900px) {
-      .wave-banner { width: min(calc(100% - 40px), 1480px); height: clamp(120px, 22vw, 180px); }
-      .admin-shell { width: min(calc(100% - 40px), 1480px); }
-    }
-    @media (max-width: 600px) {
-      .wave-banner { width: calc(100% - 28px); height: 116px; margin-top: 10px; border-radius: 6px; }
-      .admin-shell { width: calc(100% - 28px); padding: 14px 0 36px; gap: 14px; }
-      .admin-shell .sdca-panel { padding: 14px 12px; }
-      .admin-shell .sdca-heading { align-items: flex-start; flex-direction: column; gap: 10px; }
-      .admin-shell .sdca-grid { gap: 7px; }
-      .admin-shell .sdca-card { padding: 8px; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      * { transition-duration: 0.01ms !important; }
-    }
+    /* Refined admin layout — direct access to scoring panels */
+    body { display:block; background:radial-gradient(ellipse at 50% 0%,rgba(39,217,232,.035),transparent 42%),linear-gradient(180deg,#05090d 0%,#080d12 52%,#05090d 100%); }
+    .admin-shell { width:min(calc(100% - 64px),1480px); min-height:auto; margin:0 auto; padding:28px 0 56px; grid-template-rows:auto; gap:20px; }
+    .admin-shell .sdca-panel { margin-top:0; padding:22px; border-radius:9px; border-color:rgba(142,166,180,.16); border-top-color:rgba(39,217,232,.42); background:linear-gradient(145deg,rgba(16,27,35,.96),rgba(8,13,18,.98)); box-shadow:0 14px 38px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.025); }
+    .admin-shell .sdca-heading { align-items:center; padding-bottom:16px; border-bottom:1px solid rgba(142,166,180,.13); }
+    .admin-shell .sdca-title { font-size:15px; letter-spacing:.075em; }
+    .admin-shell .sdca-subtitle { max-width:680px; font-size:10px; line-height:1.75; }
+    .admin-shell .sdca-grid { gap:9px; }
+    .admin-shell .sdca-card { min-height:58px; padding:9px 10px 8px; border-radius:6px; border-color:rgba(142,166,180,.14); background:linear-gradient(145deg,rgba(19,31,40,.86),rgba(7,12,17,.96)); box-shadow:inset 0 1px 0 rgba(255,255,255,.025); }
+    .admin-shell .sdca-card:focus-within { border-color:rgba(39,217,232,.58); box-shadow:0 0 0 2px rgba(39,217,232,.08),inset 0 1px 0 rgba(255,255,255,.025); }
+    .admin-shell input,.admin-shell select,.admin-shell button { border-radius:5px; }
+    .admin-shell .system-footer { margin-top:4px; padding-top:16px; border-top-color:rgba(142,166,180,.14); }
+    @media(max-width:900px){.admin-shell{width:min(calc(100% - 40px),1480px)}}
+    @media(max-width:600px){.admin-shell{width:calc(100% - 28px);padding:14px 0 36px;gap:14px}.admin-shell .sdca-panel{padding:14px 12px}.admin-shell .sdca-heading{align-items:flex-start;flex-direction:column;gap:10px}.admin-shell .sdca-grid{gap:7px}.admin-shell .sdca-card{padding:8px}}
+    @media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
 
   </style>
 </head>
-<body><div id="cursor-glow" aria-hidden="true"></div><header class="wave-banner" aria-label="JayyTrader abstract wave banner">
-    <img src="cleaned_dark_wave_banner_1_8mb.png" alt="" fetchpriority="high" decoding="async">
-  </header>
+<body><div id="cursor-glow" aria-hidden="true"></div>
   <main class="admin-shell">
     <section class="sdca-panel" id="admin-controls" aria-labelledby="sdca-title">
       <header class="sdca-heading">

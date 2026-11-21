@@ -115,4 +115,4 @@
 - Dashboard Admin link alignment merged via PR #87, merge commit `08992004950d5b895127a1c59453b0f64226c207`: the dashboard footer's `Admin ↗` link is right-aligned using a dedicated wrapper with automatic left margin and right text alignment. Source markup/style checks passed; browser rendering and live deployment are not independently verified.
 
 
-- MTPI reference asset correction (2026-11-21): MTPI is based on TOTAL/USD, not BTC/USD. The dashboard's MTPI gauge caption is now `TOTAL/USD · 1D`; LTPI remains `BTC/USD · 3D`. MTPI scores remain manually entered and its aggregation/storage/gauge logic is unchanged. Source correction requires verification on main after merge; browser/live site not verified.
+- MTPI reference asset correction (2026-11-21): MTPI is based on TOTAL/USD, not BTC/USD. The dashboard's MTPI gauge caption is now `TOTAL/USD · 1D`; LTPI remains `BTC/USD · 3D`. MTPI scores remain manually entered and its aggregation/storage/gauge logic is unchanged. Verified on `main` after PR #88, merge commit `54a479447b02c37b4d5692d8cb02f671ad3c874f`; browser rendering and live site deployment are not independently verified.

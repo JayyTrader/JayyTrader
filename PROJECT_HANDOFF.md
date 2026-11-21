@@ -96,3 +96,6 @@
 
 
 - Trend gauge scored-count cleanup merged via PR #81: removed the visible `X/X SCORED` and `NO SCORE` text from both LTPI and MTPI gauges. Center score values moved slightly downward to occupy the available space. Gauge score calculations, thresholds, storage, and captions remain unchanged.
+
+
+- Background tone correction proposed on branch `visual/unify-page-background`: replaced the final vertical/radial body background gradient with a uniform `#080D12` base to prevent the page's upper and lower regions from appearing different in brightness. The existing subtle grid overlay remains. No dashboard content, chart, gauge, scoring, or storage behavior changed. Awaiting merge authorization.

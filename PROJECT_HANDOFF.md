@@ -102,3 +102,6 @@
 
 
 - Background grid uniformity proposed on branch `visual/even-grid-coverage`: removed the vertical mask that faded the grid toward the bottom of the page. Grid line color and spacing remain unchanged; the subtle grid now covers the full fixed background consistently. Awaiting merge authorization.
+
+
+- SDCA accumulation percentage typography in progress: branch `ui/accumulation-rate-half-size`, based on latest `main` SHA `872033c415a4f438cca53faa883fa9dbc46b8f3b`. Updated `index.html` to halve the accumulation-rate value's responsive font-size from `clamp(20px, 3vw, 30px)` to `clamp(10px, 1.5vw, 15px)`, separate the numeric rate, percent symbol, and `/ DAY` into spans, and add a small `0.18em` flex gap so the `%` is no longer crowded against the number. The rate calculation and signal logic are unchanged; percent and period remain hidden while awaiting scores. Source change is on the feature branch; PR review/merge and browser visual verification are pending.

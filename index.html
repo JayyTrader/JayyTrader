@@ -136,7 +136,7 @@
     .sdca-accumulation { display:flex; align-items:center; justify-content:space-between; gap:16px; margin:0 0 14px; padding:14px 16px; border:1px solid color-mix(in srgb,var(--cyan) 38%,var(--line)); background:linear-gradient(110deg,rgba(39,217,232,.09),rgba(8,13,18,.72)); }
     .sdca-accumulation-copy { min-width:0; }
     .sdca-accumulation-kicker { color:var(--muted); font-size:9px; font-weight:650; letter-spacing:.12em; text-transform:uppercase; }
-    .sdca-accumulation-value { margin-top:5px; color:var(--cyan); font-size:clamp(20px,3vw,30px); font-weight:750; line-height:1.1; letter-spacing:-.035em; font-variant-numeric:tabular-nums; }
+    .sdca-accumulation-value { display:flex; align-items:baseline; gap:.18em; margin-top:5px; color:var(--cyan); font-size:clamp(10px,1.5vw,15px); font-weight:750; line-height:1.1; letter-spacing:-.035em; font-variant-numeric:tabular-nums; }
     .sdca-accumulation-signal { flex:0 0 auto; max-width:48%; padding:9px 12px; border:1px solid #35414a; color:var(--muted); font-size:10px; font-weight:750; letter-spacing:.08em; line-height:1.4; text-align:center; }
     .sdca-accumulation-signal[data-active="true"] { border-color:var(--cyan); color:var(--cyan); box-shadow:0 0 14px color-mix(in srgb,var(--cyan) 15%,transparent); }
     @media (max-width:600px) { .sdca-accumulation { align-items:flex-start; flex-direction:column; gap:10px; } .sdca-accumulation-signal { max-width:100%; } }
@@ -686,7 +686,7 @@
           <div class="sdca-accumulation" aria-live="polite" aria-label="SDCA accumulation guidance">
             <div class="sdca-accumulation-copy">
               <div class="sdca-accumulation-kicker">Daily accumulation rate</div>
-              <div class="sdca-accumulation-value" id="sdca-accumulation-rate">AWAITING SDCA</div>
+              <div class="sdca-accumulation-value" id="sdca-accumulation-rate" aria-label="Accumulation rate"><span id="sdca-accumulation-number">AWAITING SDCA</span><span class="sdca-accumulation-percent" hidden>%</span><span class="sdca-accumulation-period" hidden> / DAY</span></div>
             </div>
             <div class="sdca-accumulation-signal" id="sdca-lump-sum-signal" data-active="false">LUMP SUM SIGNAL INACTIVE</div>
           </div>
@@ -864,7 +864,7 @@
       const storageKey="jxprobability.sdca.manualScores.v1",historyKey="jxprobability.sdca.compositeHistory.v1";
       const marker=document.getElementById("oscillator-live-score"),line=document.getElementById("oscillator-score-line"),label=document.getElementById("oscillator-score-label"),headingScore=document.getElementById("oscillator-heading-score"),stateLabel=document.getElementById("oscillator-state-label");
       const chartTitle=document.getElementById("oscillator-chart-title"),chartDesc=document.getElementById("oscillator-chart-desc"),historyPath=document.getElementById("oscillator-history-path"),historyPoints=document.getElementById("oscillator-history-points"),dateLabels=document.getElementById("oscillator-date-labels");
-      const accumulationRate=document.getElementById("sdca-accumulation-rate"),lumpSumSignal=document.getElementById("sdca-lump-sum-signal");
+      const accumulationRate=document.getElementById("sdca-accumulation-number"),accumulationPercent=document.querySelector(".sdca-accumulation-percent"),accumulationPeriod=document.querySelector(".sdca-accumulation-period"),lumpSumSignal=document.getElementById("sdca-lump-sum-signal");
       const numberFormat=new Intl.NumberFormat("en-US",{maximumFractionDigits:4}),svgNS="http://www.w3.org/2000/svg";let saved={},history=[];
       function loadState(){try{const raw=localStorage.getItem(storageKey),parsed=raw?JSON.parse(raw):{};saved=parsed&&typeof parsed==="object"&&!Array.isArray(parsed)?parsed:{};}catch(error){saved={};console.warn("SDCA scores could not be loaded from local storage.",error);}
         try{const raw=localStorage.getItem(historyKey),parsed=raw?JSON.parse(raw):[];history=Array.isArray(parsed)?parsed.map((item)=>item&&typeof item==="object"?({...item,score:Number(item.score)}):item).filter((item)=>item&&/^\d{4}-\d{2}-\d{2}$/.test(item.date)&&Number.isFinite(item.score)).sort((a,b)=>a.date.localeCompare(b.date)):[];}catch(error){history=[];console.warn("SDCA history could not be loaded from local storage.",error);}}
@@ -887,7 +887,7 @@
         const dailyRate=avg<=1?1:avg>=2?10:1+9*Math.pow(avg-1,2);
         let ltpiAvg=null;try{const raw=localStorage.getItem(ltpiStorageKey),parsed=raw?JSON.parse(raw):{};if(parsed&&typeof parsed==="object"&&!Array.isArray(parsed)){const ltpiValues=Object.entries(parsed).filter(([k,v])=>Number.isInteger(Number(k))&&Number(k)>=1&&Number(k)<=16&&(v===-1||v===0||v===1)).map(([,v])=>v);if(ltpiValues.length)ltpiAvg=ltpiValues.reduce((a,v)=>a+v,0)/ltpiValues.length;}}catch(error){console.warn("LTPI scores could not be loaded for accumulation status.",error);}
         const lumpSum=ltpiAvg!==null&&ltpiAvg>=0.1;
-        accumulationRate.textContent=dailyRate.toFixed(1)+"% / DAY";
+        accumulationRate.textContent=dailyRate.toFixed(1);accumulationPercent.hidden=false;accumulationPeriod.hidden=false;
         lumpSumSignal.textContent=lumpSum?"LUMP SUM INVEST":"LUMP SUM SIGNAL INACTIVE";
         lumpSumSignal.dataset.active=lumpSum?"true":"false";
         lumpSumSignal.setAttribute("aria-label",lumpSum?"Lump sum invest signal active: LTPI is "+ltpiAvg.toFixed(2):"Lump sum invest signal inactive: LTPI is below +0.10 or has no scores");
@@ -895,7 +895,7 @@
       function render(){const values=Object.entries(saved).filter(([k,v])=>Number.isInteger(Number(k))&&Number(k)>=1&&Number(k)<=15&&v!==null&&String(v).trim()!==""&&Number.isFinite(Number(v))).map(([,v])=>Number(v));
         const hasManual=values.length>0,hasHistory=history.length>0;
         const avg=hasManual?values.reduce((s,v)=>s+v,0)/values.length:hasHistory?Number(history[history.length-1].score):null;
-        if(avg===null||!Number.isFinite(avg)){marker.setAttribute("visibility","hidden");headingScore.textContent="";headingScore.removeAttribute("data-state");stateLabel.textContent="AWAITING INPUTS";stateLabel.dataset.state="neutral";accumulationRate.textContent="AWAITING SDCA";lumpSumSignal.textContent="LUMP SUM SIGNAL INACTIVE";lumpSumSignal.dataset.active="false";chartTitle.textContent="Valuation oscillator awaiting manual scores";chartDesc.textContent="No manual SDCA scores or confirmed weekly history are available.";return;}
+        if(avg===null||!Number.isFinite(avg)){marker.setAttribute("visibility","hidden");headingScore.textContent="";headingScore.removeAttribute("data-state");stateLabel.textContent="AWAITING INPUTS";stateLabel.dataset.state="neutral";accumulationRate.textContent="AWAITING SDCA";accumulationPercent.hidden=true;accumulationPeriod.hidden=true;lumpSumSignal.textContent="LUMP SUM SIGNAL INACTIVE";lumpSumSignal.dataset.active="false";chartTitle.textContent="Valuation oscillator awaiting manual scores";chartDesc.textContent="No manual SDCA scores or confirmed weekly history are available.";return;}
         const formatted=(avg>0?"+":"")+numberFormat.format(avg);
         const confirmedScore=hasHistory?Number(history[history.length-1].score):avg;
         updateAccumulation(confirmedScore);

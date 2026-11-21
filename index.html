@@ -825,8 +825,8 @@
         }
         const aggregate = vals.reduce((a, v) => a + v, 0) / vals.length;
         const angle = aggregate * 90;
-        const classification = aggregate < -0.25 ? "RISK OFF" : aggregate > 0.25 ? "RISK ON" : "NEUTRAL";
-        const regime = aggregate < -0.25 ? "risk-off" : aggregate > 0.25 ? "risk-on" : "neutral";
+        const classification = aggregate < 0 ? "SHORT" : aggregate > 0 ? "LONG" : "NEUTRAL";
+        const regime = aggregate < 0 ? "risk-off" : aggregate > 0 ? "risk-on" : "neutral";
         regimeScale.textContent = classification;
         total.textContent = (aggregate > 0 ? "+" : "") + aggregate.toFixed(2);
         count.textContent = vals.length + "/10 SCORED";

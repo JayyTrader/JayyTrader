@@ -871,7 +871,7 @@
         indexes.forEach((i)=>{const p=points[i],anchor=points.length===1?"middle":i===0?"start":i===points.length-1?"end":"middle",x=points.length===1?p.x:i===0?left:i===points.length-1?right:p.x,node=makeSvg("text",{x,y:395,"text-anchor":anchor,class:"oscillator-date-label"});node.textContent=displayDate(p.date,false);dateLabels.appendChild(node);});}
       const ltpiStorageKey="jxprobability.ltpi.manualScores.v2";
       function updateAccumulation(avg){
-        const dailyRate=avg<1?1:Math.min(10,1+(avg-1)*9);
+        const dailyRate=avg<=1?1:avg>=2?10:1+9*Math.pow(avg-1,2);
         let ltpiAvg=null;try{const raw=localStorage.getItem(ltpiStorageKey),parsed=raw?JSON.parse(raw):{};if(parsed&&typeof parsed==="object"&&!Array.isArray(parsed)){const ltpiValues=Object.entries(parsed).filter(([k,v])=>Number.isInteger(Number(k))&&Number(k)>=1&&Number(k)<=16&&(v===-1||v===0||v===1)).map(([,v])=>v);if(ltpiValues.length)ltpiAvg=ltpiValues.reduce((a,v)=>a+v,0)/ltpiValues.length;}}catch(error){console.warn("LTPI scores could not be loaded for accumulation status.",error);}
         const lumpSum=ltpiAvg!==null&&ltpiAvg>=0.1;
         accumulationRate.textContent=dailyRate.toFixed(1)+"% / DAY";

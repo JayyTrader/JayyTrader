@@ -651,6 +651,7 @@
     .sdca-accumulation { border-radius:7px; border-color:rgba(39,217,232,.22); background:linear-gradient(110deg,rgba(39,217,232,.05),rgba(8,13,18,.74)); }
     .empty-state { border-color:rgba(142,166,180,.16); border-radius:4px; background:rgba(255,255,255,.012); }
     .system-footer { margin-top:26px; padding-top:16px; border-top-color:rgba(142,166,180,.14); }
+    .system-footer .admin-link-wrap { margin-left: auto; text-align: right; }
     @media(max-width:900px){.landing{width:min(calc(100% - 40px),1480px);padding-top:24px}.dashboard-grid{grid-template-columns:minmax(0,1fr) minmax(240px,290px);gap:14px}}
     @media(max-width:720px){.landing{width:calc(100% - 32px);padding:18px 0 38px}.dashboard-grid{grid-template-columns:minmax(0,1fr)}.trend-instruments{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.trend-instrument{padding:16px 14px 12px}.dashboard-kicker{font-size:8px;letter-spacing:.09em}.regime-panel{margin-bottom:22px;padding:14px 16px}.oscillator-panel{padding:16px 12px 14px}}
     @media(max-width:480px){.trend-instruments{grid-template-columns:minmax(0,1fr)}.trend-instrument{padding:18px 18px 14px}}
@@ -763,7 +764,7 @@
       </aside>
     </div>
     <footer class="system-footer" aria-label="Research system status">
-      <span><a class="source-page-link" href="sdca-admin.html">Admin ↗</a></span>
+      <span class="admin-link-wrap"><a class="source-page-link" href="sdca-admin.html">Admin ↗</a></span>
     </footer>
   </main>
   <script>

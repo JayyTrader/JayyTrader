@@ -110,3 +110,6 @@
 
 
 - Admin label alignment in progress: branch `fix/admin-valuation-and-mtpi-labels`, based on `main`. In `sdca-admin.html`, SDCA composite classification now uses `UNDERVALUED` for positive averages, `OVERVALUED` for negative averages, and `NEUTRAL` for zero, matching the dashboard valuation oscillator wording. MTPI classification now displays `SHORT` / `LONG` / `NEUTRAL` at the existing thresholds (below -0.25 / above +0.25 / neutral); score aggregation, storage, and gauge calculations are unchanged. Source edits applied and verified by exact-string checks; browser rendering/behavior not independently verified. PR #86 is open at https://github.com/JayyTrader/JayyTrader/pull/86; it is mergeable and awaits operator authorization. Do not merge/deploy without explicit authorization.
+
+
+- Dashboard Admin link alignment proposed in PR #87: https://github.com/JayyTrader/JayyTrader/pull/87, branch `ui/admin-link-right-aligned`. In `index.html`, the footer's `Admin ↗` link is right-aligned using a dedicated wrapper with automatic left margin and right text alignment. No dashboard content, scoring, storage, or gauge behavior changed. Source markup/style checks passed; browser rendering and live deployment are not verified. PR is open and mergeable; do not merge/deploy without operator authorization.

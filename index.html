@@ -843,7 +843,7 @@
         const regime = aggregate < 0 ? "risk-off" : aggregate > 0 ? "risk-on" : "neutral";
         regimeScale.textContent = classification;
         total.textContent = (aggregate > 0 ? "+" : "") + aggregate.toFixed(2);
-        caption.textContent = "BTC/USD · 1D";
+        caption.textContent = "TOTAL/USD · 1D";
         needle.setAttribute("transform", "rotate(" + angle + " 160 137)");
         card.dataset.scoreState = regime;
       }

@@ -921,6 +921,8 @@
       function makeSvg(tag,attrs){const node=document.createElementNS(svgNS,tag);Object.entries(attrs).forEach(([k,v])=>node.setAttribute(k,String(v)));return node;}
       const rangeKey="jxprobability.sdca.historyRange.v1",rangeButtons=Array.from(document.querySelectorAll(".sdca-range-button"));let historyRange="8Y";
       function setHistoryRange(range){historyRange=["1Y","3Y","5Y","8Y","ALL"].includes(range)?range:"8Y";try{localStorage.setItem(rangeKey,historyRange);}catch(e){}rangeButtons.forEach((b)=>b.setAttribute("aria-pressed",b.dataset.range===historyRange?"true":"false"));drawHistory();}
+      const dateValue=(key)=>{const p=key.split("-").map(Number);return new Date(p[0],p[1]-1,p[2]).getTime();};
+      function dateKeyFromMs(ms){const d=new Date(ms);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
       const btcPriceCacheKey="jxprobability.sdca.btcPriceDaily.v1",btcPriceCacheMaxAge=6*60*60*1000;let btcPriceRows=[],btcPriceRequest=0;
       function priceLabel(value){if(value>=100000)return "$"+(value/1000).toFixed(0)+"k";if(value>=10000)return "$"+(value/1000).toFixed(1)+"k";return "$"+Math.round(value).toLocaleString("en-US");}
       async function loadBtcPrices(endDate){
@@ -960,7 +962,7 @@
         }catch(error){if(rangeToken!==btcPriceRequest)return;btcPriceStatus.textContent="BTC PRICE · UNAVAILABLE";console.warn("BTC daily price overlay could not load.",error);}
       }
       function drawHistory(){historySegments.replaceChildren();if(!history.length){btcPriceRequest++;btcPricePath.setAttribute("d","");btcPriceAxis.replaceChildren();btcPriceStatus.textContent="BTC PRICE · AWAITING SDCA HISTORY";return;}const left=82,right=890;
-        const dateValue=(key)=>{const p=key.split("-").map(Number);return new Date(p[0],p[1]-1,p[2]).getTime();};
+
         const allHistory=history.slice().sort((a,b)=>a.date.localeCompare(b.date)),lastDate=dateValue(allHistory[allHistory.length-1].date);
         let startDate=historyRange==="ALL"?dateValue(allHistory[0].date):new Date(new Date(lastDate).getFullYear()-Number(historyRange.slice(0,-1)),new Date(lastDate).getMonth(),new Date(lastDate).getDate()).getTime();
         const visible=historyRange==="ALL"?allHistory:allHistory.filter((item)=>dateValue(item.date)>=startDate&&dateValue(item.date)<=lastDate);
@@ -969,7 +971,7 @@
         const points=visible.map((item)=>({...item,x:left+((dateValue(item.date)-firstDate)/dateSpan)*(right-left),y:194+Math.max(-2,Math.min(2,item.score))*83,zone:zoneFor(item.score)}));
         points.slice(1).forEach((p,i)=>{const prev=points[i],segment=makeSvg("path",{d:"M "+prev.x.toFixed(2)+" "+prev.y.toFixed(2)+" L "+p.x.toFixed(2)+" "+p.y.toFixed(2),class:"oscillator-history-segment","data-zone":zoneFor((prev.score+p.score)/2)});historySegments.appendChild(segment);});
         chartDesc.textContent="Daily confirmed SDCA composite history. Displaying "+historyRange+" range with "+visible.length+" recorded point(s); all stored history is retained. Positive averages indicate undervaluation, negative averages indicate overvaluation, and zero is neutral.";
-        const priceRequest=++btcPriceRequest;drawBtcPriceOverlay(new Date(firstDate).toISOString().slice(0,10),allHistory[allHistory.length-1].date,dateSpan,priceRequest);
+        const priceRequest=++btcPriceRequest;drawBtcPriceOverlay(dateKeyFromMs(firstDate),allHistory[allHistory.length-1].date,dateSpan,priceRequest);
       }
       rangeButtons.forEach((b)=>b.addEventListener("click",()=>setHistoryRange(b.dataset.range)));
       try{historyRange=localStorage.getItem(rangeKey)||"8Y";}catch(e){historyRange="8Y";}

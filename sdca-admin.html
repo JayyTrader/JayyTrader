@@ -526,6 +526,7 @@
     .sdca-confirm-button:hover:not(:disabled),.sdca-confirm-button:focus-visible { background:color-mix(in srgb,var(--cyan) 15%,var(--bg)); box-shadow:0 0 12px color-mix(in srgb,var(--cyan) 20%,transparent); outline:none; }
     .sdca-confirm-button:disabled { border-color:var(--line); color:var(--muted); cursor:not-allowed; opacity:.55; }
     .sdca-confirm-status { color:var(--muted); font-size:8px; line-height:1.5; }
+    #ltpi-confirm-button,#mtpi-confirm-button { border-color:var(--cyan); color:var(--cyan); }
     .sdca-backup-row { margin-top:8px; }
     #sdca-export-backup,#sdca-import-backup { border-color:var(--line); color:var(--muted); }
     #sdca-export-backup:hover,#sdca-import-backup:hover { border-color:var(--cyan); color:var(--cyan); }
@@ -789,6 +790,10 @@
         <div><div class="sdca-summary-label">LTPI Aggregated Directional Score · Average</div><strong class="sdca-composite" id="ltpi-admin-total">—</strong></div>
         <div class="sdca-classification" id="ltpi-admin-classification" data-class="neutral">AWAITING INPUTS</div>
       </div>
+      <div class="sdca-confirm-row">
+        <button class="sdca-confirm-button" id="ltpi-confirm-button" type="button" disabled>Confirm LTPI</button>
+        <span class="sdca-confirm-status" id="ltpi-confirm-status" role="status" aria-live="polite">Enter indicator scores to enable confirmation.</span>
+      </div>
       <p class="sdca-note">Scores are stored in this browser on this device and update the LTPI gauge on the dashboard. The aggregate is the average of entered indicator values (range −1.00 to +1.00); unentered indicators are excluded until scored.</p>
     </section>
     <section class="sdca-panel" id="mtpi-admin-controls" aria-labelledby="mtpi-admin-title">
@@ -861,6 +866,10 @@
       <div class="sdca-summary" aria-live="polite">
         <div><div class="sdca-summary-label">MTPI Aggregated Directional Score · Average</div><strong class="sdca-composite" id="mtpi-admin-total">—</strong></div>
         <div class="sdca-classification" id="mtpi-admin-classification" data-class="neutral">AWAITING INPUTS</div>
+      </div>
+      <div class="sdca-confirm-row">
+        <button class="sdca-confirm-button" id="mtpi-confirm-button" type="button" disabled>Confirm MTPI</button>
+        <span class="sdca-confirm-status" id="mtpi-confirm-status" role="status" aria-live="polite">Enter indicator scores to enable confirmation.</span>
       </div>
       <p class="sdca-note">Scores are stored in this browser on this device and update the MTPI gauge on the dashboard. The aggregate is the average of entered indicator values (range −1.00 to +1.00); unentered indicators are excluded until scored.</p>
     </section>

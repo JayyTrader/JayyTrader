@@ -282,6 +282,10 @@
     .trend-gauge-placeholder { fill: var(--cyan); font-family: var(--font-ui); font-size: 9px; font-weight: 600; letter-spacing: .16em; }
     .trend-instrument[data-horizon="medium"] .trend-gauge-placeholder { fill: var(--amber); }
     .trend-gauge-caption { display: flex; justify-content: space-between; gap: 8px; padding-top: 10px; border-top: 1px solid var(--line); color: var(--muted); font-size: 8px; letter-spacing: .1em; text-transform: uppercase; }
+    .roc-label { display:inline-block; margin-left:8px; padding:3px 6px; border:1px solid var(--line); color:var(--muted); font-size:8px; font-weight:700; letter-spacing:.08em; white-space:nowrap; }
+    .roc-label[data-roc="positive"] { border-color:color-mix(in srgb,#36d399 45%,var(--line)); color:#36d399; }
+    .roc-label[data-roc="negative"] { border-color:color-mix(in srgb,#ef777d 45%,var(--line)); color:#ef777d; }
+    .roc-label[data-roc="neutral"] { color:var(--muted); }
     .oscillator-panel {
       display: flex;
       flex: 1 1 auto;
@@ -684,7 +688,7 @@
             <div class="oscillator-heading-copy">
               <div class="oscillator-title-row">
                 <h2 class="panel-title" id="oscillator-title">SDCA · BTC</h2>
-                <span id="oscillator-heading-score" aria-live="polite"></span>
+                <span id="oscillator-heading-score" aria-live="polite"></span><span class="roc-label" id="sdca-roc-label" data-roc="neutral" aria-live="polite">ROC AWAITING CONFIRMATION</span>
               </div>
               <p class="panel-subtitle">Standardized valuation scale · −2 to +2</p>
             </div>
@@ -786,6 +790,17 @@
       const total = document.getElementById("ltpi-total");
       const needle = document.getElementById("ltpi-needle");
       const caption = document.getElementById("ltpi-caption");
+      const confirmedHistoryKey = "jxprobability.ltpi.confirmedHistory.v1";
+      function rocText() {
+        try {
+          const raw=localStorage.getItem(confirmedHistoryKey),items=raw?JSON.parse(raw):[];
+          const valid=Array.isArray(items)?items.filter(x=>x&&/^\d{4}-\d{2}-\d{2}$/.test(x.date)&&Number.isFinite(Number(x.score))).sort((a,b)=>a.date.localeCompare(b.date)):[];
+          if(!valid.length)return "ROC awaiting confirmation";
+          if(valid.length===1)return "No ROC · baseline";
+          const delta=Number(valid[valid.length-1].score)-Number(valid[valid.length-2].score);
+          return delta>1e-9?"+ROC":delta< -1e-9?"-ROC":"No ROC";
+        } catch(e) { return "ROC awaiting confirmation"; }
+      }
       const regimeLabel = document.getElementById("ltpi-regime-label");
       const regimePanel = document.getElementById("regimePanel");
       const regimeValue = document.getElementById("regimeValue");
@@ -800,7 +815,7 @@
         const vals = Object.entries(scores).filter(([k, v]) => Number.isInteger(Number(k)) && Number(k) >= 1 && Number(k) <= 16 && (v === -1 || v === 0 || v === 1)).map(([, v]) => v);
         if (!vals.length) {
           total.textContent = "—";
-          caption.textContent = "16 indicators · awaiting scores";
+          caption.textContent = "16 indicators · awaiting scores · " + rocText();
           needle.setAttribute("transform", "rotate(0 160 137)");
           card.dataset.scoreState = "empty";
           regimeLabel.textContent = "AWAITING INPUTS";
@@ -816,12 +831,12 @@
         regimeValue.textContent = classification;
         regimePanel.dataset.regime = regime;
         total.textContent = (aggregate > 0 ? "+" : "") + aggregate.toFixed(2);
-        caption.textContent = "BTC/USD · 3D";
+        caption.textContent = "BTC/USD · 3D · " + rocText();
         needle.setAttribute("transform", "rotate(" + angle + " 160 137)");
         card.dataset.scoreState = regime;
       }
       render();
-      window.addEventListener("storage", e => { if (e.key === key || e.key === null) render(); });
+      window.addEventListener("storage", e => { if (e.key === key || e.key === confirmedHistoryKey || e.key === null) render(); });
     })();
   </script>
   <script>
@@ -831,6 +846,17 @@
       const total = document.getElementById("mtpi-total");
       const needle = document.getElementById("mtpi-needle");
       const caption = document.getElementById("mtpi-caption");
+      const confirmedHistoryKey = "jxprobability.mtpi.confirmedHistory.v1";
+      function rocText() {
+        try {
+          const raw=localStorage.getItem(confirmedHistoryKey),items=raw?JSON.parse(raw):[];
+          const valid=Array.isArray(items)?items.filter(x=>x&&/^\d{4}-\d{2}-\d{2}$/.test(x.date)&&Number.isFinite(Number(x.score))).sort((a,b)=>a.date.localeCompare(b.date)):[];
+          if(!valid.length)return "ROC awaiting confirmation";
+          if(valid.length===1)return "No ROC · baseline";
+          const delta=Number(valid[valid.length-1].score)-Number(valid[valid.length-2].score);
+          return delta>1e-9?"+ROC":delta< -1e-9?"-ROC":"No ROC";
+        } catch(e) { return "ROC awaiting confirmation"; }
+      }
       const regimeScale = document.getElementById("mtpi-regime-scale");
       const fmt = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2, signDisplay: "always" });
       function render() {
@@ -843,7 +869,7 @@
         const vals = Object.entries(scores).filter(([k, v]) => Number.isInteger(Number(k)) && Number(k) >= 1 && Number(k) <= 10 && (v === -1 || v === 0 || v === 1)).map(([, v]) => v);
         if (!vals.length) {
           total.textContent = "—"; count.textContent = "NO SCORE";
-          caption.textContent = "10 indicators · awaiting scores";
+          caption.textContent = "10 indicators · awaiting scores · " + rocText();
           needle.setAttribute("transform", "rotate(0 160 137)");
           card.dataset.scoreState = "empty";
           regimeScale.textContent = "AWAITING INPUTS";
@@ -855,12 +881,12 @@
         const regime = aggregate < 0 ? "risk-off" : aggregate > 0 ? "risk-on" : "neutral";
         regimeScale.textContent = classification;
         total.textContent = (aggregate > 0 ? "+" : "") + aggregate.toFixed(2);
-        caption.textContent = "TOTAL/USD · 1D";
+        caption.textContent = "TOTAL/USD · 1D · " + rocText();
         needle.setAttribute("transform", "rotate(" + angle + " 160 137)");
         card.dataset.scoreState = regime;
       }
       render();
-      window.addEventListener("storage", e => { if (e.key === key || e.key === null) render(); });
+      window.addEventListener("storage", e => { if (e.key === key || e.key === confirmedHistoryKey || e.key === null) render(); });
     })();
   </script>
   <script>
@@ -875,10 +901,12 @@
   <script>
     (function () {
       const storageKey="jxprobability.sdca.manualScores.v1",historyKey="jxprobability.sdca.compositeHistory.v1";
-      const marker=document.getElementById("oscillator-live-score"),line=document.getElementById("oscillator-score-line"),label=document.getElementById("oscillator-score-label"),headingScore=document.getElementById("oscillator-heading-score"),stateLabel=document.getElementById("oscillator-state-label");
+      const marker=document.getElementById("oscillator-live-score"),line=document.getElementById("oscillator-score-line"),label=document.getElementById("oscillator-score-label"),headingScore=document.getElementById("oscillator-heading-score"),stateLabel=document.getElementById("oscillator-state-label");const rocLabel=document.getElementById("sdca-roc-label");
       const chartTitle=document.getElementById("oscillator-chart-title"),chartDesc=document.getElementById("oscillator-chart-desc"),historySegments=document.getElementById("oscillator-history-segments"),dateLabels=document.getElementById("oscillator-date-labels");
       const accumulationRate=document.getElementById("sdca-accumulation-number"),accumulationPercent=document.querySelector(".sdca-accumulation-percent"),accumulationPeriod=document.querySelector(".sdca-accumulation-period"),lumpSumSignal=document.getElementById("sdca-lump-sum-signal");
       const numberFormat=new Intl.NumberFormat("en-US",{maximumFractionDigits:4}),svgNS="http://www.w3.org/2000/svg";let saved={},history=[];
+      function rocText(){const valid=history.filter(x=>x&&/^\d{4}-\d{2}-\d{2}$/.test(x.date)&&Number.isFinite(Number(x.score))).slice().sort((a,b)=>a.date.localeCompare(b.date));if(!valid.length)return["ROC AWAITING CONFIRMATION","neutral"];if(valid.length===1)return["NO ROC · BASELINE","neutral"];const delta=Number(valid[valid.length-1].score)-Number(valid[valid.length-2].score);return delta>1e-9?["+ROC","positive"]:delta< -1e-9?["-ROC","negative"]:["NO ROC","neutral"]; }
+      function updateRocLabel(){const [text,state]=rocText();rocLabel.textContent=text;rocLabel.dataset.roc=state;}
       function loadState(){try{const raw=localStorage.getItem(storageKey),parsed=raw?JSON.parse(raw):{};saved=parsed&&typeof parsed==="object"&&!Array.isArray(parsed)?parsed:{};}catch(error){saved={};console.warn("SDCA scores could not be loaded from local storage.",error);}
         try{const raw=localStorage.getItem(historyKey),parsed=raw?JSON.parse(raw):[];history=Array.isArray(parsed)?parsed.map((item)=>item&&typeof item==="object"?({...item,score:Number(item.score)}):item).filter((item)=>item&&/^\d{4}-\d{2}-\d{2}$/.test(item.date)&&Number.isFinite(item.score)).sort((a,b)=>a.date.localeCompare(b.date)):[];}catch(error){history=[];console.warn("SDCA history could not be loaded from local storage.",error);}}
       function classify(v){if(v<=-1.5)return{label:"NO VALUE",kind:"negative"};if(v<0)return{label:"LOW VALUE",kind:"negative"};if(v===0)return{label:"NEUTRAL",kind:"neutral"};if(v<1.5)return{label:"VALUE",kind:"positive"};return{label:"HIGH VALUE",kind:"positive"};}
@@ -918,8 +946,8 @@
       function render(){const values=Object.entries(saved).filter(([k,v])=>Number.isInteger(Number(k))&&Number(k)>=1&&Number(k)<=15&&v!==null&&String(v).trim()!==""&&Number.isFinite(Number(v))).map(([,v])=>Number(v));
         const hasManual=values.length>0,hasHistory=history.length>0;
         const avg=hasManual?values.reduce((s,v)=>s+v,0)/values.length:hasHistory?Number(history[history.length-1].score):null;
-        if(avg===null||!Number.isFinite(avg)){marker.setAttribute("visibility","hidden");headingScore.textContent="";headingScore.removeAttribute("data-state");stateLabel.textContent="AWAITING INPUTS";stateLabel.dataset.state="neutral";accumulationRate.textContent="AWAITING SDCA";accumulationPercent.hidden=true;accumulationPeriod.hidden=true;lumpSumSignal.textContent="LUMP SUM SIGNAL INACTIVE";lumpSumSignal.dataset.active="false";chartTitle.textContent="Valuation oscillator awaiting manual scores";chartDesc.textContent="No manual SDCA scores or confirmed weekly history are available.";return;}
-        const formatted=(avg>0?"+":"")+numberFormat.format(avg);
+        if(avg===null||!Number.isFinite(avg)){marker.setAttribute("visibility","hidden");headingScore.textContent="";headingScore.removeAttribute("data-state");updateRocLabel();stateLabel.textContent="AWAITING INPUTS";stateLabel.dataset.state="neutral";accumulationRate.textContent="AWAITING SDCA";accumulationPercent.hidden=true;accumulationPeriod.hidden=true;lumpSumSignal.textContent="LUMP SUM SIGNAL INACTIVE";lumpSumSignal.dataset.active="false";chartTitle.textContent="Valuation oscillator awaiting manual scores";chartDesc.textContent="No manual SDCA scores or confirmed weekly history are available.";return;}
+        const formatted=(avg>0?"+":"")+numberFormat.format(avg);updateRocLabel();
         const confirmedScore=hasHistory?Number(history[history.length-1].score):avg;
         updateAccumulation(confirmedScore);
         const y=194+Math.max(-2,Math.min(2,avg))*83;line.setAttribute("y1",String(y));line.setAttribute("y2",String(y));line.style.stroke=avg<=-1?"#f04444":avg>=1?"#00d28c":"#e6a13a";label.setAttribute("y",String(Math.max(42,y-9)));label.textContent="";marker.setAttribute("visibility","visible");

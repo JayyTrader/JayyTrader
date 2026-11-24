@@ -954,11 +954,13 @@
           const firstMs=dateValue(firstDate),lastMs=dateValue(lastDate);
           const visible=prices.filter(item=>dateValue(item.date)>=firstMs&&dateValue(item.date)<=lastMs);
           if(!visible.length){btcPriceStatus.textContent="BTC PRICE · NO DATA";return;}
-          const values=visible.map(item=>item.close),min=Math.min(...values),max=Math.max(...values),span=Math.max(1,max-min),top=28,bottom=360;
-          const points=visible.map(item=>({x:82+((dateValue(item.date)-firstMs)/Math.max(1,dateSpan))*808,y:bottom-((item.close-min)/span)*(bottom-top)}));
+          const values=visible.map(item=>item.close).filter(value=>Number.isFinite(value)&&value>0);
+          if(!values.length){btcPriceStatus.textContent="BTC PRICE · NO VALID DATA";return;}
+          const min=Math.min(...values),max=Math.max(...values),logMin=Math.log(min),logMax=Math.log(max),logSpan=Math.max(1e-9,logMax-logMin),top=28,bottom=360;
+          const points=visible.filter(item=>Number.isFinite(item.close)&&item.close>0).map(item=>({x:82+((dateValue(item.date)-firstMs)/Math.max(1,dateSpan))*808,y:bottom-((Math.log(item.close)-logMin)/logSpan)*(bottom-top)}));
           btcPricePath.setAttribute("d",points.map((p,i)=>(i?"L":"M")+" "+p.x.toFixed(2)+" "+p.y.toFixed(2)).join(" "));
-          for(let i=0;i<=4;i++){const value=min+(max-min)*i/4,y=bottom-(i/4)*(bottom-top),node=makeSvg("text",{x:896,y:y+3,class:"sdca-btc-price-label"});node.textContent=priceLabel(value);btcPriceAxis.appendChild(node);}
-          btcPriceStatus.textContent="BTC PRICE · GRAY · RIGHT SCALE";
+          for(let i=0;i<=4;i++){const fraction=i/4,value=Math.exp(logMin+logSpan*fraction),y=bottom-fraction*(bottom-top),node=makeSvg("text",{x:896,y:y+3,class:"sdca-btc-price-label"});node.textContent=priceLabel(value);btcPriceAxis.appendChild(node);}
+          btcPriceStatus.textContent="BTC PRICE · GRAY · LOG SCALE · RIGHT AXIS";
         }catch(error){if(rangeToken!==btcPriceRequest)return;btcPriceStatus.textContent="BTC PRICE · UNAVAILABLE";console.warn("BTC daily price overlay could not load.",error);}
       }
       function drawHistory(){historySegments.replaceChildren();if(!history.length){btcPriceRequest++;btcPricePath.setAttribute("d","");btcPriceAxis.replaceChildren();btcPriceStatus.textContent="BTC PRICE · AWAITING SDCA HISTORY";return;}const left=82,right=890;

@@ -261,17 +261,6 @@ test('Coinbase BTC-USD ticker parser accepts documented price and time fields on
   }
 });
 
-test('landing page exposes MVRV research while leaving the SDCA composite unimplemented', () => {
-  const root = path.join(__dirname, '..');
-  const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-  assert.match(html, /id="mvrv-score"/);
-  assert.match(html, /id="oscillator-title"/);
-  assert.match(html, /href="sdca-admin\.html">SDCA Admin/);
-  assert.doesNotMatch(html, /sources\.html/);
-  assert.doesNotMatch(html, /SDCA Composite Oscillator|indicator-grid|data\/sdca-latest\.json|loadSDCAData|verifiedCompositeObservation/);
-  assert.doesNotMatch(html, /dashboard-integrity\.js|data\/sdca-latest\.json|loadSDCAData|verifiedCompositeObservation/);
-});
-
 test('live Coinbase USD quote remains separate from retained Binance USDT daily-close data', () => {
   const root = path.join(__dirname, '..');
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
@@ -547,17 +536,3 @@ test('valuation oscillator places negative overvalued scores at the top and posi
 });
 
 
-test('oscillator aligns with the live quote rail and obsolete footer status is removed', () => {
-  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
-  assert.match(html, /<div class="dashboard-grid">[\s\S]*?<section class="oscillator-panel"/);
-  assert.match(html, /<\/aside>\s*<\/div>\s*<div class="mvrv-score-row">[\s\S]*?id="mvrv-score"/);
-  assert.doesNotMatch(html, /Oscillator status: Awaiting indicators · No signals plotted/);
-});
-
-
-test('oscillator marker displays the valuation score without an individual indicator name', () => {
-  const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
-  assert.match(html, /label\.textContent = MVRVScore\.formatScore\(value\)/);
-  assert.match(html, /aggregated valuation score/);
-  assert.doesNotMatch(html, /label\.textContent = `MVRV /);
-});

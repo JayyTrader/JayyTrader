@@ -736,9 +736,7 @@
             </g>
             <g id="oscillator-history" aria-label="Confirmed daily composite history">
               <g id="oscillator-history-segments" aria-label="Color-coded confirmed daily history"></g>
-              <g id="oscillator-date-labels"></g>
             </g>
-            <text class="oscillator-label" x="486" y="414" text-anchor="middle">CONFIRMED DATE</text>
             <g id="oscillator-live-score" aria-label="Current valuation score" visibility="hidden">
               <line id="oscillator-score-line" x1="82" y1="194" x2="890" y2="194" stroke="var(--cyan)" stroke-width="2.5" stroke-dasharray="7 5" />
               <text id="oscillator-score-label" x="884" y="184" text-anchor="end" fill="var(--cyan)" font-family="var(--font-ui)" font-size="9" font-weight="650"></text>
@@ -902,7 +900,7 @@
     (function () {
       const storageKey="jxprobability.sdca.manualScores.v1",historyKey="jxprobability.sdca.compositeHistory.v1";
       const marker=document.getElementById("oscillator-live-score"),line=document.getElementById("oscillator-score-line"),label=document.getElementById("oscillator-score-label"),headingScore=document.getElementById("oscillator-heading-score"),stateLabel=document.getElementById("oscillator-state-label");const rocLabel=document.getElementById("sdca-roc-label");
-      const chartTitle=document.getElementById("oscillator-chart-title"),chartDesc=document.getElementById("oscillator-chart-desc"),historySegments=document.getElementById("oscillator-history-segments"),dateLabels=document.getElementById("oscillator-date-labels");
+      const chartTitle=document.getElementById("oscillator-chart-title"),chartDesc=document.getElementById("oscillator-chart-desc"),historySegments=document.getElementById("oscillator-history-segments");
       const accumulationRate=document.getElementById("sdca-accumulation-number"),accumulationPercent=document.querySelector(".sdca-accumulation-percent"),accumulationPeriod=document.querySelector(".sdca-accumulation-period"),lumpSumSignal=document.getElementById("sdca-lump-sum-signal");
       const numberFormat=new Intl.NumberFormat("en-US",{maximumFractionDigits:4}),svgNS="http://www.w3.org/2000/svg";let saved={},history=[];
       function rocText(){const valid=history.filter(x=>x&&/^\d{4}-\d{2}-\d{2}$/.test(x.date)&&Number.isFinite(Number(x.score))).slice().sort((a,b)=>a.date.localeCompare(b.date));if(!valid.length)return["ROC AWAITING CONFIRMATION","neutral"];if(valid.length===1)return["NO ROC · BASELINE","neutral"];const delta=Number(valid[valid.length-1].score)-Number(valid[valid.length-2].score);return delta>1e-9?["+ROC","positive"]:delta< -1e-9?["-ROC","negative"]:["NO ROC","neutral"]; }
@@ -910,12 +908,11 @@
       function loadState(){try{const raw=localStorage.getItem(storageKey),parsed=raw?JSON.parse(raw):{};saved=parsed&&typeof parsed==="object"&&!Array.isArray(parsed)?parsed:{};}catch(error){saved={};console.warn("SDCA scores could not be loaded from local storage.",error);}
         try{const raw=localStorage.getItem(historyKey),parsed=raw?JSON.parse(raw):[];history=Array.isArray(parsed)?parsed.map((item)=>item&&typeof item==="object"?({...item,score:Number(item.score)}):item).filter((item)=>item&&/^\d{4}-\d{2}-\d{2}$/.test(item.date)&&Number.isFinite(item.score)).sort((a,b)=>a.date.localeCompare(b.date)):[];}catch(error){history=[];console.warn("SDCA history could not be loaded from local storage.",error);}}
       function classify(v){if(v<=-1.5)return{label:"NO VALUE",kind:"negative"};if(v<0)return{label:"LOW VALUE",kind:"negative"};if(v===0)return{label:"NEUTRAL",kind:"neutral"};if(v<1.5)return{label:"VALUE",kind:"positive"};return{label:"HIGH VALUE",kind:"positive"};}
-      function displayDate(key,withYear=true){const p=key.split("-").map(Number);return new Date(p[0],p[1]-1,p[2]).toLocaleDateString("en-US",withYear?{month:"short",day:"numeric",year:"2-digit"}:{month:"short",day:"numeric"});}
       function zoneFor(v){return v<=-1?"overvalued":v<0?"middle-high":v<1?"middle-low":"undervalued";}
       function makeSvg(tag,attrs){const node=document.createElementNS(svgNS,tag);Object.entries(attrs).forEach(([k,v])=>node.setAttribute(k,String(v)));return node;}
       const rangeKey="jxprobability.sdca.historyRange.v1",rangeButtons=Array.from(document.querySelectorAll(".sdca-range-button"));let historyRange="8Y";
       function setHistoryRange(range){historyRange=["1Y","3Y","5Y","8Y","ALL"].includes(range)?range:"8Y";try{localStorage.setItem(rangeKey,historyRange);}catch(e){}rangeButtons.forEach((b)=>b.setAttribute("aria-pressed",b.dataset.range===historyRange?"true":"false"));drawHistory();}
-      function drawHistory(){historySegments.replaceChildren();dateLabels.replaceChildren();if(!history.length)return;const left=82,right=890;
+      function drawHistory(){historySegments.replaceChildren();if(!history.length)return;const left=82,right=890;
         const dateValue=(key)=>{const p=key.split("-").map(Number);return new Date(p[0],p[1]-1,p[2]).getTime();};
         const allHistory=history.slice().sort((a,b)=>a.date.localeCompare(b.date)),lastDate=dateValue(allHistory[allHistory.length-1].date);
         let startDate=historyRange==="ALL"?dateValue(allHistory[0].date):new Date(new Date(lastDate).getFullYear()-Number(historyRange.slice(0,-1)),new Date(lastDate).getMonth(),new Date(lastDate).getDate()).getTime();
@@ -924,10 +921,6 @@
         const firstDate=historyRange==="ALL"?dateValue(visible[0].date):startDate,dateSpan=Math.max(1,lastDate-firstDate);
         const points=visible.map((item)=>({...item,x:left+((dateValue(item.date)-firstDate)/dateSpan)*(right-left),y:194+Math.max(-2,Math.min(2,item.score))*83,zone:zoneFor(item.score)}));
         points.slice(1).forEach((p,i)=>{const prev=points[i],segment=makeSvg("path",{d:"M "+prev.x.toFixed(2)+" "+prev.y.toFixed(2)+" L "+p.x.toFixed(2)+" "+p.y.toFixed(2),class:"oscillator-history-segment","data-zone":zoneFor((prev.score+p.score)/2)});historySegments.appendChild(segment);});
-        const candidates=[0,points.length-1],maxTicks=5;for(let i=1;i<Math.min(maxTicks-1,points.length-1);i++)candidates.push(Math.round(i*(points.length-1)/(maxTicks-1)));
-        const indexes=[];candidates.sort((a,b)=>a-b).forEach((idx)=>{if(!indexes.length||points[idx].x-points[indexes[indexes.length-1]].x>=82)indexes.push(idx);});
-        if(points.length>1&&indexes[indexes.length-1]!==points.length-1){while(indexes.length>1&&points[points.length-1].x-points[indexes[indexes.length-1]].x<82)indexes.pop();indexes.push(points.length-1);}
-        indexes.forEach((i)=>{const p=points[i],anchor=points.length===1?"middle":i===0?"start":i===points.length-1?"end":"middle",x=points.length===1?p.x:i===0?left:i===points.length-1?right:p.x,node=makeSvg("text",{x,y:395,"text-anchor":anchor,class:"oscillator-date-label"});node.textContent=displayDate(p.date,historyRange==="8Y"||historyRange==="ALL");dateLabels.appendChild(node);});
         chartDesc.textContent="Daily confirmed SDCA composite history. Displaying "+historyRange+" range with "+visible.length+" recorded point(s); all stored history is retained. Positive averages indicate undervaluation, negative averages indicate overvaluation, and zero is neutral.";
       }
       rangeButtons.forEach((b)=>b.addEventListener("click",()=>setHistoryRange(b.dataset.range)));

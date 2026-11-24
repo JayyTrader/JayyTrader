@@ -886,7 +886,7 @@
         card.dataset.scoreState = regime;
       }
       render();
-      window.addEventListener("storage", e => { if (e.key === key || e.key === null) render(); });
+      window.addEventListener("storage", e => { if (e.key === key || e.key === confirmedHistoryKey || e.key === null) render(); });
     })();
   </script>
   <script>

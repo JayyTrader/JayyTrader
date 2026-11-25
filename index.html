@@ -181,6 +181,7 @@
     .oscillator-label.extreme { fill: var(--amber); }
     .oscillator-caption {
       display: flex;
+      align-items: flex-start;
       justify-content: space-between;
       gap: 16px;
       margin-top: 10px;
@@ -191,6 +192,12 @@
       letter-spacing: .025em;
       line-height: 1.6;
     }
+    .sdca-caption-scale { display:flex; flex-wrap:wrap; gap:4px 14px; min-width:0; }
+    .sdca-chart-legend { display:flex; flex-direction:column; align-items:flex-start; flex:0 0 auto; gap:3px; color:var(--muted); font-size:9px; line-height:1.45; white-space:nowrap; }
+    .sdca-chart-legend-item { display:flex; align-items:center; gap:6px; }
+    .sdca-chart-legend-line { display:inline-block; width:18px; height:0; border-top:2px solid; flex:0 0 auto; }
+    .sdca-chart-legend-line.btc { border-color:#9aa4ad; }
+    .sdca-chart-legend-line.sdca { border-color:#a5d900; }
     h1 {
       position: absolute;
       top: 24px;
@@ -750,10 +757,16 @@
             </g>
             </svg>
           <div class="oscillator-caption">
-            <span>+2 = Undervalued</span>
-            <span>0 = Neutral</span>
-            <span>−2 = Overvalued</span>
-            <span id="sdca-price-status">BTC PRICE · LOADING</span>
+            <div class="sdca-caption-scale">
+              <span>+2 = Undervalued</span>
+              <span>0 = Neutral</span>
+              <span>−2 = Overvalued</span>
+              <span id="sdca-price-status">BTC PRICE · LOADING</span>
+            </div>
+            <div class="sdca-chart-legend" aria-label="Chart line legend">
+              <div class="sdca-chart-legend-item"><span class="sdca-chart-legend-line sdca"></span><span>SDCA score · colored</span></div>
+              <div class="sdca-chart-legend-item"><span class="sdca-chart-legend-line btc"></span><span>BTC price · gray · log scale</span></div>
+            </div>
           </div>
         </section>
 
